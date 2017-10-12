@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_map"
+            android:icon="@drawable/map"
+            android:title="@string/map" />
+        <item
+            android:id="@+id/nav_parcours"
+            android:icon="@drawable/parcours"
+            android:title="@string/my_parcours" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/settings"
+            android:title="@string/settings" />
+    </group>
+
+</menu>
