@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import ch.mse.biketracks.ParcoursFragment.OnListFragmentInteractionListener;
+import ch.mse.biketracks.TracksFragment.OnListFragmentInteractionListener;
 import ch.mse.biketracks.dummy.DummyContent.DummyItem;
 
 import java.util.List;
@@ -16,12 +16,12 @@ import java.util.List;
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyParcoursRecyclerViewAdapter extends RecyclerView.Adapter<MyParcoursRecyclerViewAdapter.ViewHolder> {
+public class MyTracksRecyclerViewAdapter extends RecyclerView.Adapter<MyTracksRecyclerViewAdapter.ViewHolder> {
 
     private final List<DummyItem> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyParcoursRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyTracksRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -29,7 +29,7 @@ public class MyParcoursRecyclerViewAdapter extends RecyclerView.Adapter<MyParcou
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_parcours, parent, false);
+                .inflate(R.layout.fragment_tracks, parent, false);
         return new ViewHolder(view);
     }
 
@@ -37,7 +37,6 @@ public class MyParcoursRecyclerViewAdapter extends RecyclerView.Adapter<MyParcou
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

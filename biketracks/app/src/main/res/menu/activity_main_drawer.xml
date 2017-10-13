@@ -8,7 +8,7 @@
             android:title="@string/map" />
         <item
             android:id="@+id/nav_parcours"
-            android:icon="@drawable/parcours"
+            android:icon="@drawable/tracks"
             android:title="@string/my_parcours" />
         <item
             android:id="@+id/nav_settings"

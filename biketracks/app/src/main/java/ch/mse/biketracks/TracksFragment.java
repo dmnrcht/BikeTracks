@@ -1,19 +1,22 @@
 package ch.mse.biketracks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import ch.mse.biketracks.dummy.DummyContent;
 import ch.mse.biketracks.dummy.DummyContent.DummyItem;
-
-import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -21,7 +24,7 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class ParcoursFragment extends Fragment {
+public class TracksFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -33,13 +36,13 @@ public class ParcoursFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ParcoursFragment() {
+    public TracksFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static ParcoursFragment newInstance(int columnCount) {
-        ParcoursFragment fragment = new ParcoursFragment();
+    public static TracksFragment newInstance(int columnCount) {
+        TracksFragment fragment = new TracksFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -58,7 +61,7 @@ public class ParcoursFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_parcours_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_tracks_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -69,11 +72,22 @@ public class ParcoursFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyParcoursRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyTracksRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.addOnItemTouchListener(
+                    new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
+                        @Override public void onItemClick(View view, int position) {
+                            // Start a new Activity via Intent
+                            Intent intent = new Intent();
+                            intent.setClass(getActivity(), TrackActivity.class);
+                            intent.putExtra("id", 123);
+                            startActivity(intent);
+                        }
+                    })
+            );
         }
+
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {
