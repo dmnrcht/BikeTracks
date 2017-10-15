@@ -3,59 +3,45 @@ package ch.mse.biketracks;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
-import ch.mse.biketracks.dummy.DummyContent;
-import ch.mse.biketracks.dummy.DummyContent.DummyItem;
+import java.util.ArrayList;
+import java.util.Date;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
+import ch.mse.biketracks.adapters.MyTracksRecyclerViewAdapter;
+import ch.mse.biketracks.adapters.RecyclerItemClickListener;
+import ch.mse.biketracks.models.Track;
+
 public class TracksFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    ArrayList<Track> tracks = new ArrayList<>();
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
     public TracksFragment() {
-    }
-
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
-    public static TracksFragment newInstance(int columnCount) {
-        TracksFragment fragment = new TracksFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
+        tracks.add(new Track("Neuchatel", new Date(), 1000, 10, 10));
+        tracks.add(new Track("Yverdon", new Date(), 1000, 10, 10));
+        tracks.add(new Track("Col du Pillon", new Date(), 1000, 10, 10));
+        tracks.add(new Track("Mont-Blanc", new Date(), 1000, 10, 10));
+        tracks.add(new Track("Lausanne", new Date(), 1000, 10, 10));
+        tracks.add(new Track("Delémont", new Date(), 1000, 10, 10));
+        tracks.add(new Track("Lausanne", new Date(), 1000, 10, 10));
+        tracks.add(new Track("Neuchatel", new Date(), 1000, 10, 10));
+        tracks.add(new Track("Yverdon", new Date(), 1000, 10, 10));
+        tracks.add(new Track("Delémont", new Date(), 1000, 10, 10));
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
     }
 
     @Override
@@ -67,15 +53,12 @@ public class TracksFragment extends Fragment {
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new MyTracksRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            recyclerView.setAdapter(new MyTracksRecyclerViewAdapter(tracks));
             recyclerView.addOnItemTouchListener(
                     new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
-                        @Override public void onItemClick(View view, int position) {
+                        @Override
+                        public void onItemClick(View view, int position) {
                             // Start a new Activity via Intent
                             Intent intent = new Intent();
                             intent.setClass(getActivity(), TrackActivity.class);
@@ -87,37 +70,5 @@ public class TracksFragment extends Fragment {
         }
 
         return view;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        /*if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }*/
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
     }
 }

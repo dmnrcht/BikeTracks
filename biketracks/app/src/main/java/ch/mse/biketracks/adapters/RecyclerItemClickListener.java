@@ -1,4 +1,4 @@
-package ch.mse.biketracks;
+package ch.mse.biketracks.adapters;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
