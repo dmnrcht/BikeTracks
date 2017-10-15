@@ -12,4 +12,5 @@
     <string name="default_location_text">Here is Sydney</string>
     <string name="default_location_title">No location available</string>
     <string name="pick_place">Pick the place you\'re at</string>
+    <string name="location_not_found">Location not found</string>
 </resources>

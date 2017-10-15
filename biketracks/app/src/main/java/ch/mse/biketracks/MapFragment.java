@@ -4,9 +4,12 @@ package ch.mse.biketracks;
  * Description: Google maps based on https://github.com/googlemaps/android-samples/blob/master/tutorials/CurrentPlaceDetailsOnMap/app/src/main/java/com/example/currentplacedetailsonmap/MapsActivityCurrentPlace.java
  */
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,11 +22,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -42,6 +49,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import java.io.IOException;
+import java.util.List;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -79,6 +89,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        FragmentManager fm = getFragmentManager(); /// getChildFragmentManager();
+        supportMapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
+        if (supportMapFragment == null) {
+            supportMapFragment = SupportMapFragment.newInstance();
+            fm.beginTransaction().replace(R.id.map, supportMapFragment).commit();
+        }
+        supportMapFragment.getMapAsync(this);
+
+        setRetainInstance(true);
     }
 
     @Override
@@ -86,15 +107,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity();
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        FragmentManager fm = getActivity().getSupportFragmentManager();/// getChildFragmentManager();
-        supportMapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
-        if (supportMapFragment == null) {
-            supportMapFragment = SupportMapFragment.newInstance();
-            fm.beginTransaction().replace(R.id.map, supportMapFragment).commit();
-        }
-        supportMapFragment.getMapAsync(this);
 
         recordButton = (FloatingActionButton) getView().findViewById(R.id.record);
         recordButton.setOnClickListener(new View.OnClickListener() {
@@ -118,13 +130,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 //showCurrentPlace();
             }
         });
-        locateButton.hide();
+        //locateButton.hide();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mContext = getActivity();
+
+        setHasOptionsMenu(true);
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
@@ -134,7 +148,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
+        // Move camera to default location
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, 12.0f));
 
         // Turn on the My Location layer and the related control on the map.
@@ -142,6 +156,77 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Get the current location of the device and set the position of the map.
         //getDeviceLocation();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.search, menu);
+        try {
+            final Menu m = menu;
+            // Associate searchable configuration with the SearchView
+            final SearchManager searchManager =
+                    (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+            final SearchView searchView =
+                    (SearchView) menu.findItem(R.id.action_search).getActionView();
+            searchView.setSearchableInfo(
+                    searchManager.getSearchableInfo(getActivity().getComponentName()));
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String s) {
+                    // Search for location on map
+                    if(search(s)){
+                        // Close search
+                        (m.findItem(R.id.action_search)).collapseActionView();
+                    } else{
+                        Toast.makeText(mContext, R.string.location_not_found, Toast.LENGTH_SHORT).show();
+                    }
+
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    return false;
+                }
+            });
+
+
+        }catch(Exception e){e.printStackTrace();}
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_search) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public boolean search(String query) {
+        if (query != null || !query.equals("")) {
+            Geocoder geocoder = new Geocoder(getActivity());
+            List<Address> addressList;
+            try {
+                addressList = geocoder.getFromLocationName(query, 1);
+                if(!addressList.isEmpty()){
+                    Address address = addressList.get(0);
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    return true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 
     /**
@@ -200,13 +285,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         try {
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
-                // TODO Replace the hide/show button with custom green button
                 //mMap.getUiSettings().setMyLocationButtonEnabled(true);
-                locateButton.show();
+                //locateButton.show();
             } else {
                 mMap.setMyLocationEnabled(false);
                 //mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                locateButton.hide();
+                //locateButton.hide();
                 mLastKnownLocation = null;
                 getLocationPermission();
             }
@@ -229,7 +313,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                         } else {
@@ -237,7 +321,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             Log.e(TAG, "Exception: %s", task.getException());
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, 12.0f));
                             //mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                            locateButton.hide();
+                            //locateButton.hide();
                         }
                     }
                 });
