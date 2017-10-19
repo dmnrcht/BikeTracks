@@ -31,6 +31,10 @@ public class MainActivity extends AppCompatActivity
     private TracksFragment tracksFragment;
     private SettingsFragment settingsFragment;
 
+    private static final String BACK_STACK_MAP = "map_fragment";
+    private static final String BACK_STACK_TRACKS = "tracks_fragment";
+    private static final String BACK_STACK_SETTINGS = "settings_fragment";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +75,6 @@ public class MainActivity extends AppCompatActivity
                         .setMessage("Are you sure you want to send an alert to your urgrency contacts?")
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 Toast.makeText(MainActivity.this, "Yaay", Toast.LENGTH_SHORT).show();
                             }})

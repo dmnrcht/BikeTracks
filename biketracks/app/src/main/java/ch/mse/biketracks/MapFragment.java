@@ -67,8 +67,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
-    private GeoDataClient mGeoDataClient;
-    private PlaceDetectionClient mPlaceDetectionClient;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FloatingActionButton recordButton;
     private FloatingActionButton locateButton;
@@ -81,25 +79,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Construct a GeoDataClient.
-        mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
-
-        // Construct a PlaceDetectionClient.
-        mPlaceDetectionClient = Places.getPlaceDetectionClient(getActivity(), null);
-
-        // Construct a FusedLocationProviderClient.
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        FragmentManager fm = getFragmentManager(); /// getChildFragmentManager();
-        supportMapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
-        if (supportMapFragment == null) {
-            supportMapFragment = SupportMapFragment.newInstance();
-            fm.beginTransaction().replace(R.id.map, supportMapFragment).commit();
-        }
-        supportMapFragment.getMapAsync(this);
-
-        setRetainInstance(true);
     }
 
     @Override
@@ -107,6 +86,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity();
+
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
         recordButton = (FloatingActionButton) getView().findViewById(R.id.record);
         recordButton.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +120,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mContext = getActivity();
 
         setHasOptionsMenu(true);
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        FragmentManager fm = getFragmentManager(); /// getChildFragmentManager();
+        supportMapFragment = SupportMapFragment.newInstance();
+        fm.beginTransaction().replace(R.id.map, supportMapFragment).commit();
+        supportMapFragment.getMapAsync(this);
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
@@ -227,21 +214,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
         return false;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     @Override
