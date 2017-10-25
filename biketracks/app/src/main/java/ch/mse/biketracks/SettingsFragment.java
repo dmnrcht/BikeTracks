@@ -1,10 +1,12 @@
 package ch.mse.biketracks;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -19,11 +21,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import ch.mse.biketracks.adapters.MySettingsRecyclerViewAdapter;
+import ch.mse.biketracks.database.ContactContract;
+import ch.mse.biketracks.database.ContactDbHelper;
 import ch.mse.biketracks.models.Contact;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -32,7 +38,7 @@ public class SettingsFragment extends Fragment {
     private static final int RESULT_PICK_CONTACT = 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
     private ArrayList<Contact> contacts = new ArrayList<>();
-    private MySettingsRecyclerViewAdapter settingsAdapter = new MySettingsRecyclerViewAdapter(contacts);
+    private MySettingsRecyclerViewAdapter settingsAdapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -60,10 +66,51 @@ public class SettingsFragment extends Fragment {
         //mContext = getActivity();
 
         Context context = getView().getContext();
+
+        settingsAdapter = new MySettingsRecyclerViewAdapter(contacts, context);
+
+        // TODO : Database operations should be in AsyncTask or Intent
+        // Get the database for read
+        ContactDbHelper mDbHelper = new ContactDbHelper(getContext());
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        String[] projection = {
+                ContactContract.ContactEntry._ID,
+                ContactContract.ContactEntry.COLUMN_NAME_NAME,
+                ContactContract.ContactEntry.COLUMN_NAME_NUMBER
+        };
+
+        String sortOrder =
+                ContactContract.ContactEntry.COLUMN_NAME_NAME + " ASC";
+
+        Cursor cursor = db.query(
+                ContactContract.ContactEntry.TABLE_NAME,  // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        // Clear contacts and recreate them
+        contacts.clear();
+        // Get all the contacts from the database
+        while(cursor.moveToNext()) {
+            String name = cursor.getString(
+                    cursor.getColumnIndexOrThrow(ContactContract.ContactEntry.COLUMN_NAME_NAME));
+            String number = cursor.getString(
+                    cursor.getColumnIndexOrThrow(ContactContract.ContactEntry.COLUMN_NAME_NUMBER));
+            contacts.add(new Contact(name, number));
+        }
+        cursor.close();
+
+        // Create the recycler view with the list of contacts
         RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(settingsAdapter);
 
+        // Button to add new contacts
         FloatingActionButton addButton = (FloatingActionButton) getView().findViewById(R.id.add);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,23 +120,17 @@ public class SettingsFragment extends Fragment {
                 if (ContextCompat.checkSelfPermission(getActivity(),
                         android.Manifest.permission.READ_CONTACTS)
                         != PackageManager.PERMISSION_GRANTED) {
-
                     // Should we show an explanation?
                     if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                             android.Manifest.permission.READ_CONTACTS)) {
-
                         // Show an explanation to the user *asynchronously* -- don't block
                         // this thread waiting for the user's response! After the user
                         // sees the explanation, try again to request the permission.
-
                     } else {
-
                         // No explanation needed, we can request the permission.
-
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{android.Manifest.permission.READ_CONTACTS},
                                 MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-
                         // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                         // app-defined int constant. The callback method gets the
                         // result of the request.
@@ -103,7 +144,6 @@ public class SettingsFragment extends Fragment {
     }
 
     private void contactPicked(Intent data) {
-
         Uri uri = data.getData();
         Log.i("Contacts", "contactPicked() uri " + uri.toString());
         Cursor cursor;
@@ -131,18 +171,58 @@ public class SettingsFragment extends Fragment {
 
                 cursor.moveToFirst();
                 String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                Log.i("Contacts", "contactPicked() uri id " + id);
                 String contact_id = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-                Log.i("Contacts", "contactPicked() uri contact id " + contact_id);
-                // column index of the contact name
                 String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                // column index of the phone number
                 String phoneNo = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                //get Email id of selected contact....
-                Log.e("ContactsFragment", "::>> " + id + name + phoneNo);
 
-                contacts.add(new Contact(name, phoneNo));
-                settingsAdapter.notifyDataSetChanged();
+                Contact contact = new Contact(name, phoneNo);
+
+                // TODO : Database operations should be in AsyncTask or Intent
+                // Get writable database
+                ContactDbHelper mDbHelper = new ContactDbHelper(getContext());
+                SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+                // Set data returned by query
+                String[] projection = {
+                        ContactContract.ContactEntry._ID,
+                        ContactContract.ContactEntry.COLUMN_NAME_NAME
+                };
+
+                // Filter results WHERE column name = contact.name
+                String selection = ContactContract.ContactEntry.COLUMN_NAME_NAME + " = ?";
+                String[] selectionArgs = { contact.getName() };
+
+                Cursor dbCursor = db.query(
+                        ContactContract.ContactEntry.TABLE_NAME,  // The table to query
+                        projection,                               // The columns to return
+                        selection,                                // The columns for the WHERE clause
+                        selectionArgs,                            // The values for the WHERE clause
+                        null,                                     // don't group the rows
+                        null,                                     // don't filter by row groups
+                        null                                      // The sort order
+                );
+
+                if(dbCursor.getCount() > 0){
+                    Toast.makeText(getActivity(), R.string.contact_already_exists, Toast.LENGTH_SHORT).show();
+                } else{
+                    // Create a new map of values, where column names are the keys
+                    ContentValues values = new ContentValues();
+                    values.put(ContactContract.ContactEntry.COLUMN_NAME_NAME, contact.getName());
+                    values.put(ContactContract.ContactEntry.COLUMN_NAME_NUMBER, contact.getPhoneNumber());
+
+                    // Insert the new row, returning the primary key value of the new row
+                    long newRowId = db.insert(ContactContract.ContactEntry.TABLE_NAME, null, values);
+
+                    contacts.add(contact);
+                    settingsAdapter.notifyDataSetChanged();
+                }
+                dbCursor.close();
+
+
+
+
+
+
             }
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();

@@ -15,7 +15,9 @@
         android:layout_alignLeft="@+id/list"
         android:layout_alignRight="@+id/list"
         android:layout_alignStart="@+id/list"
-        android:text="Urgency numbers"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/urgency_contacts"
         android:textSize="20sp" />
 
     <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
