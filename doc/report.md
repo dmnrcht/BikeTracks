@@ -47,6 +47,8 @@ The API contains a simple endpoint to retrieve the tracks in a given region defi
 - Center [lat,long] : The GPS coordinates corresponding to the center of the currently seen map on the smartphone
 - Radius [m] : The biggest distance between the width and height of the currently seen map on the smartphone
 
+More information about the API : https://github.com/damienrochat/BikeTracks-API
+
 ## Development
 ## Problems encoutered
 ## Manual
