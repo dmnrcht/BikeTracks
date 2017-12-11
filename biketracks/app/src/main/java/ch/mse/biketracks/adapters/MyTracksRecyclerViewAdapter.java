@@ -29,7 +29,7 @@ public class MyTracksRecyclerViewAdapter extends RecyclerView.Adapter<MyTracksRe
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.location.setText(mValues.get(position).getLocation());
+        holder.location.setText(mValues.get(position).getName());
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -32,6 +33,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -43,22 +51,34 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+
+import ch.mse.biketracks.models.Point;
+import ch.mse.biketracks.models.Track;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private static final int DEFAULT_ZOOM = 15;
     private static final String TAG = MapFragment.class.getSimpleName();
 
-    private final LatLng mDefaultLocation = new LatLng(46.77514, 6.638918);
+    private final LatLng mDefaultLocation = new LatLng(46.78896583, 6.74356617);
 
     private GoogleMap mMap;
 
@@ -70,6 +90,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FloatingActionButton recordButton;
     private FloatingActionButton locateButton;
+    RequestQueue requestQueue;  // This is our requests queue to process our HTTP requests.
 
 
     public MapFragment() {
@@ -86,6 +107,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity();
+
+        requestQueue = Volley.newRequestQueue(mContext);
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
@@ -143,6 +166,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Get the current location of the device and set the position of the map.
         //getDeviceLocation();
+
+        // Load the tracks
+        getTracks(mDefaultLocation.latitude, mDefaultLocation.longitude, 40000);
     }
 
     @Override
@@ -301,5 +327,118 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         } catch(SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    private void getTracks(double lat, double lng, int radius) {
+        // First, we insert the username into the repo url.
+        // The repo url is defined in GitHubs API docs (https://developer.github.com/v3/repos/).
+        String url = "https://biketracks.damienrochat.ch/api/v1/tracks/?lat=" + lat + "&lng=" + lng + "&radius=" + radius;
+
+        // Next, we create a new JsonArrayRequest. This will use Volley to make a HTTP request
+        // that expects a JSON Array Response.
+        // To fully understand this, I'd recommend readng the office docs: https://developer.android.com/training/volley/index.html
+        JsonArrayRequest arrReq = new JsonArrayRequest(Request.Method.GET, url,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        // Check the length of our response (to see if the user has any repos)
+                        if (response.length() > 0) {
+                            // The user does have repos, so let's loop through them all.
+                            List<Track> tracks = new ArrayList<>();
+                            for (int i = 0; i < response.length(); i++) {
+                                try {
+                                    // For each repo, add a new line to our repo list.
+                                    JSONObject jsonObj = response.getJSONObject(i);
+                                    int id = jsonObj.getInt("id");
+                                    int distance = jsonObj.getInt("distance");
+                                    int climb = jsonObj.getInt("climb");
+                                    int descent = jsonObj.getInt("descent");
+                                    String name = jsonObj.getString("name");
+                                    String type = jsonObj.getString("type");
+
+                                    JSONArray jsonPoints = jsonObj.getJSONArray("points");
+                                    List<Point> points = new ArrayList<>();
+                                    for(int j = 0; j < jsonPoints.length(); j++){
+                                        JSONObject jsonPoint = jsonPoints.getJSONObject(j);
+                                        double lat = jsonPoint.getDouble("lat");
+                                        double lng = jsonPoint.getDouble("lng");
+                                        int elev = jsonPoint.getInt("elev");
+                                        // TODO : Inverse lat lng
+                                        points.add(new Point(lng, lat, elev));
+                                    }
+
+                                    tracks.add(new Track(id, name, new Date(), 0, 0, distance, climb, descent, type, points));
+                                } catch (JSONException e) {
+                                    // If there is an error then output this to the logs.
+                                    Log.e("Volley", "Invalid JSON Object.");
+                                }
+
+                            }
+
+
+
+                            // Traversing through all the tracks and draw on the map
+                            for(int i = 0; i < tracks.size(); i++){
+                                Track track = tracks.get(i);
+                                PolylineOptions lineOptions = new PolylineOptions();
+                                for (int j = 0; j < tracks.get(i).getPoints().size(); j++) {
+                                    Point p = tracks.get(i).getPoints().get(j);
+
+                                    // Adding all the points in the route to LineOptions
+                                    lineOptions.add(new LatLng(p.getLat(), p.getLng()));
+                                    lineOptions.width(10);
+                                    lineOptions.color(Color.MAGENTA);
+
+                                    Log.d("onPostExecute","onPostExecute lineoptions decoded");
+
+                                }
+
+                                // Drawing polyline in the Google Map for the i-th route
+                                if(lineOptions != null) {
+                                    mMap.addPolyline(lineOptions);
+                                }
+                                else {
+                                    Log.d("onPostExecute","without Polylines drawn");
+                                }
+
+                                mMap.addMarker(new MarkerOptions().position(new LatLng(track.getPoints().get(0).getLat(), track.getPoints().get(0).getLng()))
+                                        .icon(BitmapDescriptorFactory.defaultMarker(
+                                                BitmapDescriptorFactory.HUE_GREEN)));
+
+                                mMap.addMarker(new MarkerOptions().position(new LatLng(track.getPoints().get(track.getPoints().size() - 1).getLat(), track.getPoints().get(track.getPoints().size() - 1).getLng()))
+                                        .icon(BitmapDescriptorFactory.defaultMarker(
+                                                BitmapDescriptorFactory.HUE_GREEN)));
+                                System.out.println("ASIFJAFJASJFOFJIOAFIOFJOIAFJ");
+                                System.out.println(track.getPoints().size());
+                                for(Point we : track.getPoints()){
+                                    System.out.println(we.getLat() + " " + we.getLng());
+                                }
+                            }
+
+
+                        } else {
+                            // Empty response
+                        }
+
+                    }
+                },
+
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // If there a HTTP error then add a note to our repo list.
+                        //setRepoListText("Error while calling REST API");
+                        Log.e("Volley", error.toString());
+                    }
+                }
+        );
+        // Set the max timeout of the request
+        arrReq.setRetryPolicy(new DefaultRetryPolicy(
+                20000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // Add the request we just defined to our request queue.
+        // The request queue will automatically handle the request as soon as it can.
+        requestQueue.add(arrReq);
     }
 }

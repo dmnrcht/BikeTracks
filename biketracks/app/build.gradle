@@ -33,5 +33,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:11.6.0'
     compile 'com.google.android.gms:play-services-maps:11.6.0'
     compile 'com.google.android.gms:play-services-places:11.6.0'
+    compile 'com.mcxiaoke.volley:library:1.0.19'
     testCompile 'junit:junit:4.12'
 }
