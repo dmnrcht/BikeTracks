@@ -363,8 +363,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                         double lat = jsonPoint.getDouble("lat");
                                         double lng = jsonPoint.getDouble("lng");
                                         int elev = jsonPoint.getInt("elev");
-                                        // TODO : Inverse lat lng
-                                        points.add(new Point(lng, lat, elev));
+                                        points.add(new Point(lat, lng, elev));
                                     }
 
                                     tracks.add(new Track(id, name, new Date(), 0, 0, distance, climb, descent, type, points));
