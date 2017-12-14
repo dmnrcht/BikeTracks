@@ -5,7 +5,11 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import ch.mse.biketracks.models.Track;
+
 public class TrackActivity extends AppCompatActivity {
+
+    private Track track;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +22,11 @@ public class TrackActivity extends AppCompatActivity {
         final Drawable backArrow = getResources().getDrawable(R.drawable.back);
         backArrow.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(backArrow);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            track = (Track)getIntent().getSerializableExtra("track"); //Obtaining data
+        }
     }
 
     @Override

@@ -7,6 +7,7 @@ package ch.mse.biketracks;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -90,7 +91,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FloatingActionButton recordButton;
     private FloatingActionButton locateButton;
-    RequestQueue requestQueue;  // This is our requests queue to process our HTTP requests.
+    RequestQueue requestQueue;  // This is our requests queue to process our HTTP requests
 
 
     public MapFragment() {
@@ -165,9 +166,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         //updateLocationUI();
 
         // Get the current location of the device and set the position of the map.
-        //getDeviceLocation();
-
-        // Load the tracks
+        //getDeviceLocation();// Load the tracks
         getTracks(mDefaultLocation.latitude, mDefaultLocation.longitude, 40000);
     }
 
@@ -387,9 +386,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     lineOptions.add(new LatLng(p.getLat(), p.getLng()));
                                     lineOptions.width(10);
                                     lineOptions.color(Color.MAGENTA);
-
-                                    Log.d("onPostExecute","onPostExecute lineoptions decoded");
-
                                 }
 
                                 // Drawing polyline in the Google Map for the i-th route
@@ -400,18 +396,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     Log.d("onPostExecute","without Polylines drawn");
                                 }
 
-                                mMap.addMarker(new MarkerOptions().position(new LatLng(track.getPoints().get(0).getLat(), track.getPoints().get(0).getLng()))
-                                        .icon(BitmapDescriptorFactory.defaultMarker(
-                                                BitmapDescriptorFactory.HUE_GREEN)));
 
-                                mMap.addMarker(new MarkerOptions().position(new LatLng(track.getPoints().get(track.getPoints().size() - 1).getLat(), track.getPoints().get(track.getPoints().size() - 1).getLng()))
-                                        .icon(BitmapDescriptorFactory.defaultMarker(
-                                                BitmapDescriptorFactory.HUE_GREEN)));
-                                System.out.println("ASIFJAFJASJFOFJIOAFIOFJOIAFJ");
-                                System.out.println(track.getPoints().size());
-                                for(Point we : track.getPoints()){
-                                    System.out.println(we.getLat() + " " + we.getLng());
-                                }
+                                Marker marker = mMap.addMarker(new MarkerOptions().position(computeCentroid(track.getPoints()))
+                                        .icon(BitmapDescriptorFactory.defaultMarker()));
+                                marker.setTag(tracks.get(i));
+
+                                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                                    @Override
+                                    public boolean onMarkerClick(Marker marker) {
+                                        Intent intent = new Intent(mContext, TrackActivity.class).putExtra("track", (Track)marker.getTag());
+                                        startActivity(intent);
+                                        return false;
+                                    }
+                                });
+
                             }
 
 
@@ -439,5 +437,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Add the request we just defined to our request queue.
         // The request queue will automatically handle the request as soon as it can.
         requestQueue.add(arrReq);
+    }
+
+    LatLng computeCentroid(List<Point> points) {
+        double latitude = 0;
+        double longitude = 0;
+        int n = points.size();
+        for(Point point: points) {
+            latitude += point.getLat();
+            longitude += point.getLng();
+        }
+        return new LatLng(latitude/n, longitude/n);
     }
 }

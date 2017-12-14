@@ -1,5 +1,6 @@
 package ch.mse.biketracks.models;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import java.util.List;
  * Created by antoi on 15.10.2017.
  */
 
-public class Track {
+public class Track implements Serializable {
     private int id;
     private String name;
     private Date date;

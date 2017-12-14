@@ -1,12 +1,13 @@
 package ch.mse.biketracks.models;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by antoi on 15.10.2017.
  */
 
-public class Point {
+public class Point implements Serializable {
     private double lat;
     private double lng;
     private int elev;
