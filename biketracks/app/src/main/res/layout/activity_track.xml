@@ -1,49 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="ch.mse.biketracks.TrackActivity">
 
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="250dp">
 
-    <RelativeLayout
+        <fragment
+            android:id="@+id/track_map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <FrameLayout
-            android:id="@+id/frameLayout"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <fragment
-                android:id="@+id/track_map"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
+            <TextView
+                android:id="@+id/track_name"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </FrameLayout>
+                android:layout_height="30dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="24sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="265dp" />
 
-        <TextView
-            android:id="@+id/track_name"
-            android:layout_width="384dp"
-            android:layout_height="30dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/frameLayout"
-            android:textAppearance="?attr/textAppearanceListItem"
-            android:textSize="24sp"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="265dp" />
+            <TextView
+                android:id="@+id/track_distance"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="24sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="265dp" />
 
-        <com.jjoe64.graphview.GraphView
-            android:id="@+id/graph"
-            android:layout_width="match_parent"
-            android:layout_height="250dip"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/track_name" />
-    </RelativeLayout>
-</android.support.constraint.ConstraintLayout>
+            <TextView
+                android:id="@+id/track_climb"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="24sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="265dp" />
+
+            <TextView
+                android:id="@+id/track_descent"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="24sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="265dp" />
+
+            <TextView
+                android:id="@+id/track_date"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="24sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="265dp" />
+
+            <TextView
+                android:id="@+id/track_duration"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="24sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="265dp" />
+
+            <TextView
+                android:id="@+id/track_type"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="24sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="265dp" />
+
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/graph"
+                android:layout_width="match_parent"
+                android:layout_height="250dip" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

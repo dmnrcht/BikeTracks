@@ -48,8 +48,26 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
             track = (Track)getIntent().getSerializableExtra("track"); //Obtaining data
         }
 
-        TextView textView = (TextView)findViewById(R.id.track_name);
-        textView.setText(track.getName());
+        TextView nameView = (TextView)findViewById(R.id.track_name);
+        nameView.setText(track.getName());
+
+        TextView distanceView = (TextView)findViewById(R.id.track_distance);
+        distanceView.setText(String.valueOf(track.getDistance()));
+
+        TextView climbView = (TextView)findViewById(R.id.track_climb);
+        climbView.setText(String.valueOf(track.getClimb()));
+
+        TextView descentView = (TextView)findViewById(R.id.track_descent);
+        descentView.setText(String.valueOf(track.getDescent()));
+
+        TextView dateView = (TextView)findViewById(R.id.track_date);
+        dateView.setText(track.getDate().toString());
+
+        TextView durationView = (TextView)findViewById(R.id.track_duration);
+        durationView.setText(String.valueOf(track.getDuration()));
+
+        TextView typeView = (TextView)findViewById(R.id.track_type);
+        typeView.setText(track.getType());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment =
