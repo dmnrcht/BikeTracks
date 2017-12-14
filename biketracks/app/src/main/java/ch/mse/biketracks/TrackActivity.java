@@ -1,15 +1,33 @@
 package ch.mse.biketracks;
 
+import android.app.FragmentManager;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
+import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 
-public class TrackActivity extends AppCompatActivity {
+public class TrackActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private Track track;
+    private SupportMapFragment supportMapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +45,79 @@ public class TrackActivity extends AppCompatActivity {
         if (extras != null) {
             track = (Track)getIntent().getSerializableExtra("track"); //Obtaining data
         }
+
+        TextView textView = (TextView)findViewById(R.id.track_name);
+        textView.setText(track.getName());
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.track_map);
+        mapFragment.getMapAsync(this);
+
+
+        GraphView graph = (GraphView) findViewById(R.id.graph);
+        DataPoint[] dataPoints = new DataPoint[track.getPoints().size()];
+        int totDistance = 0;
+        for(int i = 0; i < track.getPoints().size(); i++){
+            if(i > 0){
+                totDistance += distance(track.getPoints().get(i).getLat(), track.getPoints().get(i-1).getLat(), track.getPoints().get(i).getLng(), track.getPoints().get(i-1).getLng(), track.getPoints().get(i).getElev(), track.getPoints().get(i-1).getElev());
+            }
+            dataPoints[i] = new DataPoint(totDistance, track.getPoints().get(i).getElev());
+        }
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints);
+        series.setDrawBackground(true);
+        series.setBackgroundColor(Color.argb(150,200, 200, 200));
+        series.setColor(Color.GRAY);
+        graph.addSeries(series);
     }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        LatLngBounds.Builder bounds = new LatLngBounds.Builder();
+
+        PolylineOptions lineOptions = new PolylineOptions();
+        for (int j = 0; j < track.getPoints().size(); j++) {
+            Point p = track.getPoints().get(j);
+
+            // Adding all the points in the route to LineOptions
+            lineOptions.add(new LatLng(p.getLat(), p.getLng()));
+            lineOptions.width(10);
+            lineOptions.color(Color.rgb(237, 92, 92));
+
+            bounds.include(new LatLng(p.getLat(), p.getLng()));
+        }
+
+        // Drawing polyline in the Google Map for the i-th route
+        if(lineOptions != null) {
+            map.addPolyline(lineOptions);
+        }
+        else {
+            Log.d("onPostExecute","without Polylines drawn");
+        }
+
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 0));
+    }
+
+    public static double distance(double lat1, double lat2, double lon1,
+                                  double lon2, double el1, double el2) {
+
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c * 1000; // convert to meters
+
+        double height = el1 - el2;
+
+        distance = Math.pow(distance, 2) + Math.pow(height, 2);
+
+        return Math.sqrt(distance);
+    }
+
 
     @Override
     public boolean onSupportNavigateUp(){
