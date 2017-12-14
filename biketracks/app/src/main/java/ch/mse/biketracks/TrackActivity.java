@@ -13,8 +13,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.jjoe64.graphview.GraphView;
@@ -96,6 +98,13 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         }
 
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 0));
+
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(track.getPoints().get(0).getLat(), track.getPoints().get(0).getLng()))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(track.getPoints().get(track.getPoints().size() - 1).getLat(), track.getPoints().get(track.getPoints().size() - 1).getLng()))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
     }
 
     public static double distance(double lat1, double lat2, double lon1,
