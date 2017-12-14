@@ -23,6 +23,8 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.text.SimpleDateFormat;
+
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 
@@ -51,23 +53,26 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         TextView nameView = (TextView)findViewById(R.id.track_name);
         nameView.setText(track.getName());
 
-        TextView distanceView = (TextView)findViewById(R.id.track_distance);
-        distanceView.setText(String.valueOf(track.getDistance()));
-
-        TextView climbView = (TextView)findViewById(R.id.track_climb);
-        climbView.setText(String.valueOf(track.getClimb()));
-
-        TextView descentView = (TextView)findViewById(R.id.track_descent);
-        descentView.setText(String.valueOf(track.getDescent()));
-
-        TextView dateView = (TextView)findViewById(R.id.track_date);
-        dateView.setText(track.getDate().toString());
-
-        TextView durationView = (TextView)findViewById(R.id.track_duration);
-        durationView.setText(String.valueOf(track.getDuration()));
-
         TextView typeView = (TextView)findViewById(R.id.track_type);
         typeView.setText(track.getType());
+
+        TextView distanceView = (TextView)findViewById(R.id.track_distance);
+        distanceView.setText(String.valueOf(track.getDistance() + " m"));
+
+        TextView climbView = (TextView)findViewById(R.id.track_climb);
+        climbView.setText(String.valueOf(track.getClimb() + " m"));
+
+        TextView descentView = (TextView)findViewById(R.id.track_descent);
+        descentView.setText(String.valueOf(track.getDescent() + " m"));
+
+        // TODO : Support multiple formats of dates depending on locale
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        TextView dateView = (TextView)findViewById(R.id.track_date);
+        dateView.setText(sdf.format(track.getDate()));
+
+        TextView durationView = (TextView)findViewById(R.id.track_duration);
+        durationView.setText(track.getDuration()/60 + " h " + track.getDuration()%60);
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment =
@@ -116,6 +121,8 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         }
 
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 0));
+        map.moveCamera(CameraUpdateFactory.zoomTo(map.getCameraPosition().zoom - 0.7f));
+
 
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(track.getPoints().get(0).getLat(), track.getPoints().get(0).getLng()))
