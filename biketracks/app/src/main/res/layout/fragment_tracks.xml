@@ -16,10 +16,11 @@
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+
         <LinearLayout
-        android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/location"
@@ -50,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            app:srcCompat="@drawable/tracks" />
+            app:srcCompat="@drawable/distance" />
 
         <TextView
             android:id="@+id/distance"
@@ -63,7 +64,8 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="10dp"
             android:text="1km"
-            android:textAppearance="?attr/textAppearanceListItem" />
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/durationIcon"
@@ -71,7 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            app:srcCompat="@drawable/timer" />
+            app:srcCompat="@drawable/duration" />
 
         <TextView
             android:id="@+id/duration"
@@ -84,7 +86,8 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="10dp"
             android:text="10 minutes"
-            android:textAppearance="?attr/textAppearanceListItem" />
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/speedIcon"
@@ -92,7 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            app:srcCompat="@drawable/forward" />
+            app:srcCompat="@drawable/speed" />
 
         <TextView
             android:id="@+id/speed"
@@ -105,7 +108,8 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="10dp"
             android:text="10 km/h"
-            android:textAppearance="?attr/textAppearanceListItem" />
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="14sp" />
         </LinearLayout>
     </LinearLayout>
 
