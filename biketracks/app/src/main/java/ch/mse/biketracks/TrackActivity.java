@@ -57,16 +57,19 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         typeView.setText(track.getType());
 
         TextView distanceView = (TextView)findViewById(R.id.track_distance);
-        distanceView.setText(String.valueOf(track.getDistance() + " m"));
+        distanceView.setText(String.valueOf(track.getDistance() + "m"));
 
         TextView climbView = (TextView)findViewById(R.id.track_climb);
-        climbView.setText(String.valueOf(track.getClimb() + " m"));
+        climbView.setText(String.valueOf(track.getClimb() + "m"));
 
         TextView descentView = (TextView)findViewById(R.id.track_descent);
-        descentView.setText(String.valueOf(track.getDescent() + " m"));
+        descentView.setText(String.valueOf(track.getDescent() + "m"));
+
+        TextView speedView = (TextView)findViewById(R.id.track_speed);
+        speedView.setText(String.valueOf(track.getSpeed() + "km/h"));
 
         // TODO : Support multiple formats of dates depending on locale
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH'h'mm");
         TextView dateView = (TextView)findViewById(R.id.track_date);
         dateView.setText(sdf.format(track.getDate()));
 

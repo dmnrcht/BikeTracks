@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,10 +9,11 @@
     android:orientation="vertical"
     tools:context="ch.mse.biketracks.TrackActivity">
 
+
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
-        android:layout_height="250dp">
+        android:layout_height="296dp">
 
         <fragment
             android:id="@+id/track_map"
@@ -24,7 +26,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="5dp">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,14 +53,15 @@
 
             <TableLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:stretchColumns="*">
 
                 <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
                     <ImageView
-                        android:id="@+id/image_climb2"
+                        android:id="@+id/image_distance"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         app:srcCompat="@drawable/distance" />
@@ -69,14 +71,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical|start"
-                        android:text="0 m"
+                        android:text="1000m"
                         android:textAppearance="?attr/textAppearanceListItem"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         tools:layout_editor_absoluteX="0dp"
                         tools:layout_editor_absoluteY="265dp" />
 
                     <ImageView
-                        android:id="@+id/image_climb3"
+                        android:id="@+id/image_duration"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:padding="3dp"
@@ -89,7 +91,25 @@
                         android:gravity="center_vertical|start"
                         android:text="00h00"
                         android:textAppearance="?attr/textAppearanceListItem"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
+                        tools:layout_editor_absoluteX="0dp"
+                        tools:layout_editor_absoluteY="265dp" />
+
+                    <ImageView
+                        android:id="@+id/image_date"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:padding="7dp"
+                        app:srcCompat="@drawable/date" />
+
+                    <TextView
+                        android:id="@+id/track_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical|start"
+                        android:text="11.05.2017 11h05"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        android:textSize="14sp"
                         tools:layout_editor_absoluteX="0dp"
                         tools:layout_editor_absoluteY="265dp" />
 
@@ -112,7 +132,7 @@
                         android:gravity="center_vertical|start"
                         android:text="0 m"
                         android:textAppearance="?attr/textAppearanceListItem"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         tools:layout_editor_absoluteX="0dp"
                         tools:layout_editor_absoluteY="265dp" />
 
@@ -129,18 +149,12 @@
                         android:gravity="center_vertical|start"
                         android:text="0 m"
                         android:textAppearance="?attr/textAppearanceListItem"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         tools:layout_editor_absoluteX="0dp"
                         tools:layout_editor_absoluteY="265dp" />
 
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
                     <ImageView
-                        android:id="@+id/image_descent4"
+                        android:id="@+id/image_speed"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:padding="6dp"
@@ -153,29 +167,12 @@
                         android:gravity="center_vertical|start"
                         android:text="0 km/h"
                         android:textAppearance="?attr/textAppearanceListItem"
-                        android:textSize="16sp"
-                        tools:layout_editor_absoluteX="0dp"
-                        tools:layout_editor_absoluteY="265dp" />
-
-                    <ImageView
-                        android:id="@+id/image_descent3"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:padding="7dp"
-                        app:srcCompat="@drawable/date" />
-
-                    <TextView
-                        android:id="@+id/track_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|start"
-                        android:text="11.05.2017"
-                        android:textAppearance="?attr/textAppearanceListItem"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         tools:layout_editor_absoluteX="0dp"
                         tools:layout_editor_absoluteY="265dp" />
 
                 </TableRow>
+
             </TableLayout>
 
             <TextView
@@ -198,7 +195,7 @@
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="start|center_vertical"
-                    android:text="Altitude" />
+                    android:text="Altitude [m]" />
 
                 <com.jjoe64.graphview.GraphView
                     android:id="@+id/graph"
@@ -214,13 +211,13 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/graph"
                     android:layout_centerHorizontal="true"
-                    android:paddingLeft="40dp"
-                    android:paddingStart="40dp"
-                    android:text="Distance" />
+                    android:paddingLeft="47dp"
+                    android:paddingStart="47dp"
+                    android:text="Distance [m]" />
             </RelativeLayout>
 
         </LinearLayout>
 
-    </ScrollView>
 
+</ScrollView>
 </LinearLayout>
