@@ -82,7 +82,7 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
 
         GraphView graph = (GraphView) findViewById(R.id.graph);
         DataPoint[] dataPoints = new DataPoint[track.getPoints().size()];
-        int totDistance = 0;
+        double totDistance = 0;
         for(int i = 0; i < track.getPoints().size(); i++){
             if(i > 0){
                 totDistance += distance(track.getPoints().get(i).getLat(), track.getPoints().get(i-1).getLat(), track.getPoints().get(i).getLng(), track.getPoints().get(i-1).getLng(), track.getPoints().get(i).getElev(), track.getPoints().get(i-1).getElev());
@@ -91,10 +91,10 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         }
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints);
         series.setDrawBackground(true);
-        series.setBackgroundColor(Color.argb(150,200, 200, 200));
-        series.setColor(Color.GRAY);
+        series.setBackgroundColor(Color.argb(80,78, 166, 52));
+        series.setColor(Color.argb(255,78, 166, 52));
         graph.addSeries(series);
-    }
+}
 
     @Override
     public void onMapReady(GoogleMap map) {
