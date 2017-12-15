@@ -50,9 +50,6 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
             track = (Track)getIntent().getSerializableExtra("track"); //Obtaining data
         }
 
-        TextView nameView = (TextView)findViewById(R.id.track_name);
-        nameView.setText(track.getName());
-
         TextView typeView = (TextView)findViewById(R.id.track_type);
         typeView.setText(track.getType());
 
@@ -97,7 +94,9 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         series.setBackgroundColor(Color.argb(80,78, 166, 52));
         series.setColor(Color.argb(255,78, 166, 52));
         graph.addSeries(series);
-}
+
+        getSupportActionBar().setTitle(track.getName());
+    }
 
     @Override
     public void onMapReady(GoogleMap map) {

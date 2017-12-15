@@ -32,16 +32,6 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/track_name"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:text="Name"
-                android:textAppearance="?attr/textAppearanceListItem"
-                android:textSize="24sp"
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="265dp" />
-
-            <TextView
                 android:id="@+id/track_type"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
@@ -200,7 +190,7 @@
                 <com.jjoe64.graphview.GraphView
                     android:id="@+id/graph"
                     android:layout_width="match_parent"
-                    android:layout_height="250dip"
+                    android:layout_height="150dip"
                     android:layout_alignParentTop="true"
                     android:layout_toEndOf="@+id/textView3"
                     android:layout_toRightOf="@+id/textView3" />
