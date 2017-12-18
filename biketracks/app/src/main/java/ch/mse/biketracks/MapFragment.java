@@ -358,6 +358,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                         points.add(new Point(lat, lng, elev));
                                     }
 
+
                                     tracks.add(new Track(id, name, new Date(), 0, 0, distance, climb, descent, type, points));
                                 } catch (JSONException e) {
                                     // If there is an error then output this to the logs.

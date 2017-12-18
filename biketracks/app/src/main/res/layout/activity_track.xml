@@ -7,13 +7,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:weightSum="100"
     tools:context="ch.mse.biketracks.TrackActivity">
 
 
     <FrameLayout
         android:id="@+id/frameLayout"
-        android:layout_width="match_parent"
-        android:layout_height="296dp">
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="50">
 
         <fragment
             android:id="@+id/track_map"
@@ -23,8 +25,9 @@
     </FrameLayout>
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="50"
         android:padding="5dp">
         <LinearLayout
             android:layout_width="match_parent"

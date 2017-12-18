@@ -9,6 +9,7 @@ import android.widget.TextView;
 import ch.mse.biketracks.R;
 import ch.mse.biketracks.models.Track;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class MyTracksRecyclerViewAdapter extends RecyclerView.Adapter<MyTracksRecyclerViewAdapter.ViewHolder> {
@@ -30,6 +31,13 @@ public class MyTracksRecyclerViewAdapter extends RecyclerView.Adapter<MyTracksRe
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.location.setText(mValues.get(position).getName());
+        holder.distance.setText(String.valueOf(mValues.get(position).getDistance() + "m"));
+        holder.speed.setText(String.valueOf(mValues.get(position).getSpeed() + "km/h"));
+
+        // TODO : Support multiple formats of dates depending on locale
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH'h'mm");
+        holder.date.setText(sdf.format(mValues.get(position).getDate()));
+        holder.duration.setText(mValues.get(position).getDuration()/60 + " h " + mValues.get(position).getDuration()%60);
     }
 
     @Override

@@ -35,8 +35,8 @@ public class TrackInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
         Track track = (Track)marker.getTag();
 
-        TextView tvTitle = (TextView) view.findViewById(R.id.tv_title);
-        tvTitle.setText(((Track)marker.getTag()).getName());
+        TextView name = (TextView) view.findViewById(R.id.name);
+        name.setText(((Track)marker.getTag()).getName());
 
         TextView typeView = (TextView)view.findViewById(R.id.track_type);
         typeView.setText(track.getType());
@@ -54,7 +54,7 @@ public class TrackInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         speedView.setText(String.valueOf(track.getSpeed() + "km/h"));
 
         // TODO : Support multiple formats of dates depending on locale
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH'h'mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         TextView dateView = (TextView)view.findViewById(R.id.track_date);
         dateView.setText(sdf.format(track.getDate()));
 

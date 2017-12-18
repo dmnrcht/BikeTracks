@@ -73,13 +73,6 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         TextView durationView = (TextView)findViewById(R.id.track_duration);
         durationView.setText(track.getDuration()/60 + " h " + track.getDuration()%60);
 
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.track_map);
-        mapFragment.getMapAsync(this);
-
-
         GraphView graph = (GraphView) findViewById(R.id.graph);
         DataPoint[] dataPoints = new DataPoint[track.getPoints().size()];
         double totDistance = 0;
@@ -96,6 +89,11 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         graph.addSeries(series);
 
         getSupportActionBar().setTitle(track.getName());
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.track_map);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -122,16 +120,20 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
             Log.d("onPostExecute","without Polylines drawn");
         }
 
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 0));
-        map.moveCamera(CameraUpdateFactory.zoomTo(map.getCameraPosition().zoom - 0.7f));
-
-
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(track.getPoints().get(0).getLat(), track.getPoints().get(0).getLng()))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(track.getPoints().get(track.getPoints().size() - 1).getLat(), track.getPoints().get(track.getPoints().size() - 1).getLng()))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+        map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 0));
+                map.moveCamera(CameraUpdateFactory.zoomTo(map.getCameraPosition().zoom - 0.7f));
+            }
+        });
     }
 
     public static double distance(double lat1, double lat2, double lon1,
