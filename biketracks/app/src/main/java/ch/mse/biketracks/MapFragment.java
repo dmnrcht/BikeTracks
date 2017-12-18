@@ -6,14 +6,12 @@ package ch.mse.biketracks;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,7 +21,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,17 +40,11 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.GeoDataClient;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.places.PlaceLikelihood;
-import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -68,9 +59,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
+import ch.mse.biketracks.adapters.TrackInfoWindowAdapter;
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 
@@ -92,6 +83,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private FloatingActionButton recordButton;
     private FloatingActionButton locateButton;
     RequestQueue requestQueue;  // This is our requests queue to process our HTTP requests
+
+    private Marker lastClickedMarker;
 
 
     public MapFragment() {
@@ -396,19 +389,43 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     Log.d("onPostExecute","without Polylines drawn");
                                 }
 
+                                MarkerOptions markerOpt = new MarkerOptions().position(computeCentroid(track.getPoints()))
+                                        .icon(BitmapDescriptorFactory.defaultMarker())
+                                        .title(track.getName());
 
-                                Marker marker = mMap.addMarker(new MarkerOptions().position(computeCentroid(track.getPoints()))
-                                        .icon(BitmapDescriptorFactory.defaultMarker()));
+
+                                TrackInfoWindowAdapter adapter = new TrackInfoWindowAdapter(getActivity());
+                                mMap.setInfoWindowAdapter(adapter);
+
+                                Marker marker = mMap.addMarker(markerOpt);
                                 marker.setTag(tracks.get(i));
 
+                                // Open the track activity on info window click
+                                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener(){
+
+                                    @Override
+                                    public void onInfoWindowClick(Marker marker) {
+                                        Intent intent = new Intent(mContext, TrackActivity.class).putExtra("track", (Track)marker.getTag());
+                                        startActivity(intent);
+                                    }
+                                });
+
+                                // Hide the info window on the second click of the marker
                                 mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                     @Override
                                     public boolean onMarkerClick(Marker marker) {
-                                        Intent intent = new Intent(mContext, TrackActivity.class).putExtra("track", (Track)marker.getTag());
-                                        startActivity(intent);
-                                        return false;
+                                        if (lastClickedMarker != null && lastClickedMarker.equals(marker)) {
+                                            lastClickedMarker = null;
+                                            marker.hideInfoWindow();
+                                            return true;
+                                        } else {
+                                            lastClickedMarker = marker;
+                                            return false;
+                                        }
                                     }
                                 });
+
+
 
                             }
 
