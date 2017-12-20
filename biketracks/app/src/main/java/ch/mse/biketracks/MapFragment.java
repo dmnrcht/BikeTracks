@@ -391,7 +391,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                 }
 
                                 MarkerOptions markerOpt = new MarkerOptions().position(computeCentroid(track.getPoints()))
-                                        .icon(BitmapDescriptorFactory.defaultMarker())
+                                        .icon(BitmapDescriptorFactory.defaultMarker(0))
                                         .title(track.getName());
 
 

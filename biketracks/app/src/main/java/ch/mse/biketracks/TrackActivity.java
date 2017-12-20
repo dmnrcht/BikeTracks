@@ -122,10 +122,10 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
 
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(track.getPoints().get(0).getLat(), track.getPoints().get(0).getLng()))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                .icon(BitmapDescriptorFactory.defaultMarker(106)));
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(track.getPoints().get(track.getPoints().size() - 1).getLat(), track.getPoints().get(track.getPoints().size() - 1).getLng()))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(0)));
 
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override

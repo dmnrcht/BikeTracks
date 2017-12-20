@@ -87,25 +87,6 @@
                         android:textSize="14sp"
                         tools:layout_editor_absoluteX="0dp"
                         tools:layout_editor_absoluteY="265dp" />
-
-                    <ImageView
-                        android:id="@+id/image_date"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:padding="7dp"
-                        app:srcCompat="@drawable/date" />
-
-                    <TextView
-                        android:id="@+id/track_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|start"
-                        android:text="11.05.2017 11h05"
-                        android:textAppearance="?attr/textAppearanceListItem"
-                        android:textSize="14sp"
-                        tools:layout_editor_absoluteX="0dp"
-                        tools:layout_editor_absoluteY="265dp" />
-
                 </TableRow>
 
                 <TableRow
@@ -146,6 +127,27 @@
                         tools:layout_editor_absoluteX="0dp"
                         tools:layout_editor_absoluteY="265dp" />
 
+                </TableRow>
+
+                <TableRow>
+                    <ImageView
+                        android:id="@+id/image_date"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:padding="7dp"
+                        app:srcCompat="@drawable/date" />
+
+                    <TextView
+                        android:id="@+id/track_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical|start"
+                        android:text="11.05.2017 11h05"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        android:textSize="14sp"
+                        tools:layout_editor_absoluteX="0dp"
+                        tools:layout_editor_absoluteY="265dp" />
+
                     <ImageView
                         android:id="@+id/image_speed"
                         android:layout_width="50dp"
@@ -163,7 +165,6 @@
                         android:textSize="14sp"
                         tools:layout_editor_absoluteX="0dp"
                         tools:layout_editor_absoluteY="265dp" />
-
                 </TableRow>
 
             </TableLayout>
