@@ -77,25 +77,37 @@ Some of these applications also require payment to gain access to all the functi
 
 #### Goal
 
+The backend is a REST API which serves tracks over HTTP. It uses the Django REST Framework to process HTTP requests and a PostGIS database to store and query the tracks using spatial information.
+
 #### Technologies
 
 ##### Python
+
+Python is a popular interpreted programming language.
 
 ![Python](img/python.png)
 
 ##### Django
 
+Django is a big web Framework in Python.
+
 ![Django](img/django.png)
 
 ##### Django REST Framework
+
+Django REST framework is a powerful and flexible toolkit for building Web APIs in Python.
 
 ![Django REST Framework](img/drf.png)
 
 ##### PostGIS
 
+PostGIS provides spatial objects for the PostgreSQL database, allowing storage and query of information about location and mapping.
+
 ![PostGIS](img/postgis.png)
 
 #### Database structure organisation of the classes
+
+Here is the database UML (or not).
 
 #### API Endpoints
 
@@ -140,25 +152,37 @@ TODO schema architecture
 
 #### Goal
 
+The frontend is the Android Application given to the clients. It handles all the requests of the users and communicates with the REST API to retrieve the tracks.
+
 #### Technologies
 
 ##### Java
+
+Java is a general-purpose computer programming language that is concurrent, class-based, object-oriented, and specifically designed to have as few implementation dependencies as possible. It is intended to let application developers "write once, run anywhere" (WORA), meaning that compiled Java code can run on all platforms without the need of recompilation.
 
 ![Java](img/java.png)
 
 ##### Android
 
+Android is a mobile operating system developed by Google, based on the Linux kernel and designed primarily for touchscreen mobile devices such as smartphones and tablets. In addition, Google has further developed Android TV for televisions, Android Auto for cars, and Android Wear for wrist watches, each with a specialized user interface. Variants of Android are also used on game consoles, digital cameras, PCs and other electronics.
+
 ![Android](img/android.png)
 
 ##### Google Maps API
+
+Google Maps is a web mapping service developped by Google. It provides a very useful API for Android which can be used to display and customize maps, search for locations, display markers and lines, ...
 
 ![Google Maps API](img/googlemaps.png)
 
 ##### SQLite
 
+SQLite is an in-process library that implements a self-contained, serverless, zero-configuration, transactional SQL database engine. The code for SQLite is in the public domain and is thus free for use for any purpose, commercial or private.
+
 ![SQLite](img/sqlite.png)
 
 ##### GraphView
+
+GraphView is an open source graph plotting library for Android to programmatically create diagrams. It can be used to create Line Graphs, Bar Graphs, Point Graphs, ...
 
 ![GraphView](img/graphview.png)
 
@@ -174,7 +198,7 @@ Resources and classes
 
 #### Navigation
 
-#### Models
+#### Models and database
 
 #### Deployment on the Play Store
 
