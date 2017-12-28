@@ -86,7 +86,9 @@ Some of these applications also require payment to gain access to all the functi
 ##### Django REST Framework
 
 ##### PostGIS
- 	
+
+#### Database structure organisation of the classes
+
 #### API Endpoints
 
 The API contains a simple endpoint to retrieve the tracks in a given region defined by a circle:
@@ -94,8 +96,6 @@ The API contains a simple endpoint to retrieve the tracks in a given region defi
 - Radius [m] : The biggest distance between the width and height of the currently seen map on the smartphone
 
 More information about the API : https://github.com/damienrochat/BikeTracks-API
-
-#### Structure and organisation of the database
 
 #### Track file format
 
@@ -124,10 +124,6 @@ The API will return the tracks in a JSON format.
 
 TODO schema architecture
 
-#### Architecture and organisation of the classes of  the server
-
-#### Accessible routes
-
 #### Security
 
 #### Tests
@@ -142,7 +138,7 @@ TODO schema architecture
 
 We have realised mock-ups of the application
 
-#### Structure of  the code
+#### Structure of the code
 
 Resources and classes
 
@@ -156,7 +152,7 @@ Resources and classes
 
 ## Difficulties encountered
 
-### Rechargement d’un fragment lors d’un changement à l’aide du drawer
+### Reloading of a fragment (Google Map) with a Drawer
 
 ## Remaining bugs
 
@@ -164,11 +160,11 @@ Resources and classes
 
 ## Conclusion
 
-## Bibliographie
+## Bibliography
 
-## Annexes
+## Annex
 
-### Glossaire
+### Glossary
 
 ### Installation manual
 
