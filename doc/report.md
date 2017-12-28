@@ -22,7 +22,7 @@ All tracks are locally registered in the smartphone and users are able to consul
 
 ### Context
 
-This project is realised by Damien Rochat, Sébastien Richoz et Antoine Drabble as part of the "Mobile operating systems and applications" courses at the MSE, HES-SO. It is supervised by the professor Pascal Bruegger. It was realised between october 2017 and january 2018.
+This project was realised by Damien Rochat, Sébastien Richoz et Antoine Drabble as part of the "Mobile operating systems and applications" courses at the MSE, HES-SO. It is supervised by the professor Pascal Bruegger. It was realised between october 2017 and january 2018.
 
 ### Code management and conventions
 
@@ -74,15 +74,17 @@ Some of these applications also require payment to gain access to all the functi
 ## Realisation
 
 ### Backend
+
 #### Goal
+
 #### Technologies
+
 ##### Python
 
 ##### Django
 
 ##### Django REST Framework
  	
-
 #### API Endpoints
 
 The API contains a simple endpoint to retrieve the tracks in a given region defined by a circle:
@@ -119,7 +121,6 @@ Then the API transforms it and stores in a postGIS database.
 The API will return the tracks in a JSON format.
 
 TODO schema architecture
-
 
 #### Architecture and organisation of the classes of  the server
 
