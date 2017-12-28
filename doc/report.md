@@ -81,11 +81,19 @@ Some of these applications also require payment to gain access to all the functi
 
 ##### Python
 
+![Python](img/python.png)
+
 ##### Django
+
+![Django](img/django.png)
 
 ##### Django REST Framework
 
+![Django REST Framework](img/drf.png)
+
 ##### PostGIS
+
+![PostGIS](img/postgis.png)
 
 #### Database structure organisation of the classes
 
@@ -134,9 +142,31 @@ TODO schema architecture
 
 #### Technologies
 
+##### Java
+
+![Java](img/java.png)
+
+##### Android
+
+![Android](img/android.png)
+
+##### Google Maps API
+
+![Google Maps API](img/googlemaps.png)
+
+##### SQLite
+
+![SQLite](img/sqlite.png)
+
+##### GraphView
+
+![GraphView](img/graphview.png)
+
 #### Design of the application
 
-We have realised mock-ups of the application
+We have realised mock-ups of the application:
+
+![Mock-ups](img/maquettes.jpg)
 
 #### Structure of the code
 
