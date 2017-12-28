@@ -84,6 +84,8 @@ Some of these applications also require payment to gain access to all the functi
 ##### Django
 
 ##### Django REST Framework
+
+##### PostGIS
  	
 #### API Endpoints
 
