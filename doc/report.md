@@ -208,25 +208,43 @@ Resources and classes
 
 ### Reloading of a fragment (Google Map) with a Drawer
 
+We have used a Drawer to access to the different fragments. It is not possible not to reload a fragment with the SupportFragmentManager. There is a method called addToBackstack but it uses a LIFO which is not what we need to access the different fragments. This is problematic because we have to reload the Google Maps map, position it at the last checked location and load all the tracks in it, each time the users access the fragment.
+
+### GraphView doesn't support x and y axis labels
+
+The library GraphView that we used for the graphs doesn't support x and y axis labels so we had to make it ourself with a custom layout. The y axis label must be vertical and Android doesn't support that by default so we had to find a custom vertical TextView named VerticalTextView to display the label correctly.
+
 ## Remaining bugs
 
 ## Possible improvements
 
+Here is a list of improvements we would have liked to add to the application:
+
+- Show the forecast weather of the selected track as well as a heatmap and the precipitations.
+
+- Let the user choose between different layers of map with a better altitude representation for example. We have used the Google Maps API but we would also like to try using OpenStreetMap which allows different configurations of the maps.
+
+- Let the user download the GPX files so that he can use them in other applications.
+
+- Make a Smartwatch version
+
+- Let the user send tracks to the API so that we could maybe add them to the lists of public tracks.
+
+- Let the user store his tracks in an online database so that he can load them on another device.
+
+- Lower the quantity of points on some of the tracks to limit the network charge for the user and diminish the response times.
+
 ## Conclusion
+
+This project was very interesting, manipulating the Google Maps API to display our own tracks was motivating...
 
 ## Bibliography
 
 ## Annex
 
-### Glossary
-
 ### Installation manual
 
 ### User guide
-
-#### REST API
-
-#### Android application
 
 ### REST API documentation
 
