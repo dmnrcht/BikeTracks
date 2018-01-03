@@ -30,8 +30,8 @@ public class MyTracksRecyclerViewAdapter extends RecyclerView.Adapter<MyTracksRe
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.location.setText(mValues.get(position).getName());
-        holder.distance.setText(String.valueOf(mValues.get(position).getDistance() + "m"));
+        holder.location.setText(mValues.get(position).name);
+        holder.distance.setText(String.valueOf(mValues.get(position).distance + "m"));
         holder.speed.setText(String.valueOf(mValues.get(position).getSpeed() + "km/h"));
 
         // TODO : Support multiple formats of dates depending on locale

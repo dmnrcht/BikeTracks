@@ -1,24 +1,35 @@
 package ch.mse.biketracks.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 /**
- * Created by antoi on 15.10.2017.
+ * POJO representing a Track
+ * TODO cleanup
  */
-
 public class Track implements Serializable {
-    private int id;
-    private String name;
+    @SerializedName("id")
+    public int id;
+    @SerializedName("name")
+    public String name;
+    @SerializedName("distance")
+    public float distance;
+    @SerializedName("climb")
+    public double climb;
+    @SerializedName("descent")
+    public double descent;
+    @SerializedName("type")
+    public String type;
+    @SerializedName("points")
+    public List<Point> points;
+
+    // Generated from activity, not present in API calls
     private Date date;
     private int duration;
     private float speed;
-    private float distance;
-    private int climb;
-    private int descent;
-    private String type;
-    private List<Point> points;
 
     public Track(String name, Date date, int duration, float speed, float distance) {
         this.name = name;
@@ -41,6 +52,31 @@ public class Track implements Serializable {
         this.points = points;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    /*
     public int getId() {
         return id;
     }
@@ -81,30 +117,6 @@ public class Track implements Serializable {
         this.name = name;
     }
 
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public float getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(float speed) {
-        this.speed = speed;
-    }
-
     public float getDistance() {
         return distance;
     }
@@ -120,4 +132,5 @@ public class Track implements Serializable {
     public void setPoints(List<Point> points) {
         this.points = points;
     }
+    */
 }

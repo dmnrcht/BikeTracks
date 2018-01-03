@@ -4,31 +4,39 @@ package ch.mse.biketracks;
  * Description: Google maps based on https://github.com/googlemaps/android-samples/blob/master/tutorials/CurrentPlaceDetailsOnMap/app/src/main/java/com/example/currentplacedetailsonmap/MapsActivityCurrentPlace.java
  */
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -46,8 +54,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -59,29 +69,43 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import ch.mse.biketracks.adapters.TrackInfoWindowAdapter;
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
+import ch.mse.biketracks.utils.BiketracksAPIClient;
+import ch.mse.biketracks.utils.BiketracksAPIInterface;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private static final int DEFAULT_ZOOM = 15;
+
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 2;
+    private static final float DEFAULT_ZOOM = 8.f;
     private static final String TAG = MapFragment.class.getSimpleName();
 
-    private final LatLng mDefaultLocation = new LatLng(46.78896583, 6.74356617);
+    private final LatLng mDefaultLocation = new LatLng(46.523317, 6.610430); // HES-SO Master, Provence, Lausanne
 
     private GoogleMap mMap;
+    private ArrayList<Polyline> polylineArrayList = new ArrayList<>();
+    private ArrayList<Marker> markerArrayList = new ArrayList<>();
+    private BiketracksAPIInterface apiInterface;
 
     private Context mContext;
     private SupportMapFragment supportMapFragment;
 
     private boolean mLocationPermissionGranted;
+    private boolean isMarkerClicked = false;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FloatingActionButton recordButton;
     private FloatingActionButton locateButton;
+    private ProgressBar progressBar;
+    private SparseIntArray tracksColor = new SparseIntArray(); // Define a color for each track to distinguish them <id of track, color of track>
+    private Random rnd = new Random();
     RequestQueue requestQueue;  // This is our requests queue to process our HTTP requests
 
     private Marker lastClickedMarker;
@@ -101,10 +125,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity();
-
+        apiInterface = BiketracksAPIClient.getClient().create(BiketracksAPIInterface.class);
         requestQueue = Volley.newRequestQueue(mContext);
-
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
 
         recordButton = (FloatingActionButton) getView().findViewById(R.id.record);
         recordButton.setOnClickListener(new View.OnClickListener() {
@@ -119,6 +142,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         locateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 // Turn on the My Location layer and the related control on the map.
                 updateLocationUI();
 
@@ -128,6 +152,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 //showCurrentPlace();
             }
         });
+
+        progressBar = getView().findViewById(R.id.progressBarMap);
         //locateButton.hide();
     }
 
@@ -150,17 +176,55 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.v(TAG, googleMap.toString());
         mMap = googleMap;
 
         // Move camera to default location
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, 12.0f));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+
+        // Listen for camera movements, i.e. when the map moves or is zoomed in/out
+        mMap.setOnCameraIdleListener(this::onCameraIdle);
+        mMap.setOnCameraMoveStartedListener(this::onCameraStarted);
 
         // Turn on the My Location layer and the related control on the map.
         //updateLocationUI();
 
         // Get the current location of the device and set the position of the map.
-        //getDeviceLocation();// Load the tracks
-        getTracks(mDefaultLocation.latitude, mDefaultLocation.longitude, 40000);
+        getDeviceLocation();// Load the tracks
+    }
+
+    private void onCameraStarted(int i) {
+        if (!isMarkerClicked)
+            progressBar.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Called each time the camera is moved, i.e. each time the map changes.
+     * We get the radius of visible window, then load and replace the tracks on the map.
+     */
+    private void onCameraIdle() {
+        if (isMarkerClicked) {
+            isMarkerClicked = false;
+            return;
+        }
+
+        Log.d(TAG, "The camera has stopped moving. Get radius and load tracks of the visible region");
+        // Get Radius of visible window
+        LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+
+        LatLng center = bounds.getCenter();
+        LatLng NE = bounds.northeast;
+        LatLng SW = bounds.southwest;
+
+        // Compute distance and get radius
+        float[] distance = new float[2];
+        Location.distanceBetween(SW.latitude, SW.longitude, NE.latitude, NE.longitude, distance);
+
+        // Distance is in distance[0] and it is in meter
+        int radius = (int)Math.ceil(distance[0] / 2.0);
+
+        // Load and replace previous tracks
+        getTracks(center.latitude, center.longitude, radius);
     }
 
     @Override
@@ -238,6 +302,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
+        Log.v(TAG, "************************************************************ --- in onRequestPermissionsResult from MapFragment (access location)");
         mLocationPermissionGranted = false;
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
@@ -248,22 +313,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         }
-        updateLocationUI();
     }
 
     private void getLocationPermission() {
     /*
      * Request location permission, so that we can get the location of the
      * device. The result of the permission request is handled by a callback,
-     * onRequestPermissionsResult.
+     * onRequestPermissionsResult WHICH IS IMPLEMENTED in MainActivity
      */
         if (ContextCompat.checkSelfPermission(mContext,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
         } else {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
@@ -289,6 +352,38 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Check weather location is enabled or not. If not, show alert.
+     */
+    public void checkLocation() {
+        final LocationManager manager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+        }
+    }
+
+    /**
+     * Display an alert to enable location
+     */
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setMessage(R.string.gps_seems_disabled)
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     private void getDeviceLocation() {
     /*
      * Get the best and most recent location of the device, which may be null in rare
@@ -303,13 +398,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                            if (mLastKnownLocation != null) {
+                                Log.d(TAG, "mLastKnownLocation : " + mLastKnownLocation.toString());
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                                            mLastKnownLocation.getLongitude()), 11.f));
+                            } else {
+                                checkLocation();
+                            }
+
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, 12.0f));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+
+                            Toast.makeText(mContext, R.string.location_not_found, Toast.LENGTH_SHORT).show();
                             //mMap.getUiSettings().setMyLocationButtonEnabled(false);
                             //locateButton.hide();
                         }
@@ -321,140 +424,108 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Retrieve the tracks from biketracks API and display them on the map. Every previous tracks
+     * loaded are cleaned from the map.
+     * @param lat Latitude of center point
+     * @param lng Longitude of center point
+     * @param radius Radius in meter defining the circle to query the tracks.
+     */
     private void getTracks(double lat, double lng, int radius) {
-        // First, we insert the username into the repo url.
-        // The repo url is defined in GitHubs API docs (https://developer.github.com/v3/repos/).
-        String url = "https://biketracks.damienrochat.ch/api/v1/tracks/?lat=" + lat + "&lng=" + lng + "&radius=" + radius;
 
-        // Next, we create a new JsonArrayRequest. This will use Volley to make a HTTP request
-        // that expects a JSON Array Response.
-        // To fully understand this, I'd recommend readng the office docs: https://developer.android.com/training/volley/index.html
-        JsonArrayRequest arrReq = new JsonArrayRequest(Request.Method.GET, url,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        // Check the length of our response (to see if the user has any repos)
-                        if (response.length() > 0) {
-                            // The user does have repos, so let's loop through them all.
-                            List<Track> tracks = new ArrayList<>();
-                            for (int i = 0; i < response.length(); i++) {
-                                try {
-                                    // For each repo, add a new line to our repo list.
-                                    JSONObject jsonObj = response.getJSONObject(i);
-                                    int id = jsonObj.getInt("id");
-                                    int distance = jsonObj.getInt("distance");
-                                    int climb = jsonObj.getInt("climb");
-                                    int descent = jsonObj.getInt("descent");
-                                    String name = jsonObj.getString("name");
-                                    String type = jsonObj.getString("type");
+        Call<List<Track>> call = apiInterface.doGetTracks(lat, lng, radius);
+        call.enqueue(new Callback<List<Track>>() {
 
-                                    JSONArray jsonPoints = jsonObj.getJSONArray("points");
-                                    List<Point> points = new ArrayList<>();
-                                    for(int j = 0; j < jsonPoints.length(); j++){
-                                        JSONObject jsonPoint = jsonPoints.getJSONObject(j);
-                                        double lat = jsonPoint.getDouble("lat");
-                                        double lng = jsonPoint.getDouble("lng");
-                                        int elev = jsonPoint.getInt("elev");
-                                        points.add(new Point(lat, lng, elev));
-                                    }
+            /**
+             * Tracks were successfully retrieved
+             * @param call
+             * @param response
+             */
+            @Override
+            public void onResponse(Call<List<Track>> call, retrofit2.Response<List<Track>> response) {
+                List<Track> tracks = response.body();
 
+                if (tracks != null) {
 
-                                    tracks.add(new Track(id, name, new Date(), 0, 0, distance, climb, descent, type, points));
-                                } catch (JSONException e) {
-                                    // If there is an error then output this to the logs.
-                                    Log.e("Volley", "Invalid JSON Object.");
-                                }
+                    // Clean map
+                    for (Polyline polyline : polylineArrayList)
+                        polyline.remove();
+                    for (Marker marker : markerArrayList)
+                        marker.remove();
 
-                            }
+                    // Display tracks
+                    for (Track track : tracks) {
+                        PolylineOptions polylineOptions = new PolylineOptions();
 
+                        // Set a unique color for each track
+                        if (tracksColor.get(track.id) == 0)
+                            tracksColor.append(track.id, 0xFF000000 | rnd.nextInt(0xFFFFFF));
 
-
-                            // Traversing through all the tracks and draw on the map
-                            for(int i = 0; i < tracks.size(); i++){
-                                Track track = tracks.get(i);
-                                PolylineOptions lineOptions = new PolylineOptions();
-                                for (int j = 0; j < tracks.get(i).getPoints().size(); j++) {
-                                    Point p = tracks.get(i).getPoints().get(j);
-
-                                    // Adding all the points in the route to LineOptions
-                                    lineOptions.add(new LatLng(p.getLat(), p.getLng()));
-                                    lineOptions.width(10);
-                                    lineOptions.color(Color.rgb(237, 92, 92));
-                                }
-
-                                // Drawing polyline in the Google Map for the i-th route
-                                if(lineOptions != null) {
-                                    mMap.addPolyline(lineOptions);
-                                }
-                                else {
-                                    Log.d("onPostExecute","without Polylines drawn");
-                                }
-
-                                MarkerOptions markerOpt = new MarkerOptions().position(computeCentroid(track.getPoints()))
-                                        .icon(BitmapDescriptorFactory.defaultMarker(0))
-                                        .title(track.getName());
-
-
-                                TrackInfoWindowAdapter adapter = new TrackInfoWindowAdapter(getActivity());
-                                mMap.setInfoWindowAdapter(adapter);
-
-                                Marker marker = mMap.addMarker(markerOpt);
-                                marker.setTag(tracks.get(i));
-
-                                // Open the track activity on info window click
-                                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener(){
-
-                                    @Override
-                                    public void onInfoWindowClick(Marker marker) {
-                                        Intent intent = new Intent(mContext, TrackActivity.class).putExtra("track", (Track)marker.getTag());
-                                        startActivity(intent);
-                                    }
-                                });
-
-                                // Hide the info window on the second click of the marker
-                                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                                    @Override
-                                    public boolean onMarkerClick(Marker marker) {
-                                        if (lastClickedMarker != null && lastClickedMarker.equals(marker)) {
-                                            lastClickedMarker = null;
-                                            marker.hideInfoWindow();
-                                            return true;
-                                        } else {
-                                            lastClickedMarker = marker;
-                                            return false;
-                                        }
-                                    }
-                                });
-
-
-
-                            }
-
-
-                        } else {
-                            // Empty response
+                        // Build the track
+                        for (Point point : track.points) {
+                            polylineOptions.add(new LatLng(point.lat, point.lng));
+                            polylineOptions.width(10);
+                            polylineOptions.color(tracksColor.get(track.id));
                         }
+                        Polyline polyline = mMap.addPolyline(polylineOptions);
+                        polylineArrayList.add(polyline); // Store the displayed polylines to clean them before each load
 
-                    }
-                },
+                        // Add the marker (on the centroid of the track)
+                        MarkerOptions markerOpt = new MarkerOptions().position(computeCentroid(track.points))
+                                .icon(BitmapDescriptorFactory.defaultMarker(0))
+                                .title(track.name);
+                        TrackInfoWindowAdapter adapter = new TrackInfoWindowAdapter(getActivity());
+                        mMap.setInfoWindowAdapter(adapter);
+                        Marker marker = mMap.addMarker(markerOpt);
+                        marker.setTag(track);
+                        markerArrayList.add(marker);
 
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // If there a HTTP error then add a note to our repo list.
-                        //setRepoListText("Error while calling REST API");
-                        Log.e("Volley", error.toString());
+                        // Open the track activity on info window click
+                        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener(){
+
+                            @Override
+                            public void onInfoWindowClick(Marker marker) {
+                                Intent intent = new Intent(mContext, TrackActivity.class).putExtra("track", (Track)marker.getTag());
+                                startActivity(intent);
+                            }
+                        });
+
+                        // Hide the info window on the second click of the marker
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+                                isMarkerClicked = true;
+                                if (lastClickedMarker != null && lastClickedMarker.equals(marker)) {
+                                    lastClickedMarker = null;
+                                    marker.hideInfoWindow();
+                                    return true;
+                                } else {
+                                    lastClickedMarker = marker;
+                                    return false;
+                                }
+                            }
+                        });
                     }
+
+                } else {
+                    call.cancel();
                 }
-        );
-        // Set the max timeout of the request
-        arrReq.setRetryPolicy(new DefaultRetryPolicy(
-                20000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        // Add the request we just defined to our request queue.
-        // The request queue will automatically handle the request as soon as it can.
-        requestQueue.add(arrReq);
+
+                progressBar.setVisibility(View.GONE);
+            }
+
+            /**
+             * Failing in retrieving the tracks from API
+             * @param call
+             * @param t
+             */
+            @Override
+            public void onFailure(Call<List<Track>> call, Throwable t) {
+                Log.d(TAG, "error in calling tracks: " + t.getMessage());
+                progressBar.setVisibility(View.GONE);
+                call.cancel();
+            }
+        });
     }
 
     LatLng computeCentroid(List<Point> points) {
@@ -462,8 +533,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         double longitude = 0;
         int n = points.size();
         for(Point point: points) {
-            latitude += point.getLat();
-            longitude += point.getLng();
+            latitude += point.lat;
+            longitude += point.lng;
         }
         return new LatLng(latitude/n, longitude/n);
     }

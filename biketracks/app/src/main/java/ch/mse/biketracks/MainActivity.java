@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -29,6 +30,8 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.util.List;
+
 import ch.mse.biketracks.database.ContactContract;
 import ch.mse.biketracks.database.ContactDbHelper;
 import ch.mse.biketracks.models.Contact;
@@ -36,6 +39,7 @@ import ch.mse.biketracks.models.Contact;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
     private FragmentManager fragmentManager;
     private MapFragment mapFragment;
@@ -143,6 +147,18 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+        Log.v(TAG, "************************************************************ --- in onRequestPermissionsResult from MainActivity (access SMS)");
+        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Permissions requested from fragments are handled here in MainActivity.
+        // This trick is used to handle permissions from inside the fragment
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            }
+        }
+
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_SEND_SMS: {
                 if (grantResults.length > 0
@@ -153,7 +169,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
-
     }
 
     @Override

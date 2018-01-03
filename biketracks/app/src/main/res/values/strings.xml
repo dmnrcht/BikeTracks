@@ -16,4 +16,7 @@
     <string name="urgency_contacts">Urgency contacts</string>
     <string name="contact_already_exists">The contact already exists...</string>
     <string name="urgency_message_sent">Urgency message sent!</string>
+    <string name="gps_seems_disabled">Your GPS seems to be disabled, do you want to enable it?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
