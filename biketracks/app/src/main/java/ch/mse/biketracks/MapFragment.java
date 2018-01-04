@@ -36,6 +36,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -101,7 +102,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private boolean isMarkerClicked = false;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private FloatingActionButton recordButton;
+    private Button recordButton;
     private FloatingActionButton locateButton;
     private ProgressBar progressBar;
     private SparseIntArray tracksColor = new SparseIntArray(); // Define a color for each track to distinguish them <id of track, color of track>
@@ -129,7 +130,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         requestQueue = Volley.newRequestQueue(mContext);
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
 
-        recordButton = (FloatingActionButton) getView().findViewById(R.id.record);
+        recordButton = getView().findViewById(R.id.start_recording);
         recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

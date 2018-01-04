@@ -19,4 +19,7 @@
     <string name="gps_seems_disabled">Your GPS seems to be disabled, do you want to enable it?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+
+    <string name="button_start_recording">Démarrer une activité</string>
+    <string name="button_stop_recording">Arrêter l\'enregistrement</string>
 </resources>
