@@ -42,8 +42,6 @@ import android.widget.Toast;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -62,14 +60,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -458,22 +450,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         PolylineOptions polylineOptions = new PolylineOptions();
 
                         // Set a unique color for each track
-                        if (tracksColor.get(track.id) == 0)
-                            tracksColor.append(track.id, 0xFF000000 | rnd.nextInt(0xFFFFFF));
+                        if (tracksColor.get(track.getId()) == 0)
+                            tracksColor.append(track.getId(), 0xFF000000 | rnd.nextInt(0xFFFFFF));
 
                         // Build the track
-                        for (Point point : track.points) {
-                            polylineOptions.add(new LatLng(point.lat, point.lng));
+                        for (Point point : track.getPoints()) {
+                            polylineOptions.add(new LatLng(point.getLat(), point.getLng()));
                             polylineOptions.width(10);
-                            polylineOptions.color(tracksColor.get(track.id));
+                            polylineOptions.color(tracksColor.get(track.getId()));
                         }
                         Polyline polyline = mMap.addPolyline(polylineOptions);
                         polylineArrayList.add(polyline); // Store the displayed polylines to clean them before each load
 
                         // Add the marker (on the centroid of the track)
-                        MarkerOptions markerOpt = new MarkerOptions().position(computeCentroid(track.points))
+                        MarkerOptions markerOpt = new MarkerOptions().position(computeCentroid(track.getPoints()))
                                 .icon(BitmapDescriptorFactory.defaultMarker(0))
-                                .title(track.name);
+                                .title(track.getName());
                         TrackInfoWindowAdapter adapter = new TrackInfoWindowAdapter(getActivity());
                         mMap.setInfoWindowAdapter(adapter);
                         Marker marker = mMap.addMarker(markerOpt);
@@ -533,8 +525,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         double longitude = 0;
         int n = points.size();
         for(Point point: points) {
-            latitude += point.lat;
-            longitude += point.lng;
+            latitude += point.getLat();
+            longitude += point.getLng();
         }
         return new LatLng(latitude/n, longitude/n);
     }

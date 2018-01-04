@@ -1,6 +1,5 @@
 package ch.mse.biketracks;
 
-import android.app.FragmentManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -16,7 +15,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.jjoe64.graphview.GraphView;
@@ -51,16 +49,16 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         }
 
         TextView typeView = (TextView)findViewById(R.id.track_type);
-        typeView.setText(track.type);
+        typeView.setText(track.getType());
 
         TextView distanceView = (TextView)findViewById(R.id.track_distance);
-        distanceView.setText(String.valueOf(track.distance + "m"));
+        distanceView.setText(String.valueOf(track.getDistance() + "m"));
 
         TextView climbView = (TextView)findViewById(R.id.track_climb);
-        climbView.setText(String.valueOf(track.climb + "m"));
+        climbView.setText(String.valueOf(track.getClimb() + "m"));
 
         TextView descentView = (TextView)findViewById(R.id.track_descent);
-        descentView.setText(String.valueOf(track.descent + "m"));
+        descentView.setText(String.valueOf(track.getDescent() + "m"));
 
         TextView speedView = (TextView)findViewById(R.id.track_speed);
         speedView.setText(String.valueOf(track.getSpeed() + "km/h"));
@@ -76,13 +74,13 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         */
 
         GraphView graph = (GraphView) findViewById(R.id.graph);
-        DataPoint[] dataPoints = new DataPoint[track.points.size()];
+        DataPoint[] dataPoints = new DataPoint[track.getPoints().size()];
         double totDistance = 0;
-        for(int i = 0; i < track.points.size(); i++){
+        for(int i = 0; i < track.getPoints().size(); i++){
             if(i > 0){
-                totDistance += distance(track.points.get(i).lat, track.points.get(i-1).lat, track.points.get(i).lng, track.points.get(i-1).lng, track.points.get(i).elev, track.points.get(i-1).elev);
+                totDistance += distance(track.getPoints().get(i).getLat(), track.getPoints().get(i-1).getLat(), track.getPoints().get(i).getLng(), track.getPoints().get(i-1).getLng(), track.getPoints().get(i).getElev(), track.getPoints().get(i-1).getElev());
             }
-            dataPoints[i] = new DataPoint(totDistance, track.points.get(i).elev);
+            dataPoints[i] = new DataPoint(totDistance, track.getPoints().get(i).getElev());
         }
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints);
         series.setDrawBackground(true);
@@ -90,7 +88,7 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         series.setColor(Color.argb(255,78, 166, 52));
         graph.addSeries(series);
 
-        getSupportActionBar().setTitle(track.name);
+        getSupportActionBar().setTitle(track.getName());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment =
@@ -103,15 +101,15 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         LatLngBounds.Builder bounds = new LatLngBounds.Builder();
 
         PolylineOptions lineOptions = new PolylineOptions();
-        for (int j = 0; j < track.points.size(); j++) {
-            Point p = track.points.get(j);
+        for (int j = 0; j < track.getPoints().size(); j++) {
+            Point p = track.getPoints().get(j);
 
             // Adding all the points in the route to LineOptions
-            lineOptions.add(new LatLng(p.lat, p.lng));
+            lineOptions.add(new LatLng(p.getLat(), p.getLng()));
             lineOptions.width(10);
             lineOptions.color(Color.rgb(237, 92, 92));
 
-            bounds.include(new LatLng(p.lat, p.lng));
+            bounds.include(new LatLng(p.getLat(), p.getLng()));
         }
 
         // Drawing polyline in the Google Map for the i-th route
@@ -123,10 +121,10 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         }
 
         map.addMarker(new MarkerOptions()
-                .position(new LatLng(track.points.get(0).lat, track.points.get(0).lng))
+                .position(new LatLng(track.getPoints().get(0).getLat(), track.getPoints().get(0).getLng()))
                 .icon(BitmapDescriptorFactory.defaultMarker(106)));
         map.addMarker(new MarkerOptions()
-                .position(new LatLng(track.points.get(track.points.size() - 1).lat, track.points.get(track.points.size() - 1).lng))
+                .position(new LatLng(track.getPoints().get(track.getPoints().size() - 1).getLat(), track.getPoints().get(track.getPoints().size() - 1).getLng()))
                 .icon(BitmapDescriptorFactory.defaultMarker(0)));
 
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {

@@ -36,19 +36,19 @@ public class TrackInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         Track track = (Track)marker.getTag();
 
         TextView name = (TextView) view.findViewById(R.id.name);
-        name.setText(((Track)marker.getTag()).name);
+        name.setText(((Track)marker.getTag()).getName());
 
         TextView typeView = (TextView)view.findViewById(R.id.track_type);
-        typeView.setText(track.type);
+        typeView.setText(track.getType());
 
         TextView distanceView = (TextView)view.findViewById(R.id.track_distance);
-        distanceView.setText(String.valueOf(track.distance + "m"));
+        distanceView.setText(String.valueOf(track.getDistance() + "m"));
 
         TextView climbView = (TextView)view.findViewById(R.id.track_climb);
-        climbView.setText(String.valueOf(track.climb + "m"));
+        climbView.setText(String.valueOf(track.getClimb() + "m"));
 
         TextView descentView = (TextView)view.findViewById(R.id.track_descent);
-        descentView.setText(String.valueOf(track.descent + "m"));
+        descentView.setText(String.valueOf(track.getDescent() + "m"));
 
         TextView speedView = (TextView)view.findViewById(R.id.track_speed);
         speedView.setText(String.valueOf(track.getSpeed() + "km/h"));

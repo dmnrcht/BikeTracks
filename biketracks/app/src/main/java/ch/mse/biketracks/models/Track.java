@@ -8,23 +8,22 @@ import java.util.List;
 
 /**
  * POJO representing a Track
- * TODO cleanup
  */
 public class Track implements Serializable {
     @SerializedName("id")
-    public int id;
+    private int id;
     @SerializedName("name")
-    public String name;
+    private String name;
     @SerializedName("distance")
-    public float distance;
+    private float distance;
     @SerializedName("climb")
-    public double climb;
+    private double climb;
     @SerializedName("descent")
-    public double descent;
+    private double descent;
     @SerializedName("type")
-    public String type;
+    private String type;
     @SerializedName("points")
-    public List<Point> points;
+    private List<Point> points;
 
     // Generated from activity, not present in API calls
     private Date date;
@@ -76,7 +75,6 @@ public class Track implements Serializable {
         this.speed = speed;
     }
 
-    /*
     public int getId() {
         return id;
     }
@@ -85,19 +83,17 @@ public class Track implements Serializable {
         this.id = id;
     }
 
-    public int getClimb() {
-        return climb;
-    }
+    public double getClimb() { return climb; }
 
-    public void setClimb(int climb) {
+    public void setClimb(double climb) {
         this.climb = climb;
     }
 
-    public int getDescent() {
+    public double getDescent() {
         return descent;
     }
 
-    public void setDescent(int descent) {
+    public void setDescent(double descent) {
         this.descent = descent;
     }
 
@@ -132,5 +128,4 @@ public class Track implements Serializable {
     public void setPoints(List<Point> points) {
         this.points = points;
     }
-    */
 }

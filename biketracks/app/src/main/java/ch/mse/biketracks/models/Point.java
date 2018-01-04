@@ -7,15 +7,14 @@ import java.util.Date;
 
 /**
  * POJO defining a Point
- * TODO cleanup
  */
 public class Point implements Serializable {
     @SerializedName("lat")
-    public double lat;
+    private double lat;
     @SerializedName("lng")
-    public double lng;
+    private double lng;
     @SerializedName("elev")
-    public double elev;
+    private double elev;
 
     public Point(double lat, double lng, int elev) {
         this.lat = lat;
@@ -23,7 +22,6 @@ public class Point implements Serializable {
         this.elev = elev;
     }
 
-    /*
     public double getLat() {
         return lat;
     }
@@ -40,12 +38,11 @@ public class Point implements Serializable {
         this.lng = lng;
     }
 
-    public int getElev() {
+    public double getElev() {
         return elev;
     }
 
-    public void setElev(int elev) {
+    public void setElev(double elev) {
         this.elev = elev;
     }
-    */
 }
