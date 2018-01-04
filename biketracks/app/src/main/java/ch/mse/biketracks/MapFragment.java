@@ -5,13 +5,14 @@ package ch.mse.biketracks;
  */
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -20,16 +21,16 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,13 +39,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -60,10 +57,14 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import ch.mse.biketracks.adapters.TrackInfoWindowAdapter;
@@ -91,7 +92,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private SupportMapFragment supportMapFragment;
 
     private boolean mLocationPermissionGranted;
-    private boolean isMarkerClicked = false;
+    private boolean isTrackSelected = false;
+    private Polyline focusedPolyline;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Button recordButton;
@@ -99,10 +101,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private ProgressBar progressBar;
     private SparseIntArray tracksColor = new SparseIntArray(); // Define a color for each track to distinguish them <id of track, color of track>
     private Random rnd = new Random();
-    RequestQueue requestQueue;  // This is our requests queue to process our HTTP requests
 
     private Marker lastClickedMarker;
+    private Marker startMarker;
+    private Marker finishMarker;
+    private Bitmap startIconSmall;
+    private Bitmap finishIconSmall;
 
+    // Record activity
+    private Button startRecordingButton;
+    private Button stopRecordingButton;
+
+    // Bottom sheet controls
+    private boolean neverSelectedAnyTrack = true;
+    private View bottomSheet;
+    private BottomSheetBehavior mBottomSheetBehavior;
+    private TextView trackTitle;
+    private TextView trackType;
+    private TextView trackDistance;
+    private TextView trackClimb;
+    private TextView trackDescent;
 
     public MapFragment() {
         // Required empty public constructor
@@ -118,10 +136,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity();
-        apiInterface = BiketracksAPIClient.getClient().create(BiketracksAPIInterface.class);
-        requestQueue = Volley.newRequestQueue(mContext);
+        apiInterface = BiketracksAPIClient.getClient().create(BiketracksAPIInterface.class); // API to retrieve tracks
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
 
+        /*
         recordButton = getView().findViewById(R.id.start_recording);
         recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,6 +148,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         .setAction("Action", null).show();
             }
         });
+        */
+
 
         locateButton = (FloatingActionButton) getView().findViewById(R.id.locate);
         locateButton.setOnClickListener(new View.OnClickListener() {
@@ -147,7 +167,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         progressBar = getView().findViewById(R.id.progressBarMap);
-        //locateButton.hide();
+
+        // Record controls
+        startRecordingButton = getView().findViewById(R.id.start_recording);
+        stopRecordingButton = getView().findViewById(R.id.stop_recording);
+
+        // Get bottom sheet controls
+        bottomSheet = getView().findViewById(R.id.bottom_sheet);
+        trackTitle = getView().findViewById(R.id.track_title);
+        trackType = getView().findViewById(R.id.track_type);
+        trackDistance = getView().findViewById(R.id.track_distance);
+        trackClimb = getView().findViewById(R.id.track_climb);
+        trackDescent = getView().findViewById(R.id.track_descent);
+
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        mBottomSheetBehavior.setHideable(true);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        // Set marker start and finish
+        int height = 52;
+        int width = 52;
+
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.icon_start);
+        Bitmap bStart = bitmapdraw.getBitmap();
+        startIconSmall = Bitmap.createScaledBitmap(bStart, width, height, false);
+
+        BitmapDrawable bitmapdraw2=(BitmapDrawable)getResources().getDrawable(R.drawable.icon_finish);
+        Bitmap bFinish = bitmapdraw2.getBitmap();
+        finishIconSmall = Bitmap.createScaledBitmap(bFinish, width, height, false);
     }
 
     @Override
@@ -179,16 +226,39 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap.setOnCameraIdleListener(this::onCameraIdle);
         mMap.setOnCameraMoveStartedListener(this::onCameraStarted);
 
-        // Turn on the My Location layer and the related control on the map.
-        //updateLocationUI();
-
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();// Load the tracks
     }
 
     private void onCameraStarted(int i) {
-        if (!isMarkerClicked)
+        if (!isTrackSelected) {
             progressBar.setVisibility(View.VISIBLE);
+
+            if (!neverSelectedAnyTrack) {
+                updateRecordButtons(trackTitle.getHeight() + trackDistance.getHeight());
+                mBottomSheetBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        } else {
+            updateRecordButtons(bottomSheet.getHeight());
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
+        mMap.setPadding(0,0,0, 0);
+    }
+
+    /**
+     * Used to replace the start/stop record button
+     * @param height the margin below the button
+     */
+    private void updateRecordButtons(int height) {
+        CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, 0, 0, height + 32);
+        params.gravity = Gravity.BOTTOM | Gravity.CENTER;
+        startRecordingButton.setLayoutParams(params);
+        stopRecordingButton.setLayoutParams(params);
     }
 
     /**
@@ -196,8 +266,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * We get the radius of visible window, then load and replace the tracks on the map.
      */
     private void onCameraIdle() {
-        if (isMarkerClicked) {
-            isMarkerClicked = false;
+        if (isTrackSelected) {
+            isTrackSelected = false;
             return;
         }
 
@@ -455,13 +525,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             tracksColor.append(track.getId(), 0xFF000000 | rnd.nextInt(0xFFFFFF));
 
                         // Build the track
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
                         for (Point point : track.getPoints()) {
-                            polylineOptions.add(new LatLng(point.getLat(), point.getLng()));
+                            LatLng latLng = new LatLng(point.getLat(), point.getLng());
+                            polylineOptions.add(latLng);
                             polylineOptions.width(10);
                             polylineOptions.color(tracksColor.get(track.getId()));
+                            builder.include(latLng);
                         }
                         Polyline polyline = mMap.addPolyline(polylineOptions);
+                        polyline.setClickable(true);
+                        polyline.setTag(track);
+                        LatLngBounds bounds = builder.build();
+                        track.setLatLngBounds(bounds);
+                        track.setPolyline(polyline);
                         polylineArrayList.add(polyline); // Store the displayed polylines to clean them before each load
+
+                        // Handle polyline clicks event
+                        mMap.setOnPolylineClickListener(clickedPolyline -> {
+                            //do something with polyline
+                            Log.d(TAG, "polyline clicked. tracks' id = " + ((Track)clickedPolyline.getTag()).getId());
+                            isTrackSelected = true;
+                            displayTrackDetails((Track)clickedPolyline.getTag());
+                        });
 
                         // Add the marker (on the centroid of the track)
                         MarkerOptions markerOpt = new MarkerOptions().position(computeCentroid(track.getPoints()))
@@ -487,7 +573,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                             @Override
                             public boolean onMarkerClick(Marker marker) {
-                                isMarkerClicked = true;
+                                isTrackSelected = true;
+                                displayTrackDetails((Track)marker.getTag());
+
+                                /*
                                 if (lastClickedMarker != null && lastClickedMarker.equals(marker)) {
                                     lastClickedMarker = null;
                                     marker.hideInfoWindow();
@@ -496,6 +585,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     lastClickedMarker = marker;
                                     return false;
                                 }
+                                */
+                                return true;
                             }
                         });
                     }
@@ -521,6 +612,96 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    /**
+     * Display the selected track details in the bottom sheet appearing from the bottom screen
+     * @param track The track to display
+     */
+    private void displayTrackDetails(Track track) {
+        neverSelectedAnyTrack = false;
+
+        // Fill the bottom sheet with track's content
+        trackTitle.setText(track.getName());
+        trackType.setText(track.getType());
+        trackDistance.setText(String.format(Locale.getDefault(), "%.1f km", track.getDistance() / 1000.f));
+        trackClimb.setText(String.format(Locale.getDefault(), "%d m", (int)track.getClimb()));
+        trackDescent.setText(String.format(Locale.getDefault(), "%d m", (int)track.getDescent()));
+
+        // Build the elevation graph
+        int pointsSize = track.getPoints().size();
+        DataPoint[] dataPoints = new DataPoint[pointsSize];
+        double totDistanceKm = 0;
+        Point previous = track.getPoints().get(0);
+        int i = 0;
+        dataPoints[i++] = new DataPoint(0, previous.getElev());
+        for (Point p : track.getPoints().subList(1, pointsSize)) {
+            totDistanceKm += (distance(previous.getLat(), p.getLat(), previous.getLng(), p.getLng(), previous.getElev(), p.getElev()) / 1000.0);
+            dataPoints[i++] = new DataPoint(totDistanceKm, p.getElev());
+            previous = p;
+        }
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints);
+        series.setDrawBackground(true);
+        series.setBackgroundColor(Color.argb(80,78, 166, 52));
+        series.setColor(Color.argb(255,78, 166, 52));
+        GraphView graphView = getView().findViewById(R.id.elevationGraph);
+        // set manual X bounds
+        graphView.getViewport().setXAxisBoundsManual(true);
+        graphView.getViewport().setMinX(0.);
+        graphView.getViewport().setMaxX(totDistanceKm);
+        if (graphView.getSeries().size() > 0)
+            graphView.removeAllSeries();
+        graphView.addSeries(series);
+
+        // Display the bottom sheet
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        updateRecordButtons(bottomSheet.getHeight());
+
+        // Center map, draw it with a bigger color and add markers start/end
+        mMap.setPadding(0,0,0, bottomSheet.getHeight() + startRecordingButton.getHeight());
+        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(track.getLatLngBounds(), 200));
+
+        // Focus track with a bigger width
+        for (Polyline polyline : polylineArrayList) {
+            int alpha = 0x7F000000 + polyline.getColor();
+            polyline.setColor(alpha);
+        }
+
+        PolylineOptions polylineOptions = new PolylineOptions();
+        for (Point point : track.getPoints()) {
+            LatLng latLng = new LatLng(point.getLat(), point.getLng());
+            polylineOptions.add(latLng);
+            polylineOptions.width(20);
+            polylineOptions.color(Color.argb(120,255,0,0));
+        }
+        if (focusedPolyline != null)
+            focusedPolyline.remove();
+        focusedPolyline = mMap.addPolyline(polylineOptions);
+
+        // Add markers start/end
+        if (startMarker != null)
+            startMarker.remove();
+        if (finishMarker != null)
+            finishMarker.remove();
+
+        Point startPoint = track.getPoints().get(0);
+        Point finishPoint = track.getPoints().get(track.getPoints().size() - 1);
+        LatLng start = new LatLng(startPoint.getLat(), startPoint.getLng());
+        LatLng finish = new LatLng(finishPoint.getLat(), finishPoint.getLng());
+
+        MarkerOptions startMarkerOptions = new MarkerOptions()
+                .position(start)
+                .anchor(0.5f, 0.5f)
+                .icon(BitmapDescriptorFactory.fromBitmap(startIconSmall));
+        MarkerOptions finishMarkerOptions = new MarkerOptions()
+                .position(finish)
+                .anchor(0.5f, 0.5f)
+                .icon(BitmapDescriptorFactory.fromBitmap(finishIconSmall));
+
+        finishMarker = mMap.addMarker(finishMarkerOptions);
+        startMarker = mMap.addMarker(startMarkerOptions);
+
+        // Make buttons and map follow the display
+    }
+
     LatLng computeCentroid(List<Point> points) {
         double latitude = 0;
         double longitude = 0;
@@ -530,5 +711,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             longitude += point.getLng();
         }
         return new LatLng(latitude/n, longitude/n);
+    }
+
+    public static double distance(double lat1, double lat2, double lon1,
+                                  double lon2, double el1, double el2) {
+
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c * 1000; // convert to meters
+
+        double height = el1 - el2;
+
+        distance = Math.pow(distance, 2) + Math.pow(height, 2);
+
+        return Math.sqrt(distance);
     }
 }

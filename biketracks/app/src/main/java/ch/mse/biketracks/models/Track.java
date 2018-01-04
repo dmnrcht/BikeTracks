@@ -1,5 +1,7 @@
 package ch.mse.biketracks.models;
 
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -29,6 +31,8 @@ public class Track implements Serializable {
     private Date date;
     private int duration;
     private float speed;
+    private LatLngBounds latLngBounds;
+    private Polyline polyline;
 
     public Track(String name, Date date, int duration, float speed, float distance) {
         this.name = name;
@@ -127,5 +131,21 @@ public class Track implements Serializable {
 
     public void setPoints(List<Point> points) {
         this.points = points;
+    }
+
+    public LatLngBounds getLatLngBounds() {
+        return latLngBounds;
+    }
+
+    public void setLatLngBounds(LatLngBounds latLngBounds) {
+        this.latLngBounds = latLngBounds;
+    }
+
+    public Polyline getPolyline() {
+        return polyline;
+    }
+
+    public void setPolyline(Polyline polyline) {
+        this.polyline = polyline;
     }
 }
