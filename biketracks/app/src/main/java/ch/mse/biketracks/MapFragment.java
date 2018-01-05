@@ -268,14 +268,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             if (!neverSelectedAnyTrack) {
                 mBottomSheetBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                // updateRecordButtons(trackTitle.getHeight() + trackDistance.getHeight());
             }
         }
-        /*else {
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            updateRecordButtons(bottomSheet.getHeight());
-        }
-        */
         mMap.setPadding(0,0,0, 0);
     }
 
@@ -704,7 +698,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Display the bottom sheet
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        // updateRecordButtons(bottomSheet.getHeight());
 
         // Redraw track as now it contains all the points
         polylineSparseArray.get(track.getId()).remove();
