@@ -6,9 +6,11 @@ package ch.mse.biketracks;
 
 import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -27,6 +29,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -112,12 +115,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // Record activity
     private Button startRecordingButton;
     private Button stopRecordingButton;
+    private View recordingWindow;
+    private BottomSheetBehavior recordingWindowBehavior;
+    private TextView recordingDistance;
+    private TextView recordingClimb;
+    private TextView recordingDescent;
     private boolean isRecording = false;
+    private BroadcastReceiver trackingUpdatesReceiver;
 
     // Bottom sheet controls
     private boolean neverSelectedAnyTrack = true;
-    private View bottomSheet;
-    private BottomSheetBehavior mBottomSheetBehavior;
+    private View trackWindow;
+    private BottomSheetBehavior trackWindowBehavior;
     private TextView trackTitle;
     private TextView trackType;
     private TextView trackDistance;
@@ -146,6 +155,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if (!isRecording) {
+                    isRecording = true;
                     startRecordingButton.setVisibility(View.INVISIBLE);
                     stopRecordingButton.setVisibility(View.VISIBLE);
                     startRecording();
@@ -158,12 +168,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if (isRecording) {
+                    isRecording = false;
                     stopRecording();
                     stopRecordingButton.setVisibility(View.INVISIBLE);
                     startRecordingButton.setVisibility(View.VISIBLE);
                 }
             }
         });
+
+        trackingUpdatesReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Track track = (Track) intent.getSerializableExtra("track");
+                displayRecordingDetails(track);
+            }
+        };
 
         locateButton = (FloatingActionButton) getView().findViewById(R.id.locate);
         locateButton.setOnClickListener(new View.OnClickListener() {
@@ -186,17 +205,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         startRecordingButton = getView().findViewById(R.id.start_recording);
         stopRecordingButton = getView().findViewById(R.id.stop_recording);
 
-        // Get bottom sheet controls
-        bottomSheet = getView().findViewById(R.id.bottom_sheet);
+        // Get track bottom sheet controls
+        trackWindow = getView().findViewById(R.id.track_window);
         trackTitle = getView().findViewById(R.id.track_title);
         trackType = getView().findViewById(R.id.track_type);
         trackDistance = getView().findViewById(R.id.track_distance);
         trackClimb = getView().findViewById(R.id.track_climb);
         trackDescent = getView().findViewById(R.id.track_descent);
 
-        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        mBottomSheetBehavior.setHideable(true);
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        trackWindowBehavior = BottomSheetBehavior.from(trackWindow);
+        trackWindowBehavior.setHideable(true);
+        trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        // Get recording bottom sheet controls
+        recordingWindow = getView().findViewById(R.id.recording_window);
+        recordingDistance = getView().findViewById(R.id.recording_distance);
+        recordingClimb = getView().findViewById(R.id.recording_climb);
+        recordingDescent = getView().findViewById(R.id.recording_descent);
+
+        recordingWindowBehavior = BottomSheetBehavior.from(recordingWindow);
+        recordingWindowBehavior.setHideable(true);
+        recordingWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
         // Set marker start and finish
         int height = 52;
@@ -229,6 +258,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        stopListeningTracking();
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.v(TAG, googleMap.toString());
         mMap = googleMap;
@@ -250,12 +285,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             if (!neverSelectedAnyTrack) {
                 updateRecordButtons(trackTitle.getHeight() + trackDistance.getHeight());
-                mBottomSheetBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
-                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                trackWindowBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
+                trackWindowBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         } else {
-            updateRecordButtons(bottomSheet.getHeight());
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            updateRecordButtons(trackWindow.getHeight());
+            trackWindowBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         }
         mMap.setPadding(0,0,0, 0);
     }
@@ -523,12 +558,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 List<Track> tracks = response.body();
 
                 if (tracks != null) {
-
-                    // Clean map
-                    for (Polyline polyline : polylineArrayList)
-                        polyline.remove();
-                    for (Marker marker : markerArrayList)
-                        marker.remove();
+                    cleanMap();
 
                     // Display tracks
                     for (Track track : tracks) {
@@ -627,6 +657,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
+     * Remove all polylines and markers from the map.
+     */
+    private void cleanMap() {
+        for (Polyline polyline : polylineArrayList)
+            polyline.remove();
+        for (Marker marker : markerArrayList)
+            marker.remove();
+    }
+
+    /**
      * Display the selected track details in the bottom sheet appearing from the bottom screen
      * @param track The track to display
      */
@@ -666,11 +706,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         graphView.addSeries(series);
 
         // Display the bottom sheet
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        updateRecordButtons(bottomSheet.getHeight());
+        trackWindowBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        updateRecordButtons(trackWindow.getHeight());
 
         // Center map, draw it with a bigger color and add markers start/end
-        mMap.setPadding(0,0,0, bottomSheet.getHeight() + startRecordingButton.getHeight());
+        mMap.setPadding(0,0,0, trackWindow.getHeight() + startRecordingButton.getHeight());
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(track.getLatLngBounds(), 200));
 
         // Focus track with a bigger width
@@ -716,12 +756,67 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Make buttons and map follow the display
     }
 
+    /**
+     * Create recording service and update current activity details when needed
+     */
     private void startRecording() {
+        Log.d(TAG, "startRecording");
         getActivity().startService(new Intent(getActivity(), TrackerService.class));
+        startListeningTracking();
     }
 
+    /**
+     * Stop recording
+     */
     private void stopRecording() {
+        Log.d(TAG, "stopRecording");
+        stopListeningTracking();
         getActivity().stopService(new Intent(getActivity(), TrackerService.class));
+    }
+
+    /**
+     * Register tracking listeners
+     */
+    private void startListeningTracking() {
+        Log.d(TAG, "startListeningTracking");
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(trackingUpdatesReceiver,
+                new IntentFilter(TrackerService.ACTION_UPDATE));
+
+        cleanMap();
+    }
+
+    /**
+     * Unregister tracking listeners
+     */
+    private void stopListeningTracking() {
+        Log.d(TAG, "stopListeningTracking");
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(trackingUpdatesReceiver);
+    }
+
+    /**
+     * Display the current tracking
+     * @param track The track to display
+     */
+    private void displayRecordingDetails(Track track) {
+        recordingDistance.setText(String.format(Locale.getDefault(), "%.1f km", track.getDistance() / 1000.f));
+        recordingClimb.setText(String.format(Locale.getDefault(), "%d m", (int)track.getClimb()));
+        recordingDescent.setText(String.format(Locale.getDefault(), "%d m", (int)track.getDescent()));
+
+        // Display the bottom sheet
+        recordingWindowBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        updateRecordButtons(recordingWindow.getHeight());
+
+        // Center map, draw it with a bigger color and add markers start/end
+        mMap.setPadding(0,0,0, trackWindow.getHeight() + startRecordingButton.getHeight());
+
+        PolylineOptions polylineOptions = new PolylineOptions();
+        for (Point point : track.getPoints()) {
+            LatLng latLng = new LatLng(point.getLat(), point.getLng());
+            polylineOptions.add(latLng);
+            polylineOptions.width(20);
+            polylineOptions.color(Color.argb(120,255,0,0));
+        }
+        focusedPolyline = mMap.addPolyline(polylineOptions);
     }
 
     LatLng computeCentroid(List<Point> points) {

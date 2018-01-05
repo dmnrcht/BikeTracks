@@ -1,15 +1,13 @@
 package ch.mse.biketracks.services;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.IntentService;
+import android.annotation.SuppressLint;
+import android.app.Service;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Looper;
-import android.os.ResultReceiver;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -23,7 +21,10 @@ import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 import ch.mse.biketracks.utils.Distance;
 
-public class TrackerService extends IntentService {
+public class TrackerService extends Service {
+    private static final String TAG = TrackerService.class.getSimpleName();
+
+    public static final String ACTION_UPDATE = "ch.mse.biketracks.TrackerService.update";
 
     private static final int MIN_SECONDS_BETWEEN_UPDATES = 10;
     private static final int MIN_METERS_BETWEEN_UPDATES = 3;
@@ -31,24 +32,22 @@ public class TrackerService extends IntentService {
     /**
      * Tracking status
      */
-    private boolean currentlyTracking = false;
     private Track track;
     private Point lastPoint;
 
     /**
      * Location updates
      */
+    private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
-    private FusedLocationProviderClient fusedLocationClient;
-
-    /**
-     * Communication
-     */
-    private ResultReceiver resultReceiver;
 
     public TrackerService() {
-        super("TrackerService");
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     /**
@@ -60,51 +59,45 @@ public class TrackerService extends IntentService {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                addLocationToTrack(locationResult.getLastLocation());
+                broadcastTrack();
+            }
+        };
+
         locationRequest = new LocationRequest()
                 .setInterval(MIN_SECONDS_BETWEEN_UPDATES * 1000)
                 .setFastestInterval(MIN_SECONDS_BETWEEN_UPDATES * 1000)
                 .setSmallestDisplacement(MIN_METERS_BETWEEN_UPDATES)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                addLocation(locationResult.getLastLocation());
-            }
-        };
-    }
-
-    /**
-     * The service can track user only once at a time.
-     */
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        resultReceiver = intent.getParcelableExtra("receiver");
-
-        if (!currentlyTracking) {
-            currentlyTracking = true;
-            startTracking();
-        }
+        startTracking();
     }
 
     @Override
     public void onDestroy() {
         stopTracking();
+        super.onDestroy();
     }
 
     /**
-     * If location permission is granted,
-     * init a new empty track and start location updates.
+     * Init a new empty track and start listening location updates.
+     *
+     * Note: location permission is granted from the activity.
      */
+    @SuppressLint("MissingPermission")
     private void startTracking() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
         track = new Track(new Date());
         lastPoint = null;
 
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback, Looper.myLooper());
+
+        Log.d(TAG, "Tracking started");
     }
 
     /**
@@ -112,12 +105,14 @@ public class TrackerService extends IntentService {
      */
     private void stopTracking() {
         fusedLocationClient.removeLocationUpdates(locationCallback);
+
+        Log.d(TAG, "Tracking stopped");
     }
 
     /**
      * Create a new point and update track.
      */
-    private void addLocation(Location location) {
+    private void addLocationToTrack(Location location) {
         Point point = new Point(
                 location.getLatitude(),
                 location.getLongitude(),
@@ -148,16 +143,15 @@ public class TrackerService extends IntentService {
 
         track.addPoint(point);
         lastPoint = point;
-
-        sendUpdate();
     }
 
     /**
      * Use ResultReceiver to send updated Track to activity.
      */
-    private void sendUpdate() {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("track", track);
-        resultReceiver.send(Activity.RESULT_OK, bundle);
+    private void broadcastTrack() {
+        Intent in = new Intent(ACTION_UPDATE);
+        in.putExtra("track", track);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(in);
+        Log.d(TAG, "Track updated");
     }
 }
