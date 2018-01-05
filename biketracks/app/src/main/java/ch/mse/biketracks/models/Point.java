@@ -3,7 +3,6 @@ package ch.mse.biketracks.models;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * POJO defining a Point
@@ -16,10 +15,20 @@ public class Point implements Serializable {
     @SerializedName("elev")
     private double elev;
 
+    // Generated from activity, not present in API responses
+    private long time;
+    private int duration;
+    private float speed;
+
     public Point(double lat, double lng, int elev) {
         this.lat = lat;
         this.lng = lng;
         this.elev = elev;
+    }
+
+    public Point(double lat, double lng, int elev, long time) {
+        this(lat, lng, elev);
+        this.time = time;
     }
 
     public double getLat() {
@@ -44,5 +53,29 @@ public class Point implements Serializable {
 
     public void setElev(double elev) {
         this.elev = elev;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
     }
 }
