@@ -70,8 +70,10 @@ import java.util.Random;
 import ch.mse.biketracks.adapters.TrackInfoWindowAdapter;
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
+import ch.mse.biketracks.services.TrackerService;
 import ch.mse.biketracks.utils.BiketracksAPIClient;
 import ch.mse.biketracks.utils.BiketracksAPIInterface;
+import ch.mse.biketracks.utils.Distance;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -96,7 +98,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Polyline focusedPolyline;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private Button recordButton;
     private FloatingActionButton locateButton;
     private ProgressBar progressBar;
     private SparseIntArray tracksColor = new SparseIntArray(); // Define a color for each track to distinguish them <id of track, color of track>
@@ -111,6 +112,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // Record activity
     private Button startRecordingButton;
     private Button stopRecordingButton;
+    private boolean isRecording = false;
 
     // Bottom sheet controls
     private boolean neverSelectedAnyTrack = true;
@@ -139,17 +141,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         apiInterface = BiketracksAPIClient.getClient().create(BiketracksAPIInterface.class); // API to retrieve tracks
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
 
-        /*
-        recordButton = getView().findViewById(R.id.start_recording);
-        recordButton.setOnClickListener(new View.OnClickListener() {
+        startRecordingButton = getView().findViewById(R.id.start_recording);
+        startRecordingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (!isRecording) {
+                    startRecordingButton.setVisibility(View.INVISIBLE);
+                    stopRecordingButton.setVisibility(View.VISIBLE);
+                    startRecording();
+                }
             }
         });
-        */
 
+        stopRecordingButton = getView().findViewById(R.id.stop_recording);
+        stopRecordingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isRecording) {
+                    stopRecording();
+                    stopRecordingButton.setVisibility(View.INVISIBLE);
+                    startRecordingButton.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         locateButton = (FloatingActionButton) getView().findViewById(R.id.locate);
         locateButton.setOnClickListener(new View.OnClickListener() {
@@ -634,7 +648,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         int i = 0;
         dataPoints[i++] = new DataPoint(0, previous.getElev());
         for (Point p : track.getPoints().subList(1, pointsSize)) {
-            totDistanceKm += (distance(previous.getLat(), p.getLat(), previous.getLng(), p.getLng(), previous.getElev(), p.getElev()) / 1000.0);
+            totDistanceKm += (Distance.distance(previous, p) / 1000.0);
             dataPoints[i++] = new DataPoint(totDistanceKm, p.getElev());
             previous = p;
         }
@@ -702,6 +716,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Make buttons and map follow the display
     }
 
+    private void startRecording() {
+        getActivity().startService(new Intent(getActivity(), TrackerService.class));
+    }
+
+    private void stopRecording() {
+        getActivity().stopService(new Intent(getActivity(), TrackerService.class));
+    }
+
     LatLng computeCentroid(List<Point> points) {
         double latitude = 0;
         double longitude = 0;
@@ -711,25 +733,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             longitude += point.getLng();
         }
         return new LatLng(latitude/n, longitude/n);
-    }
-
-    public static double distance(double lat1, double lat2, double lon1,
-                                  double lon2, double el1, double el2) {
-
-        final int R = 6371; // Radius of the earth
-
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c * 1000; // convert to meters
-
-        double height = el1 - el2;
-
-        distance = Math.pow(distance, 2) + Math.pow(height, 2);
-
-        return Math.sqrt(distance);
     }
 }
