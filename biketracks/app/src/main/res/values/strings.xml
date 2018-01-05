@@ -14,7 +14,7 @@
     <string name="pick_place">Pick the place you\'re at</string>
     <string name="location_not_found">Location not found</string>
     <string name="urgency_contacts">Urgency contacts</string>
-    <string name="contact_already_exists">The contact already exists...</string>
+    <string name="contact_already_exists">The contact already exists…</string>
     <string name="urgency_message_sent">Urgency message sent!</string>
     <string name="gps_seems_disabled">Your GPS seems to be disabled, do you want to enable it?</string>
     <string name="yes">Yes</string>
@@ -26,4 +26,6 @@
     <string name="descent">Descent</string>
     <string name="altitude_m">Elevation [m]</string>
     <string name="distance_m">Distance [km]</string>
+    <string name="error">Error</string>
+    <string name="selected_track_empty">The selected track is empty</string>
 </resources>

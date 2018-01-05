@@ -1,5 +1,9 @@
 package ch.mse.biketracks.utils;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.List;
+
 import ch.mse.biketracks.models.Point;
 
 public class Distance {
@@ -26,5 +30,21 @@ public class Distance {
         distance = Math.pow(distance, 2) + Math.pow(height, 2);
 
         return Math.sqrt(distance);
+    }
+
+    /**
+     * Compute the centroid of a list of Point
+     * @param points List of points to compute the centroid
+     * @return the position of the centroid
+     */
+    public static LatLng centroid(List<Point> points) {
+        double latitude = 0;
+        double longitude = 0;
+        int n = points.size();
+        for(Point point: points) {
+            latitude += point.getLat();
+            longitude += point.getLng();
+        }
+        return new LatLng(latitude/n, longitude/n);
     }
 }

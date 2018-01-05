@@ -61,7 +61,8 @@
         style="@android:style/Widget.DeviceDefault.ProgressBar.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_gravity="center|top"
+        android:layout_marginTop="100dp"/>
 
     <android.support.v7.widget.GridLayout
         android:id="@+id/bottom_sheet"
