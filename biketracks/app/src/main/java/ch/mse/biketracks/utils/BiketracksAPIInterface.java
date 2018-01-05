@@ -16,4 +16,7 @@ public interface BiketracksAPIInterface {
     Call<List<Track>> doGetTracks(@Query("lat") double lat,
                                   @Query("lng") double lng,
                                   @Query("radius") int radius);
+
+    @GET("tracks/{track_id}/")
+    Call<Track> doGetTrack(@Path("track_id") int trackId);
 }
