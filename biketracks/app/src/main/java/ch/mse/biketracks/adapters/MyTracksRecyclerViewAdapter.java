@@ -11,6 +11,7 @@ import ch.mse.biketracks.models.Track;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class MyTracksRecyclerViewAdapter extends RecyclerView.Adapter<MyTracksRecyclerViewAdapter.ViewHolder> {
 
@@ -35,7 +36,7 @@ public class MyTracksRecyclerViewAdapter extends RecyclerView.Adapter<MyTracksRe
         holder.speed.setText(String.valueOf(mValues.get(position).getSpeed() + "km/h"));
 
         // TODO : Support multiple formats of dates depending on locale
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH'h'mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         holder.date.setText(sdf.format(mValues.get(position).getDate()));
         holder.duration.setText(mValues.get(position).getDuration()/60 + " h " + mValues.get(position).getDuration()%60);
     }

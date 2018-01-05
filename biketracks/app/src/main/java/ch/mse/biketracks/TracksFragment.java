@@ -11,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import ch.mse.biketracks.adapters.MyTracksRecyclerViewAdapter;
 import ch.mse.biketracks.adapters.RecyclerItemClickListener;
@@ -2391,6 +2393,10 @@ public class TracksFragment extends Fragment {
         points.add(new Point(46.78896367, 6.74356533, 442));
         points.add(new Point(46.78896167, 6.74356417, 443));
         points.add(new Point(46.78895933, 6.74356183, 443));
+
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+
         tracks.add(new Track(5, "Vallons des Vaux", new Date(), 0, 0, 8715, 319, 325, "Xcountry", points));
         tracks.add(new Track(5, "Neuchatel", new Date(), 0, 0, 8715, 319, 325, "Xcountry", points));
         tracks.add(new Track(5, "Yverdon", new Date(), 0, 0, 8715, 319, 325, "Xcountry", points));

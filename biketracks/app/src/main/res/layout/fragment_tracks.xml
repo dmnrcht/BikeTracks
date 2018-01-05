@@ -1,117 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.GridLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    app:columnCount="7"
+    app:rowCount="2">
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="99dp"
-        android:layout_height="99dp"
-        app:srcCompat="@mipmap/track" />
+        app:layout_column="0"
+        app:layout_row="0"
+        app:layout_rowSpan="2"
+        app:layout_gravity="fill"
+        android:minHeight="90dp"
+        android:minWidth="90dp"
+        app:srcCompat="@mipmap/track"
+        android:contentDescription="@string/track_preview" />
 
+    <TextView
+        android:id="@+id/location"
+        app:layout_column="1"
+        app:layout_row="0"
+        app:layout_columnSpan="4"
+        app:layout_rowWeight="2"
+        app:layout_gravity="fill_horizontal|center_vertical"
+        android:layout_width="1dp"
+        android:textStyle="bold"
+        android:text="Nom Parcours"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textSize="16sp" />
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/date"
+        app:layout_column="5"
+        app:layout_row="0"
+        app:layout_rowWeight="2"
+        app:layout_columnSpan="2"
+        app:layout_gravity="right|center_vertical"
+        android:text="JJ.MM.AA"
+        android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textSize="16sp" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+    <ImageView
+        android:id="@+id/distanceIcon"
+        app:layout_row="1"
+        app:layout_rowWeight="1"
+        app:layout_column="1"
+        app:layout_gravity="right|center_vertical"
+        app:srcCompat="@drawable/distance" />
 
-            <TextView
-                android:id="@+id/location"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/text_margin"
-                android:text="Neuchâtel"
-                android:textAppearance="?attr/textAppearanceListItem"
-                android:textSize="18dp" />
+    <TextView
+        android:id="@+id/distance"
+        app:layout_row="1"
+        app:layout_rowWeight="1"
+        app:layout_column="2"
+        app:layout_gravity="left|center_vertical"
+        app:layout_columnWeight="1"
+        android:text="xx.x km"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/text_margin"
-                android:text="24.10.17"
-                android:textAppearance="?attr/textAppearanceListItem"
-                android:textSize="18dp" />
-        </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/durationIcon"
+        app:layout_column="3"
+        app:layout_columnWeight="1"
+        app:layout_gravity="right|center_vertical"
+        app:layout_row="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/duration" />
 
-        <ImageView
-            android:id="@+id/distanceIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/distance" />
+    <TextView
+        android:id="@+id/duration"
+        app:layout_row="1"
+        app:layout_column="4"
+        app:layout_gravity="left|center_vertical"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        android:text="00:00"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="10dp"
-            android:text="1km"
-            android:textAppearance="?attr/textAppearanceListItem"
-            android:textSize="14sp" />
+    <ImageView
+        android:id="@+id/speedIcon"
+        app:layout_row="1"
+        app:layout_column="5"
+        app:layout_gravity="right|center_vertical"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/speed" />
 
-        <ImageView
-            android:id="@+id/durationIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/duration" />
+    <TextView
+        android:id="@+id/speed"
+        app:layout_row="1"
+        app:layout_column="6"
+        app:layout_rowWeight="1"
+        app:layout_columnWeight="1"
+        app:layout_gravity="left|center_vertical"
+        android:text="xx.x km/h"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/duration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="10dp"
-            android:text="10 minutes"
-            android:textAppearance="?attr/textAppearanceListItem"
-            android:textSize="14sp" />
-
-        <ImageView
-            android:id="@+id/speedIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/speed" />
-
-        <TextView
-            android:id="@+id/speed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="10dp"
-            android:text="10 km/h"
-            android:textAppearance="?attr/textAppearanceListItem"
-            android:textSize="14sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-
-</GridLayout>
+</android.support.v7.widget.GridLayout>
