@@ -45,6 +45,11 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".TrackActivity"></activity>
+
+        <service
+            android:name=".services.TrackerService"
+            android:exported="false" />
+
     </application>
 
 </manifest>
