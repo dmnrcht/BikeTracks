@@ -72,6 +72,7 @@ import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 import ch.mse.biketracks.utils.BiketracksAPIClient;
 import ch.mse.biketracks.utils.BiketracksAPIInterface;
+import ch.mse.biketracks.utils.ContrastColor;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -522,7 +523,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                         // Set a unique color for each track
                         if (tracksColor.get(track.getId()) == 0)
-                            tracksColor.append(track.getId(), 0xFF000000 | rnd.nextInt(0xFFFFFF));
+                            tracksColor.append(track.getId(), ContrastColor.randomColor()); //0xFF000000 | rnd.nextInt(0xFFFFFF));
 
                         // Build the track
                         LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -549,6 +550,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             displayTrackDetails((Track)clickedPolyline.getTag());
                         });
 
+                        /*
                         // Add the marker (on the centroid of the track)
                         MarkerOptions markerOpt = new MarkerOptions().position(computeCentroid(track.getPoints()))
                                 .icon(BitmapDescriptorFactory.defaultMarker(0))
@@ -576,7 +578,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                 isTrackSelected = true;
                                 displayTrackDetails((Track)marker.getTag());
 
-                                /*
                                 if (lastClickedMarker != null && lastClickedMarker.equals(marker)) {
                                     lastClickedMarker = null;
                                     marker.hideInfoWindow();
@@ -585,10 +586,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     lastClickedMarker = marker;
                                     return false;
                                 }
-                                */
                                 return true;
                             }
                         });
+                        */
+
                     }
 
                 } else {
@@ -663,6 +665,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         for (Polyline polyline : polylineArrayList) {
             int alpha = 0x7F000000 + polyline.getColor();
             polyline.setColor(alpha);
+            polyline.setZIndex(0);
         }
 
         PolylineOptions polylineOptions = new PolylineOptions();
@@ -675,6 +678,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (focusedPolyline != null)
             focusedPolyline.remove();
         focusedPolyline = mMap.addPolyline(polylineOptions);
+        focusedPolyline.setZIndex(1);
 
         // Add markers start/end
         if (startMarker != null)
