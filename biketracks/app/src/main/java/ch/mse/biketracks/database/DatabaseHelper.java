@@ -128,7 +128,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Add a track to database
-     * @param track the track with : name, climb, descent, distance, type, date, duration, image
+     * @param track the track with : name, climb, descent, distance, type, date, duration, image, points
      *              Each point of the track must have : lat, lng, elev, time in ms
      * @return the inserted id of the track
      */

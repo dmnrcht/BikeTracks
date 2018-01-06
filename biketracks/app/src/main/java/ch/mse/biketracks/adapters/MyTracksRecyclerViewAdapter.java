@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import ch.mse.biketracks.R;
 import ch.mse.biketracks.models.Track;
+import ch.mse.biketracks.utils.MyTools;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -34,22 +35,20 @@ public class MyTracksRecyclerViewAdapter extends RecyclerView.Adapter<MyTracksRe
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.location.setText(mValues.get(position).getName());
-        holder.distance.setText(String.valueOf(mValues.get(position).getDistance() + "m"));
-        holder.speed.setText(String.valueOf(mValues.get(position).getSpeed() + "km/h"));
-        byte[] imageByteArray = mValues.get(position).getImage();
+        Track track = holder.mItem;
+        holder.location.setText(track.getName());
+        holder.distance.setText(String.valueOf(track.getDistance() + "m"));
+        holder.speed.setText(String.valueOf(track.getSpeed() * 3.6 + "km/h"));
+        byte[] imageByteArray = track.getImage();
         if (imageByteArray != null) {
             Bitmap bm = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
             holder.image.setImageBitmap(bm);
         }
 
         // TODO : Support multiple formats of dates depending on locale
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
         holder.date.setText(sdf.format(mValues.get(position).getDate()));
-        holder.duration.setText(String.format(Locale.getDefault(),
-                "%d h %d",
-                mValues.get(position).getDuration() / 60,
-                mValues.get(position).getDuration() % 60));
+        holder.duration.setText(MyTools.FormatTimeHHhmm(track.getDuration()));
     }
 
     @Override

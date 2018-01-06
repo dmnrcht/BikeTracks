@@ -6,10 +6,10 @@ package ch.mse.biketracks.utils;
  * @param <Y>
  */
 public class Tuple<X, Y> {
-    public final X x;
-    public final Y y;
-    public Tuple(X x, Y y) {
-        this.x = x;
-        this.y = y;
+    public final X first;
+    public final Y second;
+    public Tuple(X first, Y second) {
+        this.first = first;
+        this.second = second;
     }
 }

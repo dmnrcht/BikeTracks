@@ -1,11 +1,16 @@
 package ch.mse.biketracks;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,14 +27,21 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
+import ch.mse.biketracks.utils.MyTools;
+import ch.mse.biketracks.utils.Tuple;
 
 public class TrackActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private Track track;
     private SupportMapFragment supportMapFragment;
+    private View bottomSheet;
+    private BottomSheetBehavior mBottomSheetBehavior;
+    private GoogleMap mMap;
+    Bitmap startIconSmall, finishIconSmall;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,57 +50,99 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
 
         //this set back button
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //this is set custom image to back button
+        //this set custom image to back button
         final Drawable backArrow = getResources().getDrawable(R.drawable.back);
         backArrow.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(backArrow);
 
+        // Get ui controllers
+        TextView titleView = findViewById(R.id.trackdetail_title);
+        TextView typeView = findViewById(R.id.trackdetail_type);
+        TextView distanceView = findViewById(R.id.trackdetail_distance);
+        TextView durationView = findViewById(R.id.trackdetail_duration);
+        TextView climbView = findViewById(R.id.trackdetail_climb);
+        TextView dateView = findViewById(R.id.trackdetail_date);
+        TextView speedView = findViewById(R.id.trackdetail_speed);
+        TextView descentView = findViewById(R.id.trackdetail_descent);
+        GraphView graph = findViewById(R.id.elevationGraphTrackDetail);
+        bottomSheet = findViewById(R.id.track_bottom_sheet);
+
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        mBottomSheetBehavior.setHideable(false);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        // EXPAND / COLLAPSE bottom sheet on click.
+        bottomSheet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (mBottomSheetBehavior.getState()) {
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED:
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        break;
+                }
+            }
+        });
+
+        // Update google map padding on bottomsheet slides
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                if (mMap != null) {
+                    mMap.setPadding(0,0,0,
+                            mBottomSheetBehavior.getPeekHeight() +
+                                    (int)(slideOffset *
+                                            (bottomSheet.getHeight() - mBottomSheetBehavior.getPeekHeight())));
+                }
+            }
+        });
+
+        // Set marker start and finish
+        int height = 52;
+        int width = 52;
+
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.icon_start);
+        Bitmap bStart = bitmapdraw.getBitmap();
+        startIconSmall = Bitmap.createScaledBitmap(bStart, width, height, false);
+
+        BitmapDrawable bitmapdraw2=(BitmapDrawable)getResources().getDrawable(R.drawable.icon_finish);
+        Bitmap bFinish = bitmapdraw2.getBitmap();
+        finishIconSmall = Bitmap.createScaledBitmap(bFinish, width, height, false);
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             track = (Track)getIntent().getSerializableExtra("track"); //Obtaining data
+
+            // Set track values
+            titleView.setText(track.getName());
+            typeView.setText(track.getType());
+            distanceView.setText(String.format(Locale.ENGLISH, "%.1f km", track.getDistance()/ 1000.));
+            durationView.setText(MyTools.FormatTimeHHhmm(track.getDuration()));
+            climbView.setText(String.format(Locale.ENGLISH, "%d m", track.getClimb()));
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+            dateView.setText(sdf.format(track.getDate()));
+            speedView.setText(String.format(Locale.ENGLISH,"%.1f km/h",track.getSpeed() * 3.6));
+            descentView.setText(String.format(Locale.ENGLISH, "%d m", track.getDescent()));
+
+            // Build graph
+            Tuple<LineGraphSeries<DataPoint>, Double> elevationGraph = MyTools.ElevationGraph(track.getPoints());
+            // set manual X bounds
+            graph.getViewport().setXAxisBoundsManual(true);
+            graph.getViewport().setMinX(0.);
+            graph.getViewport().setMaxX(elevationGraph.second);
+            if (graph.getSeries().size() > 0)
+                graph.removeAllSeries();
+            graph.addSeries(elevationGraph.first);
+
+            getSupportActionBar().setTitle(track.getName());
         }
-
-        TextView typeView = (TextView)findViewById(R.id.track_type);
-        typeView.setText(track.getType());
-
-        TextView distanceView = (TextView)findViewById(R.id.track_distance);
-        distanceView.setText(String.valueOf(track.getDistance() + "m"));
-
-        TextView climbView = (TextView)findViewById(R.id.track_climb);
-        climbView.setText(String.valueOf(track.getClimb() + "m"));
-
-        TextView descentView = (TextView)findViewById(R.id.track_descent);
-        descentView.setText(String.valueOf(track.getDescent() + "m"));
-
-        TextView speedView = (TextView)findViewById(R.id.track_speed);
-        speedView.setText(String.valueOf(track.getSpeed() + "km/h"));
-
-        // TODO : Support multiple formats of dates depending on locale
-        /*
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH'h'mm");
-        TextView dateView = (TextView)findViewById(R.id.track_date);
-        dateView.setText(sdf.format(track.getDate()));
-
-        TextView durationView = (TextView)findViewById(R.id.track_duration);
-        durationView.setText(track.getDuration()/60 + " h " + track.getDuration()%60);
-        */
-
-        GraphView graph = (GraphView) findViewById(R.id.graph);
-        DataPoint[] dataPoints = new DataPoint[track.getPoints().size()];
-        double totDistance = 0;
-        for(int i = 0; i < track.getPoints().size(); i++){
-            if(i > 0){
-                totDistance += distance(track.getPoints().get(i).getLat(), track.getPoints().get(i-1).getLat(), track.getPoints().get(i).getLng(), track.getPoints().get(i-1).getLng(), track.getPoints().get(i).getElev(), track.getPoints().get(i-1).getElev());
-            }
-            dataPoints[i] = new DataPoint(totDistance, track.getPoints().get(i).getElev());
-        }
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints);
-        series.setDrawBackground(true);
-        series.setBackgroundColor(Color.argb(80,78, 166, 52));
-        series.setColor(Color.argb(255,78, 166, 52));
-        graph.addSeries(series);
-
-        getSupportActionBar().setTitle(track.getName());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment =
@@ -97,7 +151,8 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
     }
 
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
         LatLngBounds.Builder bounds = new LatLngBounds.Builder();
 
         PolylineOptions lineOptions = new PolylineOptions();
@@ -113,49 +168,35 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
         }
 
         // Drawing polyline in the Google Map for the i-th route
-        if(lineOptions != null) {
-            map.addPolyline(lineOptions);
-        }
-        else {
-            Log.d("onPostExecute","without Polylines drawn");
-        }
+        mMap.addPolyline(lineOptions);
 
-        map.addMarker(new MarkerOptions()
-                .position(new LatLng(track.getPoints().get(0).getLat(), track.getPoints().get(0).getLng()))
-                .icon(BitmapDescriptorFactory.defaultMarker(106)));
-        map.addMarker(new MarkerOptions()
-                .position(new LatLng(track.getPoints().get(track.getPoints().size() - 1).getLat(), track.getPoints().get(track.getPoints().size() - 1).getLng()))
-                .icon(BitmapDescriptorFactory.defaultMarker(0)));
+        // Add markers start/end
+        Point startPoint = track.getPoints().get(0);
+        Point finishPoint = track.getPoints().get(track.getPoints().size() - 1);
+        LatLng start = new LatLng(startPoint.getLat(), startPoint.getLng());
+        LatLng finish = new LatLng(finishPoint.getLat(), finishPoint.getLng());
 
-        map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+        MarkerOptions startMarkerOptions = new MarkerOptions()
+                .position(start)
+                .anchor(0.5f, 0.5f)
+                .icon(BitmapDescriptorFactory.fromBitmap(startIconSmall));
+        MarkerOptions finishMarkerOptions = new MarkerOptions()
+                .position(finish)
+                .anchor(0.5f, 0.5f)
+                .icon(BitmapDescriptorFactory.fromBitmap(finishIconSmall));
+
+        mMap.addMarker(finishMarkerOptions);
+        mMap.addMarker(startMarkerOptions);
+
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-                map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 0));
-                map.moveCamera(CameraUpdateFactory.zoomTo(map.getCameraPosition().zoom - 0.7f));
+                mMap.setPadding(0,0,0,bottomSheet.getHeight());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 0));
+                mMap.moveCamera(CameraUpdateFactory.zoomTo(mMap.getCameraPosition().zoom - 0.7f));
             }
         });
     }
-
-    public static double distance(double lat1, double lat2, double lon1,
-                                  double lon2, double el1, double el2) {
-
-        final int R = 6371; // Radius of the earth
-
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c * 1000; // convert to meters
-
-        double height = el1 - el2;
-
-        distance = Math.pow(distance, 2) + Math.pow(height, 2);
-
-        return Math.sqrt(distance);
-    }
-
 
     @Override
     public boolean onSupportNavigateUp(){

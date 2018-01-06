@@ -2403,11 +2403,8 @@ public class TracksFragment extends Fragment {
         points.add(new Point(46.78896167, 6.74356417, 443));
         points.add(new Point(46.78895933, 6.74356183, 443));
 
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-
-        tracks.add(new Track(1, "Vallons des Vaux (test)", new Date(), 0, 0, 8715, 319, 325, "Xcountry", points, null));
-        tracks.add(new Track(2, "Neuchatel (test)", new Date(), 0, 0, 8715, 319, 325, "Xcountry", points, null));
+        tracks.add(new Track(1, "Vallons des Vaux (test)", new Date(), 1000*60*60*2*15, 7.2, 8715, 319, 325, "Xcountry", points, null));
+        tracks.add(new Track(2, "Neuchatel (test)", new Date(), 1000*3600*3 + 1000*128, 3.1, 8715, 319, 325, "Xcountry", points, null));
         /*
         tracks.add(new Track(3, "Yverdon", new Date(), 0, 0, 8715, 319, 325, "Xcountry", points, null));
         tracks.add(new Track(4, "Col du Pillon", new Date(), 0, 0, 8715, 319, 325, "Xcountry", points, null));

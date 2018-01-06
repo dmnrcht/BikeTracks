@@ -141,6 +141,9 @@ public class Track implements Serializable {
         this.duration = duration;
     }
 
+    /**
+     * @return average speed in m/s
+     */
     public double getSpeed() {
         return speed;
     }

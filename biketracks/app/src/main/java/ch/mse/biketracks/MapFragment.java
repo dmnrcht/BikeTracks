@@ -64,11 +64,9 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import ch.mse.biketracks.adapters.TrackInfoWindowAdapter;
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 import ch.mse.biketracks.services.TrackerService;
@@ -76,6 +74,8 @@ import ch.mse.biketracks.utils.BiketracksAPIClient;
 import ch.mse.biketracks.utils.BiketracksAPIInterface;
 import ch.mse.biketracks.utils.ContrastColor;
 import ch.mse.biketracks.utils.Distance;
+import ch.mse.biketracks.utils.MyTools;
+import ch.mse.biketracks.utils.Tuple;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -672,29 +672,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         trackDescent.setText(String.format(Locale.getDefault(), "%d m", (int)track.getDescent()));
 
         // Build the elevation graph
-        int pointsSize = track.getPoints().size();
-        DataPoint[] dataPoints = new DataPoint[pointsSize];
-        double totDistanceKm = 0;
-        Point previous = track.getPoints().get(0);
-        int i = 0;
-        dataPoints[i++] = new DataPoint(0, previous.getElev());
-        for (Point p : track.getPoints().subList(1, pointsSize)) {
-            totDistanceKm += (Distance.distance(previous, p) / 1000.0);
-            dataPoints[i++] = new DataPoint(totDistanceKm, p.getElev());
-            previous = p;
-        }
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints);
-        series.setDrawBackground(true);
-        series.setBackgroundColor(Color.argb(80,78, 166, 52));
-        series.setColor(Color.argb(255,78, 166, 52));
+        Tuple<LineGraphSeries<DataPoint>, Double> elevationGraph = MyTools.ElevationGraph(track.getPoints());
+
         GraphView graphView = getView().findViewById(R.id.elevationGraph);
         // set manual X bounds
         graphView.getViewport().setXAxisBoundsManual(true);
         graphView.getViewport().setMinX(0.);
-        graphView.getViewport().setMaxX(totDistanceKm);
+        graphView.getViewport().setMaxX(elevationGraph.second);
         if (graphView.getSeries().size() > 0)
             graphView.removeAllSeries();
-        graphView.addSeries(series);
+        graphView.addSeries(elevationGraph.first);
 
         // Display the bottom sheet
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -729,7 +716,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Focus track by making others transparent
         int polylineSparseArraySize = polylineSparseArray.size();
-        for(i = 0; i < polylineSparseArraySize; i++) {
+        for(int i = 0; i < polylineSparseArraySize; i++) {
             int key = polylineSparseArray.keyAt(i);
             Polyline polyline = polylineSparseArray.get(key);
             int alpha = polyline.getColor();

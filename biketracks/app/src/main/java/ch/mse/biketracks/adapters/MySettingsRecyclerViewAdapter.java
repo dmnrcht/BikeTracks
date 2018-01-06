@@ -1,7 +1,6 @@
 package ch.mse.biketracks.adapters;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
@@ -9,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import ch.mse.biketracks.R;
 import ch.mse.biketracks.database.DatabaseHelper;
@@ -85,8 +83,8 @@ public class MySettingsRecyclerViewAdapter extends RecyclerView.Adapter<MySettin
 
         @Override
         protected Integer doInBackground(Tuple<Contact, Integer>... numbers) {
-            if (DatabaseHelper.getInstance(context).deleteContactByPhoneNumber(numbers[0].x.getPhoneNumber()) == 1)
-                return numbers[0].y;
+            if (DatabaseHelper.getInstance(context).deleteContactByPhoneNumber(numbers[0].first.getPhoneNumber()) == 1)
+                return numbers[0].second;
             return -1;
         }
 
