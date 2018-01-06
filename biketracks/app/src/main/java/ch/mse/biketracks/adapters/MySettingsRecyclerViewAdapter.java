@@ -2,17 +2,19 @@ package ch.mse.biketracks.adapters;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import ch.mse.biketracks.R;
-import ch.mse.biketracks.database.ContactContract;
-import ch.mse.biketracks.database.ContactDbHelper;
+import ch.mse.biketracks.database.DatabaseHelper;
 import ch.mse.biketracks.models.Contact;
+import ch.mse.biketracks.utils.Tuple;
 
 import java.util.List;
 
@@ -43,19 +45,9 @@ public class MySettingsRecyclerViewAdapter extends RecyclerView.Adapter<MySettin
             public void onClick(View v) {
                 int position = holder.getAdapterPosition();
                 Contact removedContact = mValues.get(position);
-                // Remove item from database
 
-                ContactDbHelper mDbHelper = new ContactDbHelper(context);
-                SQLiteDatabase db = mDbHelper.getReadableDatabase();
-                // Define 'where' part of query.
-                String selection = ContactContract.ContactEntry.COLUMN_NAME_NAME + " = ?";
-                // Specify arguments in placeholder order.
-                String[] selectionArgs = { removedContact.getName() };
-                // Issue SQL statement.
-                db.delete(ContactContract.ContactEntry.TABLE_NAME, selection, selectionArgs);
-                // Remove item from list
-                mValues.remove(position);  // remove the item from list
-                notifyItemRemoved(position); // notify the adapter about the removed item
+                // Remove item from database
+                new DeleteContactTask().execute(new Tuple<>(removedContact, position));
             }
         });
     }
@@ -83,6 +75,27 @@ public class MySettingsRecyclerViewAdapter extends RecyclerView.Adapter<MySettin
         @Override
         public String toString() {
             return super.toString() + " '" + name.getText() + "'";
+        }
+    }
+
+    /**
+     * Remove contact from DB asynchronously
+     */
+    private class DeleteContactTask extends AsyncTask<Tuple<Contact, Integer>, Void, Integer> {
+
+        @Override
+        protected Integer doInBackground(Tuple<Contact, Integer>... numbers) {
+            if (DatabaseHelper.getInstance(context).deleteContactByPhoneNumber(numbers[0].x.getPhoneNumber()) == 1)
+                return numbers[0].y;
+            return -1;
+        }
+
+        protected void onPostExecute(Integer position) {
+            // Remove item from list
+            if (position >= 0) {
+                mValues.remove(position.intValue());  // remove the item from list
+                notifyItemRemoved(position); // notify the adapter about the removed item
+            }
         }
     }
 }

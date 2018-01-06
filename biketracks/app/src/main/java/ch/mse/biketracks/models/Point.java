@@ -16,7 +16,7 @@ public class Point implements Serializable {
     private double elev;
 
     // Generated from activity, not present in API responses
-    private long time;
+    private long time; // timestamp in ms
     private int duration;
     private float speed;
 
@@ -55,10 +55,16 @@ public class Point implements Serializable {
         this.elev = elev;
     }
 
+    /**
+     * @return timestamp in ms
+     */
     public long getTime() {
         return time;
     }
 
+    /**
+     * @param time the timestamp in ms
+     */
     public void setTime(long time) {
         this.time = time;
     }

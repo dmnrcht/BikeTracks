@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
@@ -24,12 +25,10 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import ch.mse.biketracks.adapters.MySettingsRecyclerViewAdapter;
-import ch.mse.biketracks.database.ContactContract;
-import ch.mse.biketracks.database.ContactDbHelper;
+import ch.mse.biketracks.database.DatabaseHelper;
 import ch.mse.biketracks.models.Contact;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -39,6 +38,7 @@ public class SettingsFragment extends Fragment {
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
     private ArrayList<Contact> contacts = new ArrayList<>();
     private MySettingsRecyclerViewAdapter settingsAdapter;
+    private Context mContext;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -63,52 +63,16 @@ public class SettingsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        //mContext = getActivity();
-
-        Context context = getView().getContext();
-
-        settingsAdapter = new MySettingsRecyclerViewAdapter(contacts, context);
-
-        // TODO : Database operations should be in AsyncTask or Intent
-        // Get the database for read
-        ContactDbHelper mDbHelper = new ContactDbHelper(getContext());
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        String[] projection = {
-                ContactContract.ContactEntry._ID,
-                ContactContract.ContactEntry.COLUMN_NAME_NAME,
-                ContactContract.ContactEntry.COLUMN_NAME_NUMBER
-        };
-
-        String sortOrder =
-                ContactContract.ContactEntry.COLUMN_NAME_NAME + " ASC";
-
-        Cursor cursor = db.query(
-                ContactContract.ContactEntry.TABLE_NAME,  // The table to query
-                projection,                               // The columns to return
-                null,                                     // The columns for the WHERE clause
-                null,                                     // The values for the WHERE clause
-                null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                sortOrder                                 // The sort order
-        );
-
-        // Clear contacts and recreate them
-        contacts.clear();
-        // Get all the contacts from the database
-        while(cursor.moveToNext()) {
-            String name = cursor.getString(
-                    cursor.getColumnIndexOrThrow(ContactContract.ContactEntry.COLUMN_NAME_NAME));
-            String number = cursor.getString(
-                    cursor.getColumnIndexOrThrow(ContactContract.ContactEntry.COLUMN_NAME_NUMBER));
-            contacts.add(new Contact(name, number));
-        }
-        cursor.close();
+        mContext = getView().getContext();
 
         // Create the recycler view with the list of contacts
+        settingsAdapter = new MySettingsRecyclerViewAdapter(contacts, mContext);
         RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         recyclerView.setAdapter(settingsAdapter);
+
+        // Get contacts from DB asynchronously
+        new FetchContactsTask().execute();
 
         // Button to add new contacts
         FloatingActionButton addButton = (FloatingActionButton) getView().findViewById(R.id.add);
@@ -146,6 +110,8 @@ public class SettingsFragment extends Fragment {
     private void contactPicked(Intent data) {
         Uri uri = data.getData();
         Log.i("Contacts", "contactPicked() uri " + uri.toString());
+
+        // Get contact from uri
         Cursor cursor;
         ContentResolver cr = getActivity().getContentResolver();
 
@@ -177,53 +143,10 @@ public class SettingsFragment extends Fragment {
 
                 Contact contact = new Contact(name, phoneNo);
 
-                // TODO : Database operations should be in AsyncTask or Intent
-                // Get writable database
-                ContactDbHelper mDbHelper = new ContactDbHelper(getContext());
-                SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-                // Set data returned by query
-                String[] projection = {
-                        ContactContract.ContactEntry._ID,
-                        ContactContract.ContactEntry.COLUMN_NAME_NAME
-                };
-
-                // Filter results WHERE column name = contact.name
-                String selection = ContactContract.ContactEntry.COLUMN_NAME_NAME + " = ?";
-                String[] selectionArgs = { contact.getName() };
-
-                Cursor dbCursor = db.query(
-                        ContactContract.ContactEntry.TABLE_NAME,  // The table to query
-                        projection,                               // The columns to return
-                        selection,                                // The columns for the WHERE clause
-                        selectionArgs,                            // The values for the WHERE clause
-                        null,                                     // don't group the rows
-                        null,                                     // don't filter by row groups
-                        null                                      // The sort order
-                );
-
-                if(dbCursor.getCount() > 0){
-                    Toast.makeText(getActivity(), R.string.contact_already_exists, Toast.LENGTH_SHORT).show();
-                } else{
-                    // Create a new map of values, where column names are the keys
-                    ContentValues values = new ContentValues();
-                    values.put(ContactContract.ContactEntry.COLUMN_NAME_NAME, contact.getName());
-                    values.put(ContactContract.ContactEntry.COLUMN_NAME_NUMBER, contact.getPhoneNumber());
-
-                    // Insert the new row, returning the primary key value of the new row
-                    long newRowId = db.insert(ContactContract.ContactEntry.TABLE_NAME, null, values);
-
-                    contacts.add(contact);
-                    settingsAdapter.notifyDataSetChanged();
-                }
-                dbCursor.close();
-
-
-
-
-
-
+                new AddContactTask().execute(contact);
             }
+            cur.close();
+
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
         }
@@ -233,7 +156,7 @@ public class SettingsFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // check whether the result is ok
         if (resultCode == RESULT_OK) {
-            // Check for the request code, we might be usign multiple startActivityForResult
+            // Check for the request code, we might be using multiple startActivityForResult
             switch (requestCode) {
                 case RESULT_PICK_CONTACT:
                     contactPicked(data);
@@ -241,6 +164,48 @@ public class SettingsFragment extends Fragment {
             }
         } else {
             Log.e("ContactFragment", "Failed to pick contact");
+        }
+    }
+
+    /**
+     * Get contacts from DB asynchronously
+     */
+    private class FetchContactsTask extends AsyncTask<Void, Void, ArrayList<Contact>> {
+        @Override
+        protected ArrayList<Contact> doInBackground(Void... voids) {
+            return DatabaseHelper.getInstance(mContext).getContacts();
+        }
+
+        protected void onPostExecute(ArrayList<Contact> result) {
+            for (Contact c : result)
+                Log.d("FetchContactsTask", c.getName());
+            contacts.clear();
+            contacts.addAll(result);
+            settingsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Add contact in DB asynchronously
+     */
+    private class AddContactTask extends AsyncTask<Contact, Void, Contact> {
+
+        @Override
+        protected Contact doInBackground(Contact... contacts) {
+            Contact contact = null;
+            if (DatabaseHelper.getInstance(mContext).insertContact(contacts[0]) > 0) {
+                contact = contacts[0];
+            }
+            return contact;
+        }
+
+        protected void onPostExecute(Contact contact) {
+            if (contact == null) {
+                Toast.makeText(getActivity(), R.string.contact_already_exists, Toast.LENGTH_SHORT).show();
+            } else {
+                contacts.add(contact);
+                settingsAdapter.notifyDataSetChanged();
+            }
         }
     }
 }

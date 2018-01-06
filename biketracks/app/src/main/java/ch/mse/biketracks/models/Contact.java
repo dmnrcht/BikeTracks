@@ -3,7 +3,6 @@ package ch.mse.biketracks.models;
 /**
  * Created by antoi on 14.10.2017.
  */
-
 public class Contact {
     private String name;
     private String phoneNumber;

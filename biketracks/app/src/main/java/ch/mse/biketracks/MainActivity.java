@@ -1,23 +1,17 @@
 package ch.mse.biketracks;
 
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.SearchView;
 import android.telephony.SmsManager;
 import android.util.Log;
-import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,16 +19,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.List;
-
-import ch.mse.biketracks.database.ContactContract;
-import ch.mse.biketracks.database.ContactDbHelper;
-import ch.mse.biketracks.models.Contact;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -99,6 +88,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void sendSMSMessage() {
+        /*
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.SEND_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -143,6 +133,7 @@ public class MainActivity extends AppCompatActivity
         cursor.close();
         Toast.makeText(getApplicationContext(), R.string.urgency_message_sent,
                 Toast.LENGTH_LONG).show();
+                */
     }
 
     @Override
