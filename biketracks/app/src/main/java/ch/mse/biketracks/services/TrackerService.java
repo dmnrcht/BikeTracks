@@ -26,8 +26,8 @@ public class TrackerService extends Service {
 
     public static final String ACTION_UPDATE = "ch.mse.biketracks.TrackerService.update";
 
-    private static final int MIN_SECONDS_BETWEEN_UPDATES = 10;
-    private static final int MIN_METERS_BETWEEN_UPDATES = 3;
+    private static final int MIN_SECONDS_BETWEEN_UPDATES = 3;
+    private static final int MIN_METERS_BETWEEN_UPDATES = 5;
 
     /**
      * Tracking status

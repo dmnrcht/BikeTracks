@@ -172,7 +172,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         trackingUpdatesReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                updateRecordingWindow((Track) intent.getSerializableExtra("track"));
+                updateRecording((Track) intent.getSerializableExtra("track"));
             }
         };
 
@@ -641,6 +641,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             int key = polylineSparseArray.keyAt(i);
             polylineSparseArray.get(key).remove();
         }
+
+        unselectTrack();
     }
 
     private void unselectTrack() {
@@ -880,9 +882,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * Update the current tracking
      * @param track The track info to display
      */
-    private void updateRecordingWindow(Track track) {
+    private void updateRecording(Track track) {
         recordingDistance.setText(String.format(Locale.getDefault(), "%.1f km", track.getDistance() / 1000.f));
         recordingClimb.setText(String.format(Locale.getDefault(), "%d m", (int)track.getClimb()));
         recordingDescent.setText(String.format(Locale.getDefault(), "%d m", (int)track.getDescent()));
+
+        cleanMap();
+
+        PolylineOptions polylineOptions = new PolylineOptions();
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (Point point : track.getPoints()) {
+            LatLng latLng = new LatLng(point.getLat(), point.getLng());
+            polylineOptions.add(latLng);
+            polylineOptions.width(20);
+            polylineOptions.color(ContextCompat.getColor(mContext, R.color.colorPrimaryDark));
+            builder.include(latLng);
+        }
+        Polyline polyline = mMap.addPolyline(polylineOptions);
+        polyline.setClickable(false);
+        polylineSparseArray.put(0, polyline);
+
+        Point startPoint = track.getPoints().get(0);
+        LatLng start = new LatLng(startPoint.getLat(), startPoint.getLng());
+
+        MarkerOptions startMarkerOptions = new MarkerOptions()
+                .position(start)
+                .anchor(0.5f, 0.5f)
+                .icon(BitmapDescriptorFactory.fromBitmap(startIconSmall));
+
+        startMarker = mMap.addMarker(startMarkerOptions);
     }
 }
