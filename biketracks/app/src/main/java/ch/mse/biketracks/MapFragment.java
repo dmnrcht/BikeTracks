@@ -65,6 +65,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import ch.mse.biketracks.database.DatabaseHelper;
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 import ch.mse.biketracks.services.TrackerService;
@@ -117,6 +118,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private TextView recordingDescent;
     private boolean isRecording = false;
     private BroadcastReceiver trackingUpdatesReceiver;
+    private Track recordedTrack;
 
     // Bottom sheet controls
     private View trackWindow;
@@ -173,7 +175,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         trackingUpdatesReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                updateRecording((Track) intent.getSerializableExtra("track"));
+                recordedTrack = (Track) intent.getSerializableExtra("track");
+                updateRecording();
             }
         };
 
@@ -825,6 +828,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Log.d(TAG, "stopRecording");
         stopListeningTracking();
         getActivity().stopService(new Intent(getActivity(), TrackerService.class));
+
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    saveRecordedTrack();
+                    hideRecordingWindow();
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    hideRecordingWindow();
+                    break;
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setMessage(getString(R.string.save_recorded_track))
+                .setPositiveButton(getString(R.string.yes), dialogClickListener)
+                .setNegativeButton(getString(R.string.no), dialogClickListener)
+                .show();
     }
 
     /**
@@ -868,18 +888,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     /**
      * Update the current tracking
-     * @param track The track info to display
      */
-    private void updateRecording(Track track) {
-        recordingDistance.setText(String.format(Locale.getDefault(), "%.1f km", track.getDistance() / 1000.f));
-        recordingClimb.setText(String.format(Locale.getDefault(), "%d m", (int)track.getClimb()));
-        recordingDescent.setText(String.format(Locale.getDefault(), "%d m", (int)track.getDescent()));
+    private void updateRecording() {
+        recordingDistance.setText(String.format(Locale.getDefault(), "%.1f km", recordedTrack.getDistance() / 1000.f));
+        recordingClimb.setText(String.format(Locale.getDefault(), "%d m", (int)recordedTrack.getClimb()));
+        recordingDescent.setText(String.format(Locale.getDefault(), "%d m", (int)recordedTrack.getDescent()));
 
         cleanMap();
 
         PolylineOptions polylineOptions = new PolylineOptions();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (Point point : track.getPoints()) {
+        for (Point point : recordedTrack.getPoints()) {
             LatLng latLng = new LatLng(point.getLat(), point.getLng());
             polylineOptions.add(latLng);
             polylineOptions.width(20);
@@ -890,7 +909,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         polyline.setClickable(false);
         polylineSparseArray.put(0, polyline);
 
-        Point startPoint = track.getPoints().get(0);
+        Point startPoint = recordedTrack.getPoints().get(0);
         LatLng start = new LatLng(startPoint.getLat(), startPoint.getLng());
 
         MarkerOptions startMarkerOptions = new MarkerOptions()
@@ -899,5 +918,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .icon(BitmapDescriptorFactory.fromBitmap(startIconSmall));
 
         startMarker = mMap.addMarker(startMarkerOptions);
+    }
+
+    /**
+     * Save the recorded track in database
+     */
+    private void saveRecordedTrack() {
+        DatabaseHelper.getInstance(mContext).insertTrack(recordedTrack);
     }
 }

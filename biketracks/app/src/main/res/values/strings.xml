@@ -29,4 +29,5 @@
     <string name="error">Error</string>
     <string name="selected_track_empty">The selected track is empty</string>
     <string name="track_preview">Track preview</string>
+    <string name="save_recorded_track">Would you like to save your track ?</string>
 </resources>
