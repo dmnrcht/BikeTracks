@@ -220,9 +220,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 if (slideOffset >= 0.f)
-                    updateRecordControls((int)(bottomSheet.getHeight() * (0.6 * slideOffset + 0.4)));
+                    updateRecordingControl(startRecordingButton,
+                            trackWindowBehavior.getPeekHeight() + (int)(slideOffset * (bottomSheet.getHeight() - trackWindowBehavior.getPeekHeight())));
                 else
-                    updateRecordControls((int)(bottomSheet.getHeight() * (0.5 * slideOffset + 0.5)));
+                    updateRecordingControl(startRecordingButton,
+                            (int)( (1. + slideOffset) * trackWindowBehavior.getPeekHeight()));
             }
         });
 
@@ -238,14 +240,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         recordingWindowBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                Log.d(TAG, "new state: " + newState + ", bottomSheet Height: " + bottomSheet.getHeight());
+                if (newState == BottomSheetBehavior.STATE_EXPANDED)
+                    updateRecordingControl(stopRecordingButton, bottomSheet.getHeight());
             }
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                /*
                 if (slideOffset >= 0.f)
-                    updateRecordControls((int)(bottomSheet.getHeight() * (0.6 * slideOffset + 0.4)));
+                    updateRecordingControl(stopRecordingButton, recordingWindowBehavior.getPeekHeight() + (int)(slideOffset * (bottomSheet.getHeight() - recordingWindowBehavior.getPeekHeight())));
                 else
-                    updateRecordControls((int)(bottomSheet.getHeight() * (0.5 * slideOffset + 0.5)));
+                    updateRecordingControl(stopRecordingButton, (int)( (1. + slideOffset) * recordingWindowBehavior.getPeekHeight()));
+                    */
             }
         });
 
@@ -312,8 +319,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             trackWindowBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
             trackWindowBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
-
-        mMap.setPadding(0,0,0, 0);
     }
 
     /**
@@ -345,18 +350,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Used to replace the start/stop record button
+     * Used to replace the start record button
+     * @param btn the button to update
      * @param height the margin below the button
      */
-    private void updateRecordControls(int height) {
+    private void updateRecordingControl(Button btn, int height) {
         CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT,
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT
         );
         params.setMargins(0, 0, 0, height + 32);
         params.gravity = Gravity.BOTTOM | Gravity.CENTER;
-        startRecordingButton.setLayoutParams(params);
-        stopRecordingButton.setLayoutParams(params);
+        btn.setLayoutParams(params);
+        if (mMap != null)
+            mMap.setPadding(0, 0, 0, height);
     }
 
     @Override
@@ -763,7 +770,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         startMarker = mMap.addMarker(startMarkerOptions);
 
         // Center map
-        mMap.setPadding(0,0,0, trackWindow.getHeight() + startRecordingButton.getHeight());
+        mMap.setPadding(0,0,0, trackWindow.getHeight());
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(track.getLatLngBounds(), 200));
 
         progressBar.setVisibility(View.GONE);
@@ -857,6 +864,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         recordingWindowBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        updateRecordingControl(stopRecordingButton, recordingWindow.getHeight());
     }
 
     /**
@@ -864,6 +872,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void hideRecordingWindow() {
         recordingWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        updateRecordingControl(startRecordingButton, 0);
     }
 
     /**

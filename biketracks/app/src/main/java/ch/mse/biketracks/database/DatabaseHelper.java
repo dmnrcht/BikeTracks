@@ -156,6 +156,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_ELEV, p.getElev());
             pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_TIMESTAMP, p.getTime());
             pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_TRACK_ID, trackId);
+            db.insert(DatabaseContract.PointEntry.TABLE_NAME, null, pointValues);
         }
 
         return trackId;
@@ -172,7 +173,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String having = null;
         String order = DatabaseContract.PointEntry.COLUMN_NAME_TIMESTAMP + " ASC";
 
-        Cursor cursor = db.query(DatabaseContract.TrackEntry.TABLE_NAME, projection,
+        Cursor cursor = db.query(DatabaseContract.PointEntry.TABLE_NAME, projection,
                 where, whereArgs, groupBy, having, order);
         while(cursor.moveToNext()) {
             double lat = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseContract.PointEntry.COLUMN_NAME_LAT));
