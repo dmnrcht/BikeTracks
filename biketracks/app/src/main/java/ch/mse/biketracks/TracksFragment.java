@@ -2464,7 +2464,7 @@ public class TracksFragment extends Fragment {
     }
 
     /**
-     * Get contacts from DB asynchronously
+     * Get tracks from DB asynchronously
      */
     private class FetchTracksTask extends AsyncTask<Void, Void, ArrayList<Track>> {
         @Override
