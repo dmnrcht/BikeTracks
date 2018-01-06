@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -826,24 +827,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void stopRecording() {
         Log.d(TAG, "stopRecording");
+
         stopListeningTracking();
         getActivity().stopService(new Intent(getActivity(), TrackerService.class));
 
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final View view = inflater.inflate(R.layout.dialog_save_track, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setView(view)
+                .setPositiveButton(R.string.yes, (dialog, id) -> {
+                    final EditText name = view.findViewById(R.id.track_name);
+                    recordedTrack.setName(name.getText().toString());
+
                     saveRecordedTrack();
                     hideRecordingWindow();
-                    break;
-                case DialogInterface.BUTTON_NEGATIVE:
+                })
+                .setNegativeButton(R.string.no, (dialog, id) -> {
                     hideRecordingWindow();
-                    break;
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setMessage(getString(R.string.save_recorded_track))
-                .setPositiveButton(getString(R.string.yes), dialogClickListener)
-                .setNegativeButton(getString(R.string.no), dialogClickListener)
+                })
                 .show();
     }
 

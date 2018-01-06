@@ -106,7 +106,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     DatabaseContract.TrackEntry.COLUMN_NAME_DURATION));
             int distance = cursor.getInt(cursor.getColumnIndexOrThrow(
                     DatabaseContract.TrackEntry.COLUMN_NAME_DISTANCE));
-            double speed = distance / duration_s;
+            double speed = .0;
+            if (duration_s != 0) {
+                speed = distance / duration_s;
+            }
             int climb = cursor.getInt(cursor.getColumnIndexOrThrow(
                     DatabaseContract.TrackEntry.COLUMN_NAME_CLIMB));
             int descent = cursor.getInt(cursor.getColumnIndexOrThrow(
