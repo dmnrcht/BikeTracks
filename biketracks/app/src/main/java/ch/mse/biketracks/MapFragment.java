@@ -1,14 +1,12 @@
 package ch.mse.biketracks;
 
-/**
- * Description: Google maps based on https://github.com/googlemaps/android-samples/blob/master/tutorials/CurrentPlaceDetailsOnMap/app/src/main/java/com/example/currentplacedetailsonmap/MapsActivityCurrentPlace.java
- */
-
 import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -27,6 +25,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.util.SparseArray;
@@ -63,7 +62,6 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -73,7 +71,6 @@ import ch.mse.biketracks.services.TrackerService;
 import ch.mse.biketracks.utils.BiketracksAPIClient;
 import ch.mse.biketracks.utils.BiketracksAPIInterface;
 import ch.mse.biketracks.utils.ContrastColor;
-import ch.mse.biketracks.utils.Distance;
 import ch.mse.biketracks.utils.MyTools;
 import ch.mse.biketracks.utils.Tuple;
 import retrofit2.Call;
@@ -89,7 +86,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private SparseArray<Polyline> polylineSparseArray = new SparseArray<>();
-    private ArrayList<Marker> markerArrayList = new ArrayList<>();
     private BiketracksAPIInterface apiInterface;
 
     private Context mContext;
@@ -106,7 +102,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private SparseIntArray tracksColor = new SparseIntArray(); // Define a color for each track to distinguish them <id of track, color of track>
     private SparseArray<Track> fullTracksSparseArray = new SparseArray<>();
 
-    private Marker lastClickedMarker;
     private Marker startMarker;
     private Marker finishMarker;
     private Bitmap startIconSmall;
@@ -115,12 +110,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // Record activity
     private Button startRecordingButton;
     private Button stopRecordingButton;
+    private View recordingWindow;
+    private BottomSheetBehavior recordingWindowBehavior;
+    private TextView recordingDistance;
+    private TextView recordingClimb;
+    private TextView recordingDescent;
     private boolean isRecording = false;
+    private BroadcastReceiver trackingUpdatesReceiver;
 
     // Bottom sheet controls
-    private boolean neverSelectedAnyTrack = true;
-    private View bottomSheet;
-    private BottomSheetBehavior mBottomSheetBehavior;
+    private View trackWindow;
+    private BottomSheetBehavior trackWindowBehavior;
     private TextView trackTitle;
     private TextView trackType;
     private TextView trackDistance;
@@ -149,6 +149,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if (!isRecording) {
+                    isRecording = true;
                     startRecordingButton.setVisibility(View.INVISIBLE);
                     stopRecordingButton.setVisibility(View.VISIBLE);
                     startRecording();
@@ -161,12 +162,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if (isRecording) {
+                    isRecording = false;
                     stopRecording();
                     stopRecordingButton.setVisibility(View.INVISIBLE);
                     startRecordingButton.setVisibility(View.VISIBLE);
                 }
             }
         });
+
+        trackingUpdatesReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                updateRecording((Track) intent.getSerializableExtra("track"));
+            }
+        };
 
         locateButton = (FloatingActionButton) getView().findViewById(R.id.locate);
         locateButton.setOnClickListener(new View.OnClickListener() {
@@ -189,29 +198,54 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         startRecordingButton = getView().findViewById(R.id.start_recording);
         stopRecordingButton = getView().findViewById(R.id.stop_recording);
 
-        // Get bottom sheet controls
-        bottomSheet = getView().findViewById(R.id.bottom_sheet);
+        // Get track bottom sheet controls
+        trackWindow = getView().findViewById(R.id.track_window);
         trackTitle = getView().findViewById(R.id.track_title);
         trackType = getView().findViewById(R.id.track_type);
         trackDistance = getView().findViewById(R.id.track_distance);
         trackClimb = getView().findViewById(R.id.track_climb);
         trackDescent = getView().findViewById(R.id.track_descent);
 
-        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        mBottomSheetBehavior.setHideable(true);
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        trackWindowBehavior = BottomSheetBehavior.from(trackWindow);
+        trackWindowBehavior.setHideable(true);
+        trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        trackWindowBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    unselectTrack();
+                }
             }
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 if (slideOffset >= 0.f)
-                    updateRecordButtons((int)(bottomSheet.getHeight() * (0.6 * slideOffset + 0.4)));
+                    updateRecordControls((int)(bottomSheet.getHeight() * (0.6 * slideOffset + 0.4)));
                 else
-                    updateRecordButtons((int)(bottomSheet.getHeight() * (0.5 * slideOffset + 0.5)));
+                    updateRecordControls((int)(bottomSheet.getHeight() * (0.5 * slideOffset + 0.5)));
+            }
+        });
+
+        // Get recording bottom sheet controls
+        recordingWindow = getView().findViewById(R.id.recording_window);
+        recordingDistance = getView().findViewById(R.id.recording_distance);
+        recordingClimb = getView().findViewById(R.id.recording_climb);
+        recordingDescent = getView().findViewById(R.id.recording_descent);
+
+        recordingWindowBehavior = BottomSheetBehavior.from(recordingWindow);
+        recordingWindowBehavior.setHideable(true);
+        recordingWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        recordingWindowBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                if (slideOffset >= 0.f)
+                    updateRecordControls((int)(bottomSheet.getHeight() * (0.6 * slideOffset + 0.4)));
+                else
+                    updateRecordControls((int)(bottomSheet.getHeight() * (0.5 * slideOffset + 0.5)));
             }
         });
 
@@ -246,6 +280,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        stopListeningTracking();
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.v(TAG, googleMap.toString());
         mMap = googleMap;
@@ -261,31 +301,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         getDeviceLocation();// Load the tracks
     }
 
-    private void onCameraStarted(int i) {
-        if (!isTrackSelected) {
-            progressBar.setVisibility(View.VISIBLE);
-
-            if (!neverSelectedAnyTrack) {
-                mBottomSheetBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
-                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            }
+    private void onCameraStarted(int reason) {
+        if (isRecording || reason != GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+            return;
         }
-        mMap.setPadding(0,0,0, 0);
-    }
 
-    /**
-     * Used to replace the start/stop record button
-     * @param height the margin below the button
-     */
-    private void updateRecordButtons(int height) {
-        CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
-                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
-                CoordinatorLayout.LayoutParams.WRAP_CONTENT
-        );
-        params.setMargins(0, 0, 0, height + 32);
-        params.gravity = Gravity.BOTTOM | Gravity.CENTER;
-        startRecordingButton.setLayoutParams(params);
-        stopRecordingButton.setLayoutParams(params);
+        progressBar.setVisibility(View.VISIBLE);
+
+        if (isTrackSelected && trackWindowBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            trackWindowBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
+            trackWindowBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+
+        mMap.setPadding(0,0,0, 0);
     }
 
     /**
@@ -293,8 +321,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * We get the radius of visible window, then load and replace the tracks on the map.
      */
     private void onCameraIdle() {
-        if (isTrackSelected) {
-            isTrackSelected = false;
+        if (isRecording) {
             return;
         }
 
@@ -315,6 +342,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Load and replace previous tracks
         getTracks(center.latitude, center.longitude, radius);
+    }
+
+    /**
+     * Used to replace the start/stop record button
+     * @param height the margin below the button
+     */
+    private void updateRecordControls(int height) {
+        CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, 0, 0, height + 32);
+        params.gravity = Gravity.BOTTOM | Gravity.CENTER;
+        startRecordingButton.setLayoutParams(params);
+        stopRecordingButton.setLayoutParams(params);
     }
 
     @Override
@@ -392,7 +434,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
-        Log.v(TAG, "************************************************************ --- in onRequestPermissionsResult from MapFragment (access location)");
         mLocationPermissionGranted = false;
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
@@ -405,12 +446,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void getLocationPermission() {
     /*
      * Request location permission, so that we can get the location of the
      * device. The result of the permission request is handled by a callback,
      * onRequestPermissionsResult WHICH IS IMPLEMENTED in MainActivity
      */
+    private void getLocationPermission() {
         if (ContextCompat.checkSelfPermission(mContext,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -474,11 +515,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         alert.show();
     }
 
-    private void getDeviceLocation() {
     /*
      * Get the best and most recent location of the device, which may be null in rare
      * cases when a location is not available.
      */
+    private void getDeviceLocation() {
         try {
             if (mLocationPermissionGranted) {
                 Task locationResult = mFusedLocationProviderClient.getLastLocation();
@@ -535,17 +576,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 List<Track> tracks = response.body();
 
                 if (tracks != null) {
-
-                    // Clean map
-                    int polylineSparseArraySize = polylineSparseArray.size();
-                    for(int i = 0; i < polylineSparseArraySize; i++) {
-                        int key = polylineSparseArray.keyAt(i);
-                        polylineSparseArray.get(key).remove();
-                    }
-                    /*
-                    for (Marker marker : markerArrayList)
-                        marker.remove();
-                    */
+                    cleanMap();
 
                     // Display tracks
                     for (Track track : tracks) {
@@ -578,48 +609,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             progressBar.setVisibility(View.VISIBLE);
                             fetchTrack(((Track)clickedPolyline.getTag()).getId());
                         });
-
-                        /*
-                        // Add the marker (on the centroid of the track)
-                        MarkerOptions markerOpt = new MarkerOptions().position(computeCentroid(track.getPoints()))
-                                .icon(BitmapDescriptorFactory.defaultMarker(0))
-                                .title(track.getName());
-                        TrackInfoWindowAdapter adapter = new TrackInfoWindowAdapter(getActivity());
-                        mMap.setInfoWindowAdapter(adapter);
-                        Marker marker = mMap.addMarker(markerOpt);
-                        marker.setTag(track);
-                        markerArrayList.add(marker);
-
-                        // Open the track activity on info window click
-                        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener(){
-
-                            @Override
-                            public void onInfoWindowClick(Marker marker) {
-                                Intent intent = new Intent(mContext, TrackActivity.class).putExtra("track", (Track)marker.getTag());
-                                startActivity(intent);
-                            }
-                        });
-
-                        // Hide the info window on the second click of the marker
-                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                            @Override
-                            public boolean onMarkerClick(Marker marker) {
-                                isTrackSelected = true;
-                                displayTrackDetails((Track)marker.getTag());
-
-                                if (lastClickedMarker != null && lastClickedMarker.equals(marker)) {
-                                    lastClickedMarker = null;
-                                    marker.hideInfoWindow();
-                                    return true;
-                                } else {
-                                    lastClickedMarker = marker;
-                                    return false;
-                                }
-                                return true;
-                            }
-                        });
-                        */
-
                     }
 
                 } else {
@@ -645,6 +634,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
+     * Remove all polylines and markers from the map.
+     */
+    private void cleanMap() {
+        int polylineSparseArraySize = polylineSparseArray.size();
+        for (int i = 0; i < polylineSparseArraySize; i++) {
+            int key = polylineSparseArray.keyAt(i);
+            polylineSparseArray.get(key).remove();
+        }
+
+        unselectTrack();
+    }
+
+    private void unselectTrack() {
+        isTrackSelected = false;
+
+        if (startMarker != null)
+            startMarker.remove();
+        if (finishMarker != null)
+            finishMarker.remove();
+
+        if (focusedPolyline != null)
+            focusedPolyline.remove();
+    }
+
+    /**
      * Download or use the already downloaded track for displaying its details
      * @param trackId the id of the track
      */
@@ -662,7 +676,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * @param track The track to display
      */
     private void displayTrackDetails(Track track) {
-        neverSelectedAnyTrack = false;
 
         // Fill the bottom sheet with track's content
         trackTitle.setText(track.getName());
@@ -684,7 +697,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         graphView.addSeries(elevationGraph.first);
 
         // Display the bottom sheet
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        trackWindowBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
         // Redraw track as now it contains all the points
         polylineSparseArray.get(track.getId()).remove();
@@ -750,21 +763,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         startMarker = mMap.addMarker(startMarkerOptions);
 
         // Center map
-        mMap.setPadding(0,0,0, bottomSheet.getHeight() + startRecordingButton.getHeight());
+        mMap.setPadding(0,0,0, trackWindow.getHeight() + startRecordingButton.getHeight());
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(track.getLatLngBounds(), 200));
 
         progressBar.setVisibility(View.GONE);
     }
 
-    private void startRecording() {
-        getActivity().startService(new Intent(getActivity(), TrackerService.class));
-    }
-
-    private void stopRecording() {
-        getActivity().stopService(new Intent(getActivity(), TrackerService.class));
-    }
-
-    /**
+    /*
      * Retrieve track from
      * @param trackId
      * @return
@@ -802,5 +807,97 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 call.cancel();
             }
         });
+    }
+
+    /**
+     * Create recording service and update current activity details when needed
+     */
+    private void startRecording() {
+        Log.d(TAG, "startRecording");
+        getActivity().startService(new Intent(getActivity(), TrackerService.class));
+        startListeningTracking();
+    }
+
+    /**
+     * Stop recording
+     */
+    private void stopRecording() {
+        Log.d(TAG, "stopRecording");
+        stopListeningTracking();
+        getActivity().stopService(new Intent(getActivity(), TrackerService.class));
+    }
+
+    /**
+     * Register tracking listeners
+     */
+    private void startListeningTracking() {
+        Log.d(TAG, "startListeningTracking");
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(trackingUpdatesReceiver,
+                new IntentFilter(TrackerService.ACTION_UPDATE));
+
+        displayRecordingWindow();
+    }
+
+    /**
+     * Unregister tracking listeners
+     */
+    private void stopListeningTracking() {
+        Log.d(TAG, "stopListeningTracking");
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(trackingUpdatesReceiver);
+
+        hideRecordingWindow();
+    }
+
+    /**
+     * Display the tracking window
+     */
+    private void displayRecordingWindow() {
+        cleanMap();
+        unselectTrack();
+
+        trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        recordingWindowBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    /**
+     * Hide the tracking window
+     */
+    private void hideRecordingWindow() {
+        recordingWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+    }
+
+    /**
+     * Update the current tracking
+     * @param track The track info to display
+     */
+    private void updateRecording(Track track) {
+        recordingDistance.setText(String.format(Locale.getDefault(), "%.1f km", track.getDistance() / 1000.f));
+        recordingClimb.setText(String.format(Locale.getDefault(), "%d m", (int)track.getClimb()));
+        recordingDescent.setText(String.format(Locale.getDefault(), "%d m", (int)track.getDescent()));
+
+        cleanMap();
+
+        PolylineOptions polylineOptions = new PolylineOptions();
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (Point point : track.getPoints()) {
+            LatLng latLng = new LatLng(point.getLat(), point.getLng());
+            polylineOptions.add(latLng);
+            polylineOptions.width(20);
+            polylineOptions.color(ContextCompat.getColor(mContext, R.color.colorPrimaryDark));
+            builder.include(latLng);
+        }
+        Polyline polyline = mMap.addPolyline(polylineOptions);
+        polyline.setClickable(false);
+        polylineSparseArray.put(0, polyline);
+
+        Point startPoint = track.getPoints().get(0);
+        LatLng start = new LatLng(startPoint.getLat(), startPoint.getLng());
+
+        MarkerOptions startMarkerOptions = new MarkerOptions()
+                .position(start)
+                .anchor(0.5f, 0.5f)
+                .icon(BitmapDescriptorFactory.fromBitmap(startIconSmall));
+
+        startMarker = mMap.addMarker(startMarkerOptions);
     }
 }
