@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,6 +66,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import ch.mse.biketracks.database.DatabaseHelper;
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 import ch.mse.biketracks.services.TrackerService;
@@ -117,6 +119,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private TextView recordingDescent;
     private boolean isRecording = false;
     private BroadcastReceiver trackingUpdatesReceiver;
+    private Track recordedTrack;
 
     // Bottom sheet controls
     private View trackWindow;
@@ -173,7 +176,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         trackingUpdatesReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                updateRecording((Track) intent.getSerializableExtra("track"));
+                recordedTrack = (Track) intent.getSerializableExtra("track");
+                updateRecording();
             }
         };
 
@@ -220,9 +224,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 if (slideOffset >= 0.f)
-                    updateRecordControls((int)(bottomSheet.getHeight() * (0.6 * slideOffset + 0.4)));
+                    updateRecordingControl(startRecordingButton,
+                            trackWindowBehavior.getPeekHeight() + (int)(slideOffset * (bottomSheet.getHeight() - trackWindowBehavior.getPeekHeight())));
                 else
-                    updateRecordControls((int)(bottomSheet.getHeight() * (0.5 * slideOffset + 0.5)));
+                    updateRecordingControl(startRecordingButton,
+                            (int)( (1. + slideOffset) * trackWindowBehavior.getPeekHeight()));
             }
         });
 
@@ -238,14 +244,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         recordingWindowBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                Log.d(TAG, "new state: " + newState + ", bottomSheet Height: " + bottomSheet.getHeight());
+                if (newState == BottomSheetBehavior.STATE_EXPANDED)
+                    updateRecordingControl(stopRecordingButton, bottomSheet.getHeight());
             }
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                /*
                 if (slideOffset >= 0.f)
-                    updateRecordControls((int)(bottomSheet.getHeight() * (0.6 * slideOffset + 0.4)));
+                    updateRecordingControl(stopRecordingButton, recordingWindowBehavior.getPeekHeight() + (int)(slideOffset * (bottomSheet.getHeight() - recordingWindowBehavior.getPeekHeight())));
                 else
-                    updateRecordControls((int)(bottomSheet.getHeight() * (0.5 * slideOffset + 0.5)));
+                    updateRecordingControl(stopRecordingButton, (int)( (1. + slideOffset) * recordingWindowBehavior.getPeekHeight()));
+                    */
             }
         });
 
@@ -312,8 +323,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             trackWindowBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
             trackWindowBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
-
-        mMap.setPadding(0,0,0, 0);
     }
 
     /**
@@ -345,18 +354,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Used to replace the start/stop record button
+     * Used to replace the start record button
+     * @param btn the button to update
      * @param height the margin below the button
      */
-    private void updateRecordControls(int height) {
+    private void updateRecordingControl(Button btn, int height) {
         CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT,
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT
         );
         params.setMargins(0, 0, 0, height + 32);
         params.gravity = Gravity.BOTTOM | Gravity.CENTER;
-        startRecordingButton.setLayoutParams(params);
-        stopRecordingButton.setLayoutParams(params);
+        btn.setLayoutParams(params);
+        if (mMap != null)
+            mMap.setPadding(0, 0, 0, height);
     }
 
     @Override
@@ -763,7 +774,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         startMarker = mMap.addMarker(startMarkerOptions);
 
         // Center map
-        mMap.setPadding(0,0,0, trackWindow.getHeight() + startRecordingButton.getHeight());
+        mMap.setPadding(0,0,0, trackWindow.getHeight());
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(track.getLatLngBounds(), 200));
 
         progressBar.setVisibility(View.GONE);
@@ -823,8 +834,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void stopRecording() {
         Log.d(TAG, "stopRecording");
+
         stopListeningTracking();
         getActivity().stopService(new Intent(getActivity(), TrackerService.class));
+
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final View view = inflater.inflate(R.layout.dialog_save_track, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setView(view)
+                .setPositiveButton(R.string.yes, (dialog, id) -> {
+                    final EditText name = view.findViewById(R.id.track_name);
+                    recordedTrack.setName(name.getText().toString());
+
+                    saveRecordedTrack();
+                    hideRecordingWindow();
+                })
+                .setNegativeButton(R.string.no, (dialog, id) -> {
+                    hideRecordingWindow();
+                })
+                .show();
     }
 
     /**
@@ -857,6 +886,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         recordingWindowBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        updateRecordingControl(stopRecordingButton, recordingWindow.getHeight());
     }
 
     /**
@@ -864,22 +894,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void hideRecordingWindow() {
         recordingWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        updateRecordingControl(startRecordingButton, 0);
     }
 
     /**
      * Update the current tracking
-     * @param track The track info to display
      */
-    private void updateRecording(Track track) {
-        recordingDistance.setText(String.format(Locale.getDefault(), "%.1f km", track.getDistance() / 1000.f));
-        recordingClimb.setText(String.format(Locale.getDefault(), "%d m", (int)track.getClimb()));
-        recordingDescent.setText(String.format(Locale.getDefault(), "%d m", (int)track.getDescent()));
+    private void updateRecording() {
+        recordingDistance.setText(String.format(Locale.getDefault(), "%.1f km", recordedTrack.getDistance() / 1000.f));
+        recordingClimb.setText(String.format(Locale.getDefault(), "%d m", (int)recordedTrack.getClimb()));
+        recordingDescent.setText(String.format(Locale.getDefault(), "%d m", (int)recordedTrack.getDescent()));
 
         cleanMap();
 
         PolylineOptions polylineOptions = new PolylineOptions();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (Point point : track.getPoints()) {
+        for (Point point : recordedTrack.getPoints()) {
             LatLng latLng = new LatLng(point.getLat(), point.getLng());
             polylineOptions.add(latLng);
             polylineOptions.width(20);
@@ -890,7 +921,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         polyline.setClickable(false);
         polylineSparseArray.put(0, polyline);
 
-        Point startPoint = track.getPoints().get(0);
+        Point startPoint = recordedTrack.getPoints().get(0);
         LatLng start = new LatLng(startPoint.getLat(), startPoint.getLng());
 
         MarkerOptions startMarkerOptions = new MarkerOptions()
@@ -899,5 +930,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .icon(BitmapDescriptorFactory.fromBitmap(startIconSmall));
 
         startMarker = mMap.addMarker(startMarkerOptions);
+    }
+
+    /**
+     * Save the recorded track in database
+     */
+    private void saveRecordedTrack() {
+        DatabaseHelper.getInstance(mContext).insertTrack(recordedTrack);
     }
 }

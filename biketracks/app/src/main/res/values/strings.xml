@@ -46,4 +46,6 @@
     <string name="permission_denied">Some Permission is Denied</string>
     <string name="allow_access_to_contacts">You need to allow access to Contacts to add emergency contacts</string>
     <string name="permission_denied_contacts">Permission READ_CONTACTS denied</string>
+    <string name="save_recorded_track">Would you like to save your track ?</string>
+    <string name="name_your_track">Name your track</string>
 </resources>
