@@ -27,7 +27,7 @@
         app:layout_gravity="fill_horizontal|center_vertical"
         android:layout_width="1dp"
         android:textStyle="bold"
-        android:text="Nom Parcours"
+        android:text="@string/track_name"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:textAppearance="?attr/textAppearanceListItem"
@@ -40,7 +40,7 @@
         app:layout_rowWeight="2"
         app:layout_columnSpan="2"
         app:layout_gravity="right|center_vertical"
-        android:text="JJ.MM.AA"
+        android:text="@string/date_format"
         android:layout_marginRight="10dp"
         android:layout_marginEnd="10dp"
         android:textAppearance="?attr/textAppearanceListItem"
@@ -61,7 +61,7 @@
         app:layout_column="2"
         app:layout_gravity="left|center_vertical"
         app:layout_columnWeight="1"
-        android:text="xx.x km"
+        android:text="@string/distance_format"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textSize="14sp" />
 
@@ -81,7 +81,7 @@
         app:layout_gravity="left|center_vertical"
         app:layout_columnWeight="1"
         app:layout_rowWeight="1"
-        android:text="00:00"
+        android:text="@string/duration_format"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textSize="14sp" />
 
@@ -101,7 +101,7 @@
         app:layout_rowWeight="1"
         app:layout_columnWeight="1"
         app:layout_gravity="left|center_vertical"
-        android:text="xx.x km/h"
+        android:text="@string/speed_format"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textSize="14sp" />
 

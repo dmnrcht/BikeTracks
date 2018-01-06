@@ -93,8 +93,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Confirm urgency")
-                        .setMessage("Are you sure you want to send an alert to your urgrency contacts?")
+                        .setTitle(R.string.confirm_urgency)
+                        .setMessage(R.string.confirm_urgency_description)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -120,10 +120,10 @@ public class MainActivity extends AppCompatActivity
         if (permissionsList.size() > 0) {
             if (permissionsNeeded.size() > 0) {
                 // Need Rationale
-                StringBuilder message = new StringBuilder("You need to grant access to " + permissionsNeeded.get(0));
+                StringBuilder message = new StringBuilder(getString(R.string.grant_access) + permissionsNeeded.get(0));
                 for (int i = 1; i < permissionsNeeded.size(); i++)
                     message.append(", ").append(permissionsNeeded.get(i));
-                message.append(" to make your secure contacts find you.");
+                message.append(getString(R.string.secure_contacts));
                 showMessageOKCancel(message.toString(),
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -155,8 +155,8 @@ public class MainActivity extends AppCompatActivity
     private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(MainActivity.this)
                 .setMessage(message)
-                .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", null)
+                .setPositiveButton(R.string.ok, okListener)
+                .setNegativeButton(R.string.cancel, null)
                 .create()
                 .show();
     }
@@ -188,14 +188,14 @@ public class MainActivity extends AppCompatActivity
                         Location currentLocation = task.getResult();
                         sendSMSMessage(contacts, currentLocation);
                     } else {
-                        Toast.makeText(getApplicationContext(), "Error fetching position, please try again",
+                        Toast.makeText(getApplicationContext(), R.string.error_fetching_position,
                                 Toast.LENGTH_LONG).show();
                     }
                 }
             });
         } catch (SecurityException e) {
             Log.d(TAG, e.getMessage());
-            Toast.makeText(getApplicationContext(), "Position permission not granted or disabled",
+            Toast.makeText(getApplicationContext(), R.string.position_permission_not_granted,
                     Toast.LENGTH_LONG).show();
         }
     }
@@ -206,8 +206,8 @@ public class MainActivity extends AppCompatActivity
 
         // IMPORTANT : If message is too long, SMS won't be sent.
         String message = //"This is a test for the mobile application BikeTracks. " +
-                "(TEST) I have had a bike accident and you are my secure contact. " +
-                        "Please come pick me up:";
+                getString(R.string.bike_accident_sms_1) +
+                        getString(R.string.bike_accident_sms_2);
         String location = String.format(Locale.ENGLISH, "http://maps.google.com/maps?q=%f,%f", currentLocation.getLatitude(), currentLocation.getLongitude());
         String signature = ""; // "Message delivered by BikeTracks.";
         String body = String.format(Locale.ENGLISH, "%s %s %s", message, location, signature);
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity
                     sendSMS();
                 } else {
                     // Permission Denied
-                    Toast.makeText(MainActivity.this, "Some Permission is Denied", Toast.LENGTH_SHORT)
+                    Toast.makeText(MainActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT)
                             .show();
                 }
             }
