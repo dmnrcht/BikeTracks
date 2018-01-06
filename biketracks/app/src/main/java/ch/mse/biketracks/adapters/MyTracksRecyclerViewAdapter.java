@@ -37,8 +37,8 @@ public class MyTracksRecyclerViewAdapter extends RecyclerView.Adapter<MyTracksRe
         holder.mItem = mValues.get(position);
         Track track = holder.mItem;
         holder.location.setText(track.getName());
-        holder.distance.setText(String.valueOf(track.getDistance() + "m"));
-        holder.speed.setText(String.valueOf(track.getSpeed() * 3.6 + "km/h"));
+        holder.distance.setText(String.format(Locale.ENGLISH, "%.1f km", track.getDistance()/ 1000.));
+        holder.speed.setText(String.format(Locale.ENGLISH,"%.1f km/h",track.getSpeed() * 3.6));
         byte[] imageByteArray = track.getImage();
         if (imageByteArray != null) {
             Bitmap bm = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
