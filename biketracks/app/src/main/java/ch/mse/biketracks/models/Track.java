@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public class Track implements Serializable {
     @SerializedName("type")
     private String type;
     @SerializedName("points")
-    private List<Point> points;
+    private List<Point> points = new LinkedList<>();
 
     // Generated from activity, not present in API responses
     private Date date;
