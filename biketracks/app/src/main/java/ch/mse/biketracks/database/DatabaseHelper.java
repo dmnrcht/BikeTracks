@@ -89,7 +89,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String whereArgs[] = null;
         String groupBy = null;
         String having = null;
-        String order = String.format("%s %s",DatabaseContract.TrackEntry.COLUMN_NAME_CREATED_AT,
+        String order = String.format("%s %s",DatabaseContract.TrackEntry.COLUMN_NAME_DATE,
                 isSortedByDate ? "DESC" : "ASC");
 
         Cursor cursor = db.query(DatabaseContract.TrackEntry.TABLE_NAME, projection,
@@ -100,20 +100,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     DatabaseContract.TrackEntry.COLUMN_NAME_ID));
             String name = cursor.getString(cursor.getColumnIndexOrThrow(
                     DatabaseContract.TrackEntry.COLUMN_NAME_NAME));
-            Date date = new Date(cursor.getInt(cursor.getColumnIndexOrThrow(
-                    DatabaseContract.TrackEntry.COLUMN_NAME_CREATED_AT)));
+            Date date = new Date(1000L * cursor.getInt(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_DATE)));
             int duration_s = cursor.getInt(cursor.getColumnIndexOrThrow(
                     DatabaseContract.TrackEntry.COLUMN_NAME_DURATION));
             int distance = cursor.getInt(cursor.getColumnIndexOrThrow(
                     DatabaseContract.TrackEntry.COLUMN_NAME_DISTANCE));
-            double speed = .0;
-            if (duration_s != 0) {
-                speed = distance / duration_s;
-            }
             int climb = cursor.getInt(cursor.getColumnIndexOrThrow(
                     DatabaseContract.TrackEntry.COLUMN_NAME_CLIMB));
             int descent = cursor.getInt(cursor.getColumnIndexOrThrow(
                     DatabaseContract.TrackEntry.COLUMN_NAME_DESCENT));
+            float speed = cursor.getFloat(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_SPEED));
             String type = cursor.getString(cursor.getColumnIndexOrThrow(
                     DatabaseContract.TrackEntry.COLUMN_NAME_TYPE));
             byte[] image = cursor.getBlob(cursor.getColumnIndexOrThrow(
@@ -122,7 +120,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Get points
             ArrayList<Point> points = getPoints(id, db);
 
-            tracks.add(new Track(id, name, date, duration_s, speed, distance, climb, descent, type, points, image));
+            tracks.add(new Track(id, name, date, duration_s, distance, climb, descent, speed, type, points, image));
         }
         cursor.close();
 
@@ -144,8 +142,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(DatabaseContract.TrackEntry.COLUMN_NAME_CLIMB, track.getClimb());
         values.put(DatabaseContract.TrackEntry.COLUMN_NAME_DESCENT, track.getDescent());
         values.put(DatabaseContract.TrackEntry.COLUMN_NAME_DISTANCE, track.getDistance());
+        values.put(DatabaseContract.TrackEntry.COLUMN_NAME_SPEED, track.getSpeed());
         values.put(DatabaseContract.TrackEntry.COLUMN_NAME_TYPE, track.getType());
-        values.put(DatabaseContract.TrackEntry.COLUMN_NAME_CREATED_AT, track.getDate().getTime());
+        values.put(DatabaseContract.TrackEntry.COLUMN_NAME_DATE, track.getDate().getTime() / 1000);
         values.put(DatabaseContract.TrackEntry.COLUMN_NAME_DURATION, track.getDuration());
         values.put(DatabaseContract.TrackEntry.COLUMN_NAME_IMAGE, track.getImage());
 
@@ -157,7 +156,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_LAT, p.getLat());
             pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_LNG, p.getLng());
             pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_ELEV, p.getElev());
-            pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_TIMESTAMP, p.getTime());
+            pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_TIME, p.getTime());
+            pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_DURATION, p.getDuration());
             pointValues.put(DatabaseContract.PointEntry.COLUMN_NAME_TRACK_ID, trackId);
 
             db.insert(DatabaseContract.PointEntry.TABLE_NAME, null, pointValues);
@@ -175,7 +175,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String whereArgs[] = new String[]{ trackId + "" };
         String groupBy = null;
         String having = null;
-        String order = DatabaseContract.PointEntry.COLUMN_NAME_TIMESTAMP + " ASC";
+        String order = DatabaseContract.PointEntry.COLUMN_NAME_TIME + " ASC";
 
         Cursor cursor = db.query(DatabaseContract.PointEntry.TABLE_NAME, projection,
                 where, whereArgs, groupBy, having, order);
@@ -183,9 +183,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             double lat = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseContract.PointEntry.COLUMN_NAME_LAT));
             double lng = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseContract.PointEntry.COLUMN_NAME_LNG));
             int elev = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.PointEntry.COLUMN_NAME_ELEV));
-            long time = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseContract.PointEntry.COLUMN_NAME_TIMESTAMP));
+            long time = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseContract.PointEntry.COLUMN_NAME_TIME));
+            int duration = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.PointEntry.COLUMN_NAME_DURATION));
 
-            points.add(new Point(lat, lng, elev, time));
+            points.add(new Point(lat, lng, elev, time, duration));
         }
         cursor.close();
 

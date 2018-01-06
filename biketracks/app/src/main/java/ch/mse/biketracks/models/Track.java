@@ -31,7 +31,7 @@ public class Track implements Serializable {
     // Generated from activity, not present in API responses
     private Date date;
     private int duration;
-    private double speed;
+    private float speed;
     private LatLngBounds latLngBounds;
     private Polyline polyline;
     private byte[] image;
@@ -40,7 +40,7 @@ public class Track implements Serializable {
         this.date = date;
     }
 
-    public Track(String name, Date date, int duration, double speed, int distance) {
+    public Track(String name, Date date, int duration, float speed, int distance) {
         this.name = name;
         this.date = date;
         this.duration = duration;
@@ -48,15 +48,15 @@ public class Track implements Serializable {
         this.distance = distance;
     }
 
-    public Track(int id, String name, Date date, int duration, double speed, int distance, int climb, int descent, String type, List<Point> points, byte[] image) {
+    public Track(int id, String name, Date date, int duration, int distance, int climb, int descent, float speed, String type, List<Point> points, byte[] image) {
         this.id = id;
         this.name = name;
         this.date = date;
         this.duration = duration;
-        this.speed = speed;
         this.distance = distance;
         this.climb = climb;
         this.descent = descent;
+        this.speed = speed;
         this.type = type;
         this.points = points;
         this.image = image;
@@ -145,11 +145,11 @@ public class Track implements Serializable {
     /**
      * @return average speed in m/s
      */
-    public double getSpeed() {
+    public float getSpeed() {
         return speed;
     }
 
-    public void setSpeed(double speed) {
+    public void setSpeed(float speed) {
         this.speed = speed;
     }
 
