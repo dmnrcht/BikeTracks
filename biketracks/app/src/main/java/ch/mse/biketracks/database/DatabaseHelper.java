@@ -14,6 +14,13 @@ import ch.mse.biketracks.models.Contact;
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 
+import static ch.mse.biketracks.database.DatabaseContract.ContactEntry.SQL_CREATE_TABLE_CONTACT;
+import static ch.mse.biketracks.database.DatabaseContract.ContactEntry.SQL_DROP_TABLE_CONTACT;
+import static ch.mse.biketracks.database.DatabaseContract.PointEntry.SQL_CREATE_TABLE_POINT;
+import static ch.mse.biketracks.database.DatabaseContract.PointEntry.SQL_DROP_TABLE_POINT;
+import static ch.mse.biketracks.database.DatabaseContract.TrackEntry.SQL_CREATE_TABLE_TRACK;
+import static ch.mse.biketracks.database.DatabaseContract.TrackEntry.SQL_DROP_TABLE_TRACK;
+
 /**
  * SQLiteOpenHelper handling biketracks database
  * Defined as a singleton to ensure only 1 instance of the db helper
@@ -23,19 +30,9 @@ import ch.mse.biketracks.models.Track;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "biketracks.db";
     private static final String TAG = DatabaseHelper.class.getSimpleName(); // For log
-
-    private static final String SQL_CREATE_ENTRIES =
-            DatabaseContract.ContactEntry.SQL_CREATE_TABLE_CONTACT +
-            DatabaseContract.TrackEntry.SQL_CREATE_TABLE_TRACK +
-            DatabaseContract.PointEntry.SQL_CREATE_TABLE_POINT;
-
-    private static final String SQL_DELETE_ENTRIES =
-            DatabaseContract.PointEntry.SQL_DROP_TABLE_POINT +
-            DatabaseContract.TrackEntry.SQL_DROP_TABLE_TRACK +
-            DatabaseContract.ContactEntry.SQL_DROP_TABLE_CONTACT;
 
     private static DatabaseHelper mInstance = null;
 
@@ -52,13 +49,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_ENTRIES);
+        db.execSQL(SQL_CREATE_TABLE_CONTACT);
+        db.execSQL(SQL_CREATE_TABLE_TRACK);
+        db.execSQL(SQL_CREATE_TABLE_POINT);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
-        db.execSQL(SQL_DELETE_ENTRIES);
+        db.execSQL(SQL_DROP_TABLE_POINT);
+        db.execSQL(SQL_DROP_TABLE_TRACK);
+        db.execSQL(SQL_DROP_TABLE_CONTACT);
         onCreate(db);
     }
 
@@ -112,11 +113,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     DatabaseContract.TrackEntry.COLUMN_NAME_DESCENT));
             String type = cursor.getString(cursor.getColumnIndexOrThrow(
                     DatabaseContract.TrackEntry.COLUMN_NAME_TYPE));
+            byte[] image = cursor.getBlob(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_IMAGE));
 
             // Get points
             ArrayList<Point> points = getPoints(id, db);
 
-            tracks.add(new Track(id, name, date, duration_s, speed, distance, climb, descent, type, points));
+            tracks.add(new Track(id, name, date, duration_s, speed, distance, climb, descent, type, points, image));
         }
         cursor.close();
 
@@ -125,12 +128,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Add a track to database
-     * @param track the track with name, climb, descent, distance, type, date, duration.
-     *              Each point of the track must have lat, lng, elev, time in ms
-     * @param trackImage image of the track
+     * @param track the track with : name, climb, descent, distance, type, date, duration, image
+     *              Each point of the track must have : lat, lng, elev, time in ms
      * @return the inserted id of the track
      */
-    public long insertTrack(Track track, byte[] trackImage) {
+    public long insertTrack(Track track) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Insert track
@@ -142,7 +144,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(DatabaseContract.TrackEntry.COLUMN_NAME_TYPE, track.getType());
         values.put(DatabaseContract.TrackEntry.COLUMN_NAME_CREATED_AT, track.getDate().getTime());
         values.put(DatabaseContract.TrackEntry.COLUMN_NAME_DURATION, track.getDuration());
-        values.put(DatabaseContract.TrackEntry.COLUMN_NAME_IMAGE, trackImage);
+        values.put(DatabaseContract.TrackEntry.COLUMN_NAME_IMAGE, track.getImage());
 
         long trackId = db.insert(DatabaseContract.TrackEntry.TABLE_NAME, null, values);
 

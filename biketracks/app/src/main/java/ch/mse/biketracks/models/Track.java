@@ -33,6 +33,7 @@ public class Track implements Serializable {
     private double speed;
     private LatLngBounds latLngBounds;
     private Polyline polyline;
+    private byte[] image;
 
     public Track(Date date) {
         this.date = date;
@@ -46,7 +47,7 @@ public class Track implements Serializable {
         this.distance = distance;
     }
 
-    public Track(int id, String name, Date date, int duration, double speed, int distance, int climb, int descent, String type, List<Point> points) {
+    public Track(int id, String name, Date date, int duration, double speed, int distance, int climb, int descent, String type, List<Point> points, byte[] image) {
         this.id = id;
         this.name = name;
         this.date = date;
@@ -57,6 +58,7 @@ public class Track implements Serializable {
         this.descent = descent;
         this.type = type;
         this.points = points;
+        this.image = image;
     }
 
     public int getId() {
@@ -161,5 +163,13 @@ public class Track implements Serializable {
 
     public void setPolyline(Polyline polyline) {
         this.polyline = polyline;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 }

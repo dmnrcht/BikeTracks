@@ -28,7 +28,7 @@ public final class DatabaseContract {
                         ContactEntry.COLUMN_NAME_NUMBER + " TEXT);";
 
         public static final String SQL_DROP_TABLE_CONTACT =
-                "DROP TABLE IF EXISTS " + TABLE_NAME;
+                "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
     }
 
     /* TRACK */
@@ -57,7 +57,7 @@ public final class DatabaseContract {
                         COLUMN_NAME_IMAGE + " BLOB);";
 
         public static final String SQL_DROP_TABLE_TRACK =
-                "DROP TABLE IF EXISTS " + TABLE_NAME;
+                "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
     }
 
     /* POINT */
@@ -82,6 +82,6 @@ public final class DatabaseContract {
                         ");";
 
         public static final String SQL_DROP_TABLE_POINT =
-                "DROP TABLE IF EXISTS " + TABLE_NAME;
+                "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
     }
 }
