@@ -47,4 +47,7 @@
     <string name="name_your_track">Nommez votre activité</string>
     <string name="allow_access_to_location_for_activity">Autoriser l\'accès à la position pour démarrer une activité.</string>
     <string name="no_registered_tracks">Aucun parcours enregistré pour le moment.</string>
+    <string name="distance_format" translatable="false">xx.x km</string>
+    <string name="duration_format" translatable="false">00:00</string>
+    <string name="speed_format" translatable="false">xx.x km/h</string>
 </resources>

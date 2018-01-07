@@ -2,6 +2,8 @@ package ch.mse.biketracks;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -867,6 +869,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Log.d(TAG, "startRecording");
         getActivity().startService(new Intent(getActivity(), TrackerService.class));
         startListeningTracking();
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+
+            NotificationManager mNotificationManager =
+                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            // The id of the channel.
+            String id = "my_channel_01";
+            // The user-visible name of the channel.
+            CharSequence name = "fasfs";
+            // The user-visible description of the channel.
+            String description = "sdgsdgghhh";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = null;
+
+            mChannel = new NotificationChannel(id, name, importance);
+            // Configure the notification channel.
+            mChannel.setDescription(description);
+            mChannel.enableLights(true);
+            // Sets the notification light color for notifications posted to this
+            // channel, if the device supports this feature.
+            mChannel.setLightColor(Color.RED);
+            mChannel.enableVibration(true);
+            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            mNotificationManager.createNotificationChannel(mChannel);
+        }
     }
 
     /**
