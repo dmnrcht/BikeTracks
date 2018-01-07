@@ -20,6 +20,8 @@
     <string name="button_start_recording">Enregistrer une activité</string>
     <string name="button_stop_recording">Arrêter d\'enregistrer</string>
     <string name="distance">Distance</string>
+    <string name="duration">Durée</string>
+    <string name="speed">Vitesse</string>
     <string name="climb">Montée</string>
     <string name="descent">Descente</string>
     <string name="altitude_m">Altitude [m]</string>

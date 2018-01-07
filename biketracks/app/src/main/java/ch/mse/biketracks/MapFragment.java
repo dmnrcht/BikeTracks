@@ -894,7 +894,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 new NotificationCompat.Builder(mContext, CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_record_notification)
                         .setContentTitle(getString(R.string.app_name))
-                        .setContentText(getString(R.string.recording_track));
+                        .setContentText(getString(R.string.recording_track))
+                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);//to show content in lock screen
+            ;
             // Creates an explicit intent for an Activity in your app
             Intent resultIntent = new Intent(mContext, MainActivity.class);
 
