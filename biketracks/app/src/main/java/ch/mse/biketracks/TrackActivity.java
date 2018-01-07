@@ -28,6 +28,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import ch.mse.biketracks.database.DatabaseHelper;
 import ch.mse.biketracks.models.Point;
 import ch.mse.biketracks.models.Track;
 import ch.mse.biketracks.utils.MyTools;
@@ -117,30 +118,33 @@ public class TrackActivity extends AppCompatActivity implements OnMapReadyCallba
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            track = (Track)getIntent().getSerializableExtra("track"); //Obtaining data
+            int trackId = getIntent().getIntExtra("trackId", 0);
+            if (trackId != 0) {
+                track = DatabaseHelper.getInstance(getApplicationContext()).getTrack(trackId);
 
-            // Set track values
-            titleView.setText(track.getName());
-            typeView.setText(track.getType());
-            distanceView.setText(String.format(Locale.ENGLISH, "%.1f km", track.getDistance()/ 1000.));
-            durationView.setText(MyTools.FormatTimeHHhmm(track.getDuration()));
-            climbView.setText(String.format(Locale.ENGLISH, "%d m", track.getClimb()));
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-            dateView.setText(sdf.format(track.getDate()));
-            speedView.setText(String.format(Locale.ENGLISH,"%.1f km/h",track.getSpeed() * 3.6));
-            descentView.setText(String.format(Locale.ENGLISH, "%d m", track.getDescent()));
+                // Set track values
+                titleView.setText(track.getName());
+                typeView.setText(track.getType());
+                distanceView.setText(String.format(Locale.ENGLISH, "%.1f km", track.getDistance()/ 1000.));
+                durationView.setText(MyTools.FormatTimeHHhmm(track.getDuration()));
+                climbView.setText(String.format(Locale.ENGLISH, "%d m", track.getClimb()));
+                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+                dateView.setText(sdf.format(track.getDate()));
+                speedView.setText(String.format(Locale.ENGLISH,"%.1f km/h",track.getSpeed() * 3.6));
+                descentView.setText(String.format(Locale.ENGLISH, "%d m", track.getDescent()));
 
-            // Build graph
-            Tuple<LineGraphSeries<DataPoint>, Double> elevationGraph = MyTools.ElevationGraph(track.getPoints());
-            // set manual X bounds
-            graph.getViewport().setXAxisBoundsManual(true);
-            graph.getViewport().setMinX(0.);
-            graph.getViewport().setMaxX(elevationGraph.second);
-            if (graph.getSeries().size() > 0)
-                graph.removeAllSeries();
-            graph.addSeries(elevationGraph.first);
+                // Build graph
+                Tuple<LineGraphSeries<DataPoint>, Double> elevationGraph = MyTools.ElevationGraph(track.getPoints());
+                // set manual X bounds
+                graph.getViewport().setXAxisBoundsManual(true);
+                graph.getViewport().setMinX(0.);
+                graph.getViewport().setMaxX(elevationGraph.second);
+                if (graph.getSeries().size() > 0)
+                    graph.removeAllSeries();
+                graph.addSeries(elevationGraph.first);
 
-            getSupportActionBar().setTitle(track.getName());
+                getSupportActionBar().setTitle(track.getName());
+            }
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

@@ -846,11 +846,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     final EditText name = view.findViewById(R.id.track_name);
                     recordedTrack.setName(name.getText().toString());
 
-                    saveRecordedTrack();
+                    int trackId = saveRecordedTrack();
                     hideRecordingWindow();
+                    isRecording = false;
+
+                    Intent intent = new Intent();
+                    intent.setClass(getActivity(), TrackActivity.class);
+                    intent.putExtra("trackId", trackId);
+                    startActivity(intent);
                 })
                 .setNegativeButton(R.string.no, (dialog, id) -> {
                     hideRecordingWindow();
+                    isRecording = false;
                 })
                 .show();
     }
@@ -933,8 +940,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     /**
      * Save the recorded track in database
      */
-    private void saveRecordedTrack() {
-        DatabaseHelper.getInstance(mContext).insertTrack(recordedTrack);
+    private int saveRecordedTrack() {
+        return (int)DatabaseHelper.getInstance(mContext).insertTrack(recordedTrack);
     }
 
 }
