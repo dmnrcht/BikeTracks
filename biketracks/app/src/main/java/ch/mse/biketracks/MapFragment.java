@@ -207,7 +207,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                 if (MyTools.isLocationEnabled(mContext))
                     // Get the current location of the device and set the position of the map.
-                    getDeviceLocation();
+                    getDeviceLocation(15.f);
                 else {
                     Toast.makeText(mContext, R.string.enable_location_first,
                             Toast.LENGTH_LONG).show();
@@ -328,7 +328,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap.setOnCameraIdleListener(this::onCameraIdle);
 
         // Get the current location of the device and set the position of the map.
-        getDeviceLocation();// Load the tracks
+        // Turn on the My Location layer and the related control on the map.
+        updateLocationUI();
+
+        if (MyTools.isLocationEnabled(mContext))
+            // Get the current location of the device and set the position of the map.
+            getDeviceLocation(8.f);
+        else {
+            Toast.makeText(mContext, R.string.enable_location_first,
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -544,7 +553,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * Get the best and most recent location of the device, which may be null in rare
      * cases when a location is not available.
      */
-    private void getDeviceLocation() {
+    private void getDeviceLocation(float zoom) {
         try {
             if (mLocationPermissionGranted) {
                 Task locationResult = mFusedLocationProviderClient.getLastLocation();
@@ -558,7 +567,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                 Log.d(TAG, "mLastKnownLocation : " + mLastKnownLocation.toString());
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), 11.f));
+                                            mLastKnownLocation.getLongitude()), zoom));
                             } else {
                                 checkLocation();
                             }
@@ -887,7 +896,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
 
 
-            // The id of the channel.
+        // Create a notification for the recording
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             String CHANNEL_ID = "my_channel_01";
             NotificationCompat.Builder mBuilder =
@@ -929,6 +938,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Log.e(TAG, "Notifications not supported");
         }
 
+        // Go to the user's location
+        // Turn on the My Location layer and the related control on the map.
+        updateLocationUI();
+
+        if (MyTools.isLocationEnabled(mContext))
+            // Get the current location of the device and set the position of the map.
+            getDeviceLocation(15.f);
+        else {
+            Toast.makeText(mContext, R.string.enable_location_first,
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -964,6 +984,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 })
                 .show();
 
+        // Hide the notification for the recording
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             NotificationManager mNotificationManager =
                     (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
