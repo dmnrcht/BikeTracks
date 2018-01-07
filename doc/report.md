@@ -228,6 +228,10 @@ Here is a list of improvements we would have liked to add to the application:
 
 - Make a Smartwatch version
 
+- Add a pause command when recording a track
+
+- Add buttons to control the recording in the notification
+
 - Let the user send tracks to the API so that we could maybe add them to the lists of public tracks.
 
 - Let the user store his tracks in an online database so that he can load them on another device.
