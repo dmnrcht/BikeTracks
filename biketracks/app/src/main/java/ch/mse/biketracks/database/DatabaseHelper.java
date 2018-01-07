@@ -128,6 +128,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Get a track by id
+     * @return a track
+     */
+    public Track getTrack(int trackId) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String[] projection = new String[] { "*" };
+        String where = String.format("%s = ?", DatabaseContract.TrackEntry.COLUMN_NAME_ID);
+        String whereArgs[] = {String.valueOf(trackId)};
+        String groupBy = null;
+        String having = null;
+        String order = null;
+
+        Cursor cursor = db.query(DatabaseContract.TrackEntry.TABLE_NAME, projection,
+                where, whereArgs, groupBy, having, order);
+        Track track = null;
+        if (cursor.getCount() > 0) {
+            cursor.moveToFirst();
+
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_ID));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_NAME));
+            Date date = new Date(1000L * cursor.getInt(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_DATE)));
+            int duration_s = cursor.getInt(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_DURATION));
+            int distance = cursor.getInt(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_DISTANCE));
+            int climb = cursor.getInt(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_CLIMB));
+            int descent = cursor.getInt(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_DESCENT));
+            float speed = cursor.getFloat(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_SPEED));
+            String type = cursor.getString(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_TYPE));
+            byte[] image = cursor.getBlob(cursor.getColumnIndexOrThrow(
+                    DatabaseContract.TrackEntry.COLUMN_NAME_IMAGE));
+
+            // Get points
+            ArrayList<Point> points = getPoints(id, db);
+
+            track = new Track(id, name, date, duration_s, distance, climb, descent, speed, type, points, image);
+        }
+        cursor.close();
+
+        return track;
+    }
+
+    /**
      * Add a track to database
      * @param track the track with : name, climb, descent, distance, type, date, duration, image, points
      *              Each point of the track must have : lat, lng, elev, time in ms

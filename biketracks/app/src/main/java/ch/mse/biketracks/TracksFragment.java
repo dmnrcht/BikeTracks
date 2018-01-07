@@ -2451,7 +2451,7 @@ public class TracksFragment extends Fragment {
                             // Start a new Activity via Intent
                             Intent intent = new Intent();
                             intent.setClass(getActivity(), TrackActivity.class);
-                            intent.putExtra("track", tracks.get(position));
+                            intent.putExtra("trackId", tracks.get(position).getId());
                             startActivity(intent);
                         }
                     })
@@ -2459,6 +2459,7 @@ public class TracksFragment extends Fragment {
         }
 
         // Retrieve tracks from DB
+        tracks.clear();
         new FetchTracksTask().execute();
 
         return view;
