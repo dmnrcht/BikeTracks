@@ -114,7 +114,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Track selectedTrack;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private FloatingActionButton locateButton;
     private ProgressBar progressBar;
     private SparseIntArray tracksColor = new SparseIntArray(); // Define a color for each track to distinguish them <id of track, color of track>
     private SparseArray<Track> fullTracksSparseArray = new SparseArray<>();
@@ -203,25 +202,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 updateRecording();
             }
         };
-
-        locateButton = (FloatingActionButton) getView().findViewById(R.id.locate);
-        locateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // Turn on the My Location layer and the related control on the map.
-                updateLocationUI();
-
-                if (MyTools.isLocationEnabled(mContext))
-                    // Get the current location of the device and set the position of the map.
-                    getDeviceLocation(15.f);
-                else {
-                    Toast.makeText(mContext, R.string.enable_location_first,
-                            Toast.LENGTH_LONG).show();
-                }
-
-            }
-        });
 
         progressBar = getView().findViewById(R.id.progressBarMap);
 
@@ -527,11 +507,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             return;
         }
         try {
-            mMap.setMyLocationEnabled(false);
             if (mLocationPermissionGranted) {
-                locateButton.setVisibility(View.VISIBLE);
+                mMap.setMyLocationEnabled(true);
+                //locateButton.setVisibility(View.VISIBLE);
             } else {
-                locateButton.setVisibility(View.GONE);
+                mMap.setMyLocationEnabled(false);
+                //locateButton.setVisibility(View.GONE);
                 mLastKnownLocation = null;
                 getLocationPermission();
             }

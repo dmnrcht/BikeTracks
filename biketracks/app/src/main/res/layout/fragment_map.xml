@@ -15,18 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/locate"
-        app:fabSize="mini"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_margin="16dp"
-        android:padding="5dp"
-        app:srcCompat="@drawable/ic_location"
-        app:backgroundTint="@color/white"
-        android:tint="@color/colorPrimaryDark" />
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
