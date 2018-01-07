@@ -12,7 +12,7 @@
     <string name="pick_place">Entrez votre position</string>
     <string name="location_not_found">Localisation non trouvée</string>
     <string name="urgency_contacts">Contacts d\'urgence</string>
-    <string name="contact_already_exists">Le contacte existe déjà...</string>
+    <string name="contact_already_exists">Le contacte existe déjà…</string>
     <string name="urgency_message_sent">Message d\'urgence envoyé!</string>
     <string name="gps_seems_disabled">Votre GPS semble être désactivé, voulez vous l\'activer?</string>
     <string name="yes">Oui</string>
@@ -50,5 +50,6 @@
     <string name="distance_format" translatable="false">xx.x km</string>
     <string name="duration_format" translatable="false">00:00</string>
     <string name="speed_format" translatable="false">xx.x km/h</string>
+    <string name="recording_track">Vous êtes entrain d\'enregistrer un parcours</string>
     <string name="enable_location_first">Erreur, activez d\'abord la position.</string>
 </resources>
