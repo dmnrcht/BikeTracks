@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="navigation_drawer_open">Ouvrir le menu de navigation</string>
-    <string name="navigation_drawer_close">Fermet le menu de navigation</string>
+    <string name="navigation_drawer_close">Fermer le menu de navigation</string>
     <string name="search">Rechercher</string>
     <string name="settings">Paramètres</string>
     <string name="my_parcours">Mes parcours</string>
@@ -22,18 +22,29 @@
     <string name="distance">Distance</string>
     <string name="climb">Montée</string>
     <string name="descent">Descente</string>
-    <string name="altitude_m">Élévation [m]</string>
+    <string name="altitude_m">Altitude [m]</string>
     <string name="distance_m">Distance [km]</string>
     <string name="error">Erreur</string>
     <string name="selected_track_empty">Le parcours sélectionné est vide</string>
-    <string name="track_preview">Aprçu du parcours</string>
+    <string name="track_preview">Aperçu du parcours</string>
     <string name="urgency">Urgence</string>
     <string name="track_name">Nom du parcours</string>
     <string name="date_format">JJ.MM.AA</string>
     <string name="confirm_urgency">Confirmer l\'urgence</string>
-    <string name="confirm_urgency_description">Êtes-vous sûre de vouloir envoyer une alert à vos contacts d\'urgence?</string>
-    <string name="grant_access">Vous devez donner l\'accès à</string>
-    <string name="secure_contacts">" pour que vos contactes d'urgence puisse vous trouver"</string>
+    <string name="confirm_urgency_description">Êtes-vous sûr de vouloir envoyer une alerte à vos contacts d\'urgence?</string>
+    <string name="grant_access">Vous devez donner l\'accès au</string>
+    <string name="secure_contacts">" pour que vos contactes d'urgence puissent vous trouver"</string>
     <string name="ok">Ok</string>
     <string name="cancel">Annuler</string>
+    <string name="error_fetching_position">Position indisponible, veuillez réessayer</string>
+    <string name="position_permission_not_granted">La localisation n\'a pas été autorisée ou est désactivée</string>
+    <string name="bike_accident_sms_1">(TEST) Je viens d\'avoir un accident de vélo et vous êtes mon contact de sécurité.</string>
+    <string name="bike_accident_sms_2">S\'il vous plait, venez me chercher:</string>
+    <string name="permission_denied">Des permissions sont refusées</string>
+    <string name="allow_access_to_contacts">Veuillez autoriser l\'accès aux contacts pour l\'ajout de contacts d'urgence</string>
+    <string name="permission_denied_contacts">Autorisation des contacts refusée</string>
+    <string name="save_recorded_track">Voulez-vous enregistrer votre activité ?</string>
+    <string name="name_your_track">Nommez votre activité</string>
+    <string name="allow_access_to_location_for_activity">Autoriser l\'accès à la position pour démarrer une activité.</string>
+    <string name="no_registered_tracks">Aucun parcours enregistré pour le moment.</string>
 </resources>

@@ -1,5 +1,6 @@
 package ch.mse.biketracks;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -81,6 +82,8 @@ import retrofit2.Callback;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 2;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_RECORD = 22;
+
     private static final float DEFAULT_ZOOM = 8.f;
     private static final String TAG = MapFragment.class.getSimpleName();
 
@@ -156,7 +159,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     isRecording = true;
                     startRecordingButton.setVisibility(View.INVISIBLE);
                     stopRecordingButton.setVisibility(View.VISIBLE);
-                    startRecording();
+                    startRecordingWrapper();
                 }
             }
         });
@@ -437,10 +440,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mLocationPermissionGranted = false;
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
+                }
+            }
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_RECORD: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mLocationPermissionGranted = true;
+                    startRecording();
                 }
             }
         }
@@ -817,6 +826,38 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 call.cancel();
             }
         });
+    }
+
+    /**
+     * Ask for permission
+     */
+    private void startRecordingWrapper() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                showMessageOKCancel(getString(R.string.allow_access_to_location_for_activity),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                                        PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_RECORD);
+                            }
+                        });
+                return;
+            }
+            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION_RECORD);
+            return;
+        }
+        startRecording();
+    }
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new android.support.v7.app.AlertDialog.Builder(mContext)
+                .setMessage(message)
+                .setPositiveButton(R.string.ok, okListener)
+                .setNegativeButton(R.string.cancel, null)
+                .create()
+                .show();
     }
 
     /**
