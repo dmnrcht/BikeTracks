@@ -51,4 +51,6 @@
     <string name="save_recorded_track">Would you like to save your track ?</string>
     <string name="name_your_track">Name your track</string>
     <string name="recording_track">You are currently recording a track</string>
+    <string name="allow_access_to_location_for_activity">Allow access to location to start an activity.</string>
+    <string name="no_registered_tracks">No registered tracks yet.</string>
 </resources>

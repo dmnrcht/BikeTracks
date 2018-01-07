@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
@@ -2475,6 +2476,10 @@ public class TracksFragment extends Fragment {
         }
 
         protected void onPostExecute(ArrayList<Track> result) {
+            if (result.isEmpty()) {
+                Toast.makeText(mContext, R.string.no_registered_tracks, Toast.LENGTH_SHORT).show();
+                return;
+            }
             tracks.addAll(result);
             tracksAdapter.notifyDataSetChanged();
         }
