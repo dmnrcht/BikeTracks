@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -39,6 +40,7 @@ import java.util.Map;
 
 import ch.mse.biketracks.database.DatabaseHelper;
 import ch.mse.biketracks.models.Contact;
+import ch.mse.biketracks.utils.MyTools;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -139,7 +141,16 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        sendSMS();
+        LocationManager lm = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        if (MyTools.isLocationEnabled(this.mContext))
+            sendSMS();
+        else {
+            Toast.makeText(getApplicationContext(), R.string.enable_location_first,
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private boolean addPermission(List<String> permissionsList, String permission) {

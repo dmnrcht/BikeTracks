@@ -158,10 +158,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if (!isRecording) {
-                    isRecording = true;
-                    startRecordingButton.setVisibility(View.INVISIBLE);
-                    stopRecordingButton.setVisibility(View.VISIBLE);
-                    startRecordingWrapper();
+                    if (MyTools.isLocationEnabled(mContext)) {
+                        isRecording = true;
+                        startRecordingButton.setVisibility(View.INVISIBLE);
+                        stopRecordingButton.setVisibility(View.VISIBLE);
+                        startRecordingWrapper();
+                    }
+                    else {
+                        Toast.makeText(mContext, R.string.enable_location_first,
+                                Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });
@@ -195,10 +201,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 // Turn on the My Location layer and the related control on the map.
                 updateLocationUI();
 
-                // Get the current location of the device and set the position of the map.
-                getDeviceLocation();
+                if (MyTools.isLocationEnabled(mContext))
+                    // Get the current location of the device and set the position of the map.
+                    getDeviceLocation();
+                else {
+                    Toast.makeText(mContext, R.string.enable_location_first,
+                            Toast.LENGTH_LONG).show();
+                }
 
-                //showCurrentPlace();
             }
         });
 

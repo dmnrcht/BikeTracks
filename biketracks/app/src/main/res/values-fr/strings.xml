@@ -32,16 +32,16 @@
     <string name="date_format">JJ.MM.AA</string>
     <string name="confirm_urgency">Confirmer l\'urgence</string>
     <string name="confirm_urgency_description">Êtes-vous sûr de vouloir envoyer une alerte à vos contacts d\'urgence?</string>
-    <string name="grant_access">Vous devez donner l\'accès au</string>
-    <string name="secure_contacts">" pour que vos contactes d'urgence puissent vous trouver"</string>
+    <string name="grant_access">Veuillez autoriser l\'accès </string>
+    <string name="secure_contacts">" pour que vos contacts d'urgence puissent vous trouver"</string>
     <string name="ok">Ok</string>
     <string name="cancel">Annuler</string>
     <string name="error_fetching_position">Position indisponible, veuillez réessayer</string>
     <string name="position_permission_not_granted">La localisation n\'a pas été autorisée ou est désactivée</string>
-    <string name="bike_accident_sms_1">(TEST) Je viens d\'avoir un accident de vélo et vous êtes mon contact de sécurité.</string>
-    <string name="bike_accident_sms_2">S\'il vous plait, venez me chercher:</string>
+    <string name="bike_accident_sms_1">(TEST) Je viens d\'avoir un accident de vélo.</string>
+    <string name="bike_accident_sms_2"> SVP, venez me chercher:</string>
     <string name="permission_denied">Des permissions sont refusées</string>
-    <string name="allow_access_to_contacts">Veuillez autoriser l\'accès aux contacts pour l\'ajout de contacts d'urgence</string>
+    <string name="allow_access_to_contacts">L\'accès demandé permet d\'ajouter vos contacts d'urgence</string>
     <string name="permission_denied_contacts">Autorisation des contacts refusée</string>
     <string name="save_recorded_track">Voulez-vous enregistrer votre activité ?</string>
     <string name="name_your_track">Nommez votre activité</string>
@@ -50,4 +50,5 @@
     <string name="distance_format" translatable="false">xx.x km</string>
     <string name="duration_format" translatable="false">00:00</string>
     <string name="speed_format" translatable="false">xx.x km/h</string>
+    <string name="enable_location_first">Erreur, activez d\'abord la position.</string>
 </resources>
