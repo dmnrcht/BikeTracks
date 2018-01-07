@@ -27,6 +27,29 @@
         app:backgroundTint="@color/white"
         android:tint="@color/colorPrimaryDark" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginEnd="64dp"
+        android:layout_marginRight="64dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:padding="0dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/my_tracks" />
+
+        <CheckBox
+            android:id="@+id/showmytracks"
+            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:tint="@color/colorPrimaryDark" />
+    </LinearLayout>
+
     <ProgressBar
         android:id="@+id/progressBarMap"
         style="@android:style/Widget.DeviceDefault.ProgressBar.Large"

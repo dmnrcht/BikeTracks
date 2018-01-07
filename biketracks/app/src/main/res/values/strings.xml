@@ -54,4 +54,7 @@
     <string name="allow_access_to_location_for_activity">Allow access to location to start an activity.</string>
     <string name="no_registered_tracks">No registered tracks yet.</string>
     <string name="enable_location_first">Error, enable location first.</string>
+    <string name="my_tracks">Show my tracks</string>
+    <string name="preference_file_key" translatable="false">ch.mse.biketracks.PREFERENCES_FILE</string>
+    <string name="show_my_tracks_preference" translatable="false">show_my_tracks</string>
 </resources>

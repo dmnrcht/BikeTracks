@@ -2,7 +2,6 @@ package ch.mse.biketracks;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.SearchManager;
@@ -12,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -20,6 +20,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -45,6 +46,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -70,6 +73,7 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -97,6 +101,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private SparseArray<Polyline> polylineSparseArray = new SparseArray<>();
+    private SparseArray<Polyline> myTracksPolylineSparseArray = new SparseArray<>();
     private BiketracksAPIInterface apiInterface;
 
     private Context mContext;
@@ -139,6 +144,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private TextView trackDistance;
     private TextView trackClimb;
     private TextView trackDescent;
+
+    ArrayList<Track> myTracks = new ArrayList<>();
 
     public MapFragment() {
         // Required empty public constructor
@@ -291,6 +298,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         BitmapDrawable bitmapdraw2=(BitmapDrawable)getResources().getDrawable(R.drawable.icon_finish);
         Bitmap bFinish = bitmapdraw2.getBitmap();
         finishIconSmall = Bitmap.createScaledBitmap(bFinish, width, height, false);
+
+        // Handle checkbox to show/hide user's tracks
+        CheckBox cb = getView().findViewById(R.id.showmytracks);
+        SharedPreferences sharedPref = mContext.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        cb.setChecked(sharedPref.getBoolean(getString(R.string.show_my_tracks_preference), false));
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putBoolean(getString(R.string.show_my_tracks_preference), isChecked);
+                editor.commit();
+                showMyTracks();
+                Log.d(TAG,"The checkbox has changed");
+            }
+        });
     }
 
     @Override
@@ -338,6 +361,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Toast.makeText(mContext, R.string.enable_location_first,
                     Toast.LENGTH_LONG).show();
         }
+
+        showMyTracks();
     }
 
     /**
@@ -1076,4 +1101,78 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return (int)DatabaseHelper.getInstance(mContext).insertTrack(recordedTrack);
     }
 
+
+
+    /**
+     * Get tracks from DB asynchronously and show them
+     */
+    private class FetchTracksTask extends AsyncTask<Void, Void, ArrayList<Track>> {
+        @Override
+        protected ArrayList<Track> doInBackground(Void... voids) {
+            return DatabaseHelper.getInstance(mContext).getTracks(true);
+        }
+
+        protected void onPostExecute(ArrayList<Track> result) {
+            if (result.isEmpty()) {
+                Toast.makeText(mContext, R.string.no_registered_tracks, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            myTracks.addAll(result);
+
+            for (Track track : myTracks) {
+                if (isTrackSelected && selectedTrack.getId() == track.getId())
+                    continue;
+
+                PolylineOptions polylineOptions = new PolylineOptions();
+
+                // Build the track
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                for (Point point : track.getPoints()) {
+                    LatLng latLng = new LatLng(point.getLat(), point.getLng());
+                    polylineOptions.add(latLng);
+                    polylineOptions.width(10);
+                    polylineOptions.color(Color.rgb(237, 92, 92));
+                    builder.include(latLng);
+                }
+                Polyline polyline = mMap.addPolyline(polylineOptions);
+                polyline.setClickable(true);
+                polyline.setTag(track);
+                LatLngBounds bounds = builder.build();
+                track.setLatLngBounds(bounds);
+                track.setPolyline(polyline);
+                myTracksPolylineSparseArray.put(track.getId(), polyline); // Store the displayed polylines to clean them before each load
+
+                // Handle polyline clicks event
+                mMap.setOnPolylineClickListener(clickedPolyline -> {
+                    isTrackSelected = true;
+                    selectedTrack = (Track)clickedPolyline.getTag();
+                    progressBar.setVisibility(View.VISIBLE);
+                    displayTrackDetails(selectedTrack);
+                });
+            }
+        }
+    }
+
+    /**
+     * Show my tracks
+     */
+    private void showMyTracks(){
+        cleanMyTracksPolylines();
+        myTracks.clear();
+        SharedPreferences sharedPref = mContext.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        if(sharedPref.getBoolean("show_my_tracks", false)){
+            new MapFragment.FetchTracksTask().execute();
+        }
+    }
+
+    private void cleanMyTracksPolylines() {
+        int polylineSparseArraySize = myTracksPolylineSparseArray.size();
+        for (int i = 0; i < polylineSparseArraySize; i++) {
+            int key = myTracksPolylineSparseArray.keyAt(i);
+            if (isTrackSelected && selectedTrack.getId() == key)
+                continue;
+            myTracksPolylineSparseArray.get(key).remove();
+        }
+    }
 }
