@@ -32,9 +32,9 @@
     <string name="urgency">Urgency</string>
     <string name="track_name">Track Name</string>
     <string name="date_format">DD.MM.YY</string>
-    <string name="distance_format" translatable="false">xx.x km</string>
-    <string name="duration_format" translatable="false">00:00</string>
-    <string name="speed_format" translatable="false">xx.x km/h</string>
+    <string name="distance_format">xx.x km</string>
+    <string name="duration_format">00:00</string>
+    <string name="speed_format">xx.x km/h</string>
     <string name="confirm_urgency">Confirm urgency</string>
     <string name="confirm_urgency_description">Are you sure you want to send an alert to your urgrency contacts?</string>
     <string name="grant_access">You need to grant access to</string>

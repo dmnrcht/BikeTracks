@@ -26,7 +26,7 @@
     <string name="distance_m">Distance [km]</string>
     <string name="error">Erreur</string>
     <string name="selected_track_empty">Le parcours sélectionné est vide</string>
-    <string name="track_preview">Aprçu du parcours</string>
+    <string name="track_preview">Aperçu du parcours</string>
     <string name="urgency">Urgence</string>
     <string name="track_name">Nom du parcours</string>
     <string name="date_format">JJ.MM.AA</string>
@@ -36,4 +36,7 @@
     <string name="secure_contacts">" pour que vos contactes d'urgence puisse vous trouver"</string>
     <string name="ok">Ok</string>
     <string name="cancel">Annuler</string>
+    <string name="distance_format" translatable="false">xx.x km</string>
+    <string name="duration_format" translatable="false">00:00</string>
+    <string name="speed_format" translatable="false">xx.x km/h</string>
 </resources>
