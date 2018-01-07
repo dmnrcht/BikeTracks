@@ -97,6 +97,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private boolean mLocationPermissionGranted;
     private boolean isTrackSelected = false;
     private Polyline focusedPolyline;
+    private Track selectedTrack;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FloatingActionButton locateButton;
@@ -317,12 +318,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             return;
         }
 
-        progressBar.setVisibility(View.VISIBLE);
-
+        /*
         if (isTrackSelected && trackWindowBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             trackWindowBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
             trackWindowBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
+        */
     }
 
     /**
@@ -333,6 +334,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (isRecording) {
             return;
         }
+
+        progressBar.setVisibility(View.VISIBLE);
 
         Log.d(TAG, "The camera has stopped moving. Get radius and load tracks of the visible region");
         // Get Radius of visible window
@@ -587,10 +590,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 List<Track> tracks = response.body();
 
                 if (tracks != null) {
-                    cleanMap();
+                    cleanPolylines();
 
                     // Display tracks
                     for (Track track : tracks) {
+                        if (isTrackSelected && selectedTrack.getId() == track.getId())
+                            continue;
+                        
                         PolylineOptions polylineOptions = new PolylineOptions();
 
                         // Set a unique color for each track
@@ -617,8 +623,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         // Handle polyline clicks event
                         mMap.setOnPolylineClickListener(clickedPolyline -> {
                             isTrackSelected = true;
+                            selectedTrack = (Track)clickedPolyline.getTag();
                             progressBar.setVisibility(View.VISIBLE);
-                            fetchTrack(((Track)clickedPolyline.getTag()).getId());
+                            fetchTrack(selectedTrack.getId());
                         });
                     }
 
@@ -648,13 +655,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * Remove all polylines and markers from the map.
      */
     private void cleanMap() {
+        cleanPolylines();
+        unselectTrack();
+    }
+
+    /**
+     * Clean all polylines except the selected one if any
+     */
+    private void cleanPolylines() {
         int polylineSparseArraySize = polylineSparseArray.size();
         for (int i = 0; i < polylineSparseArraySize; i++) {
             int key = polylineSparseArray.keyAt(i);
+            if (isTrackSelected && selectedTrack.getId() == key)
+                continue;
             polylineSparseArray.get(key).remove();
         }
-
-        unselectTrack();
     }
 
     private void unselectTrack() {
@@ -697,8 +712,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Build the elevation graph
         Tuple<LineGraphSeries<DataPoint>, Double> elevationGraph = MyTools.ElevationGraph(track.getPoints());
-
         GraphView graphView = getView().findViewById(R.id.elevationGraph);
+
         // set manual X bounds
         graphView.getViewport().setXAxisBoundsManual(true);
         graphView.getViewport().setMinX(0.);
@@ -738,13 +753,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         LatLngBounds bounds = builder.build();
         track.setLatLngBounds(bounds);
 
-        // Focus track by making others transparent
+        // Focus track by making others below
         int polylineSparseArraySize = polylineSparseArray.size();
         for(int i = 0; i < polylineSparseArraySize; i++) {
             int key = polylineSparseArray.keyAt(i);
             Polyline polyline = polylineSparseArray.get(key);
-            int alpha = polyline.getColor();
-            polyline.setColor(alpha);
             polyline.setZIndex(0);
         }
 
@@ -882,7 +895,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void displayRecordingWindow() {
         cleanMap();
-        unselectTrack();
 
         trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         recordingWindowBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -938,4 +950,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void saveRecordedTrack() {
         DatabaseHelper.getInstance(mContext).insertTrack(recordedTrack);
     }
+
 }
