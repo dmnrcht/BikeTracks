@@ -18,7 +18,6 @@ public class Point implements Serializable {
     // Generated from activity, not present in API responses
     private long time; // timestamp in ms
     private int duration;
-    private float speed;
 
     public Point(double lat, double lng, int elev) {
         this.lat = lat;
@@ -29,6 +28,11 @@ public class Point implements Serializable {
     public Point(double lat, double lng, int elev, long time) {
         this(lat, lng, elev);
         this.time = time;
+    }
+
+    public Point(double lat, double lng, int elev, long time, int duration) {
+        this(lat, lng, elev, time);
+        this.duration = duration;
     }
 
     public double getLat() {
@@ -75,13 +79,5 @@ public class Point implements Serializable {
 
     public void setDuration(int duration) {
         this.duration = duration;
-    }
-
-    public float getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(float speed) {
-        this.speed = speed;
     }
 }

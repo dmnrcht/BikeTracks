@@ -39,8 +39,9 @@ public final class DatabaseContract {
         static final String COLUMN_NAME_DISTANCE = "distance_m";
         static final String COLUMN_NAME_CLIMB = "climb_m";
         static final String COLUMN_NAME_DESCENT = "descent_m";
+        static final String COLUMN_NAME_SPEED = "speed";
         static final String COLUMN_NAME_TYPE = "type";
-        static final String COLUMN_NAME_CREATED_AT = "created_at";
+        static final String COLUMN_NAME_DATE = "date";
         static final String COLUMN_NAME_DURATION = "duration_s";
         static final String COLUMN_NAME_IMAGE = "image";
 
@@ -50,9 +51,10 @@ public final class DatabaseContract {
                         COLUMN_NAME_NAME + " TEXT," +
                         COLUMN_NAME_DISTANCE + " INTEGER," +
                         COLUMN_NAME_CLIMB + " INTEGER," +
+                        COLUMN_NAME_SPEED + " FLOAT," +
                         COLUMN_NAME_DESCENT + " INTEGER," +
                         COLUMN_NAME_TYPE + " TEXT," +
-                        COLUMN_NAME_CREATED_AT + " INTEGER," +
+                        COLUMN_NAME_DATE + " INTEGER," +
                         COLUMN_NAME_DURATION + " INTEGER," +
                         COLUMN_NAME_IMAGE + " BLOB);";
 
@@ -67,7 +69,8 @@ public final class DatabaseContract {
         static final String COLUMN_NAME_LAT = "lat";
         static final String COLUMN_NAME_LNG = "lng";
         static final String COLUMN_NAME_ELEV = "elev";
-        static final String COLUMN_NAME_TIMESTAMP = "time";
+        static final String COLUMN_NAME_TIME = "time";
+        static final String COLUMN_NAME_DURATION = "duration_s";
         static final String COLUMN_NAME_TRACK_ID = "track_id";
 
         public static final String SQL_CREATE_TABLE_POINT =
@@ -76,7 +79,8 @@ public final class DatabaseContract {
                         COLUMN_NAME_LAT + " REAL," +
                         COLUMN_NAME_LNG + " REAL," +
                         COLUMN_NAME_ELEV + " INTEGER," +
-                        COLUMN_NAME_TIMESTAMP + " INTEGER," +
+                        COLUMN_NAME_TIME + " INTEGER," +
+                        COLUMN_NAME_DURATION + " INTEGER," +
                         COLUMN_NAME_TRACK_ID + " INTEGER," +
                         "FOREIGN KEY(" + COLUMN_NAME_TRACK_ID + ") REFERENCES " + TrackEntry.TABLE_NAME + "(" + TrackEntry.COLUMN_NAME_ID + ")" +
                         ");";

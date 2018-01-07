@@ -92,7 +92,7 @@ public class SettingsFragment extends Fragment {
     private void pickContactWrapper() {
         if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             if (!shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
-                showMessageOKCancel("You need to allow access to Contacts to add emergency contacts",
+                showMessageOKCancel(getString(R.string.allow_access_to_contacts),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -126,7 +126,7 @@ public class SettingsFragment extends Fragment {
                     pickContact();
                 } else {
                     // Permission Denied
-                    Toast.makeText(mContext, "Permission READ_CONTACTS denied", Toast.LENGTH_SHORT)
+                    Toast.makeText(mContext, R.string.permission_denied_contacts, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
@@ -240,8 +240,8 @@ public class SettingsFragment extends Fragment {
     private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(mContext)
                 .setMessage(message)
-                .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", null)
+                .setPositiveButton(R.string.ok, okListener)
+                .setNegativeButton(R.string.cancel, null)
                 .create()
                 .show();
     }

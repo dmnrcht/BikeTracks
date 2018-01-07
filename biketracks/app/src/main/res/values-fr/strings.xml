@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="navigation_drawer_open">Ouvrir le menu de navigation</string>
+    <string name="navigation_drawer_close">Fermet le menu de navigation</string>
+    <string name="search">Rechercher</string>
+    <string name="settings">Paramètres</string>
+    <string name="my_parcours">Mes parcours</string>
+    <string name="map">Carte</string>
+    <string name="search_hint">Entrer un lieu ou une adresse</string>
+    <string name="title_activity_maps">Carte</string>
+    <string name="default_location_title">Aucune localisation disponible</string>
+    <string name="pick_place">Entrez votre position</string>
+    <string name="location_not_found">Localisation non trouvée</string>
+    <string name="urgency_contacts">Contacts d\'urgence</string>
+    <string name="contact_already_exists">Le contacte existe déjà...</string>
+    <string name="urgency_message_sent">Message d\'urgence envoyé!</string>
+    <string name="gps_seems_disabled">Votre GPS semble être désactivé, voulez vous l\'activer?</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="button_start_recording">Enregistrer une activité</string>
+    <string name="button_stop_recording">Arrêter d\'enregistrer</string>
+    <string name="distance">Distance</string>
+    <string name="climb">Montée</string>
+    <string name="descent">Descente</string>
+    <string name="altitude_m">Élévation [m]</string>
+    <string name="distance_m">Distance [km]</string>
+    <string name="error">Erreur</string>
+    <string name="selected_track_empty">Le parcours sélectionné est vide</string>
+    <string name="track_preview">Aprçu du parcours</string>
+    <string name="urgency">Urgence</string>
+    <string name="track_name">Nom du parcours</string>
+    <string name="date_format">JJ.MM.AA</string>
+    <string name="confirm_urgency">Confirmer l\'urgence</string>
+    <string name="confirm_urgency_description">Êtes-vous sûre de vouloir envoyer une alert à vos contacts d\'urgence?</string>
+    <string name="grant_access">Vous devez donner l\'accès à</string>
+    <string name="secure_contacts">" pour que vos contactes d'urgence puisse vous trouver"</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Annuler</string>
+</resources>

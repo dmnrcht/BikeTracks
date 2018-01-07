@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">BikeTracks</string>
-
+    <string name="app_name" translatable="false">BikeTracks</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="search">Search</string>
@@ -9,7 +8,6 @@
     <string name="map">Map</string>
     <string name="search_hint">Enter location</string>
     <string name="title_activity_maps">Map</string>
-    <string name="default_location_text">Here is Sydney</string>
     <string name="default_location_title">No location available</string>
     <string name="pick_place">Pick the place you\'re at</string>
     <string name="location_not_found">Location not found</string>
@@ -22,6 +20,8 @@
     <string name="button_start_recording">Record an activity</string>
     <string name="button_stop_recording">Stop recording</string>
     <string name="distance">Distance</string>
+    <string name="duration">Duration</string>
+    <string name="speed">Speed</string>
     <string name="climb">Climb</string>
     <string name="descent">Descent</string>
     <string name="altitude_m">Elevation [m]</string>
@@ -29,6 +29,25 @@
     <string name="error">Error</string>
     <string name="selected_track_empty">The selected track is empty</string>
     <string name="track_preview">Track preview</string>
+    <string name="urgency">Urgency</string>
+    <string name="track_name">Track Name</string>
+    <string name="date_format">DD.MM.YY</string>
+    <string name="distance_format" translatable="false">xx.x km</string>
+    <string name="duration_format" translatable="false">00:00</string>
+    <string name="speed_format" translatable="false">xx.x km/h</string>
+    <string name="confirm_urgency">Confirm urgency</string>
+    <string name="confirm_urgency_description">Are you sure you want to send an alert to your urgrency contacts?</string>
+    <string name="grant_access">You need to grant access to</string>
+    <string name="secure_contacts">to make your secure contacts find you.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="error_fetching_position">Error fetching position, please try again</string>
+    <string name="position_permission_not_granted">Position permission not granted or disabled</string>
+    <string name="bike_accident_sms_1">(TEST) I have had a bike accident and you are my secure contact.</string>
+    <string name="bike_accident_sms_2">Please come pick me up:</string>
+    <string name="permission_denied">Some Permission is Denied</string>
+    <string name="allow_access_to_contacts">You need to allow access to Contacts to add emergency contacts</string>
+    <string name="permission_denied_contacts">Permission READ_CONTACTS denied</string>
     <string name="save_recorded_track">Would you like to save your track ?</string>
-    <string name="track_name">Name your track</string>
+    <string name="name_your_track">Name your track</string>
 </resources>

@@ -228,11 +228,11 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1"
             app:layout_gravity="right|center_vertical"
-            android:src="@drawable/distance"
-            android:contentDescription="@string/distance" />
+            app:srcCompat="@drawable/duration"
+            android:contentDescription="@string/duration" />
 
         <TextView
-            android:id="@+id/recording_distance"
+            android:id="@+id/recording_duration"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
             android:textSize="13sp"
@@ -241,7 +241,7 @@
             app:layout_row="0"
             app:layout_rowWeight="1"
             app:layout_gravity="left|center_vertical"
-            tools:text="xxx km" />
+            tools:text="00h00" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -251,11 +251,11 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1"
             app:layout_gravity="right|center_vertical"
-            android:src="@drawable/climb"
-            android:contentDescription="@string/climb" />
+            android:src="@drawable/distance"
+            android:contentDescription="@string/distance" />
 
         <TextView
-            android:id="@+id/recording_climb"
+            android:id="@+id/recording_distance"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
             android:textSize="13sp"
@@ -264,7 +264,7 @@
             app:layout_row="0"
             app:layout_rowWeight="1"
             app:layout_gravity="left|center_vertical"
-            tools:text="den+" />
+            tools:text="0.0 km" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -274,11 +274,11 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1"
             app:layout_gravity="right|center_vertical"
-            android:src="@drawable/descent"
-            android:contentDescription="@string/descent" />
+            android:src="@drawable/speed"
+            android:contentDescription="@string/speed" />
 
         <TextView
-            android:id="@+id/recording_descent"
+            android:id="@+id/recording_speed"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
             android:textSize="13sp"
@@ -287,7 +287,7 @@
             app:layout_row="0"
             app:layout_rowWeight="1"
             app:layout_gravity="left|center_vertical"
-            tools:text="den-" />
+            tools:text="0.0 km/h" />
 
     </android.support.v7.widget.GridLayout>
 

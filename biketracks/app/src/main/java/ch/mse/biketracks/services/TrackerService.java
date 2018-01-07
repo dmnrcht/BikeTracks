@@ -33,6 +33,7 @@ public class TrackerService extends Service {
      * Tracking status
      */
     private Track track;
+    private Point firstPoint;
     private Point lastPoint;
 
     /**
@@ -121,8 +122,12 @@ public class TrackerService extends Service {
         );
 
         if (lastPoint != null) {
-            track.setDuration((int)(point.getTime() - lastPoint.getDuration()));
-            track.setDistance((int)(track.getDistance() + Distance.distance(lastPoint, point)));
+            int duration = (int)(point.getTime() / 1000 - firstPoint.getTime() / 1000);
+            int distance = (int)(track.getDistance() + Distance.distance(lastPoint, point));
+
+            track.setDuration(duration);
+            track.setDistance(distance);
+            track.setSpeed((float)distance / duration);
 
             int climb = (int)(point.getElev() - lastPoint.getElev());
             if (climb > 0) {
@@ -137,12 +142,17 @@ public class TrackerService extends Service {
             track.setDistance(0);
             track.setClimb(0);
             track.setDescent(0);
+            track.setSpeed(0);
         }
 
         point.setDuration(track.getDuration());
 
         track.addPoint(point);
         lastPoint = point;
+
+        if (firstPoint == null) {
+            firstPoint = point;
+        }
     }
 
     /**

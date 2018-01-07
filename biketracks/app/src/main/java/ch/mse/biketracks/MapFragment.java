@@ -116,8 +116,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private View recordingWindow;
     private BottomSheetBehavior recordingWindowBehavior;
     private TextView recordingDistance;
-    private TextView recordingClimb;
-    private TextView recordingDescent;
+    private TextView recordingDuration;
+    private TextView recordingSpeed;
     private boolean isRecording = false;
     private BroadcastReceiver trackingUpdatesReceiver;
     private Track recordedTrack;
@@ -236,8 +236,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Get recording bottom sheet controls
         recordingWindow = getView().findViewById(R.id.recording_window);
         recordingDistance = getView().findViewById(R.id.recording_distance);
-        recordingClimb = getView().findViewById(R.id.recording_climb);
-        recordingDescent = getView().findViewById(R.id.recording_descent);
+        recordingDuration = getView().findViewById(R.id.recording_duration);
+        recordingSpeed = getView().findViewById(R.id.recording_speed);
 
         recordingWindowBehavior = BottomSheetBehavior.from(recordingWindow);
         recordingWindowBehavior.setHideable(true);
@@ -915,8 +915,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void updateRecording() {
         recordingDistance.setText(String.format(Locale.getDefault(), "%.1f km", recordedTrack.getDistance() / 1000.f));
-        recordingClimb.setText(String.format(Locale.getDefault(), "%d m", (int)recordedTrack.getClimb()));
-        recordingDescent.setText(String.format(Locale.getDefault(), "%d m", (int)recordedTrack.getDescent()));
+        recordingDuration.setText(MyTools.FormatTimeHHhmm(recordedTrack.getDuration()));
+        recordingSpeed.setText(String.format(Locale.ENGLISH,"%.1f km/h",recordedTrack.getSpeed() * 3.6));
 
         cleanMap();
 

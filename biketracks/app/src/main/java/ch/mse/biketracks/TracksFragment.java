@@ -40,6 +40,7 @@ public class TracksFragment extends Fragment {
      * fragment (e.g. upon screen orientation changes).
      */
     public TracksFragment() {
+        /*
 
         List<Point> points = new ArrayList<>();
         points.add(new Point(46.78888733, 6.74366133, 449));
@@ -2405,7 +2406,7 @@ public class TracksFragment extends Fragment {
 
         tracks.add(new Track(1, "Vallons des Vaux (test)", new Date(), 1000*60*60*2*15, 7.2, 8715, 319, 325, "Xcountry", points, null));
         tracks.add(new Track(2, "Neuchatel (test)", new Date(), 1000*3600*3 + 1000*128, 3.1, 8715, 319, 325, "Xcountry", points, null));
-        /*
+
         tracks.add(new Track(3, "Yverdon", new Date(), 0, 0, 8715, 319, 325, "Xcountry", points, null));
         tracks.add(new Track(4, "Col du Pillon", new Date(), 0, 0, 8715, 319, 325, "Xcountry", points, null));
         tracks.add(new Track("Mont-Blanc", new Date(), 1000, 10, 10));
@@ -2430,11 +2431,11 @@ public class TracksFragment extends Fragment {
         mContext = getActivity();
         View view = inflater.inflate(R.layout.fragment_tracks_list, container, false);
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.speed);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] bitMapData = stream.toByteArray();
-        tracks.get(0).setImage(bitMapData);
+//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.speed);
+//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+//        byte[] bitMapData = stream.toByteArray();
+//        tracks.get(0).setImage(bitMapData);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
