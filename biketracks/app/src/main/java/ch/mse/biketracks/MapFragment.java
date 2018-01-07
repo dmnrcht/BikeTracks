@@ -307,23 +307,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Listen for camera movements, i.e. when the map moves or is zoomed in/out
         mMap.setOnCameraIdleListener(this::onCameraIdle);
-        mMap.setOnCameraMoveStartedListener(this::onCameraStarted);
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();// Load the tracks
-    }
-
-    private void onCameraStarted(int reason) {
-        if (isRecording || reason != GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-            return;
-        }
-
-        /*
-        if (isTrackSelected && trackWindowBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            trackWindowBehavior.setPeekHeight(trackTitle.getHeight() + trackDistance.getHeight());
-            trackWindowBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        }
-        */
     }
 
     /**
@@ -370,7 +356,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         params.gravity = Gravity.BOTTOM | Gravity.CENTER;
         btn.setLayoutParams(params);
         if (mMap != null)
-            mMap.setPadding(0, 0, 0, height);
+            mMap.setPadding(0, 0, 0, height + startRecordingButton.getHeight());
     }
 
     @Override
@@ -787,7 +773,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         startMarker = mMap.addMarker(startMarkerOptions);
 
         // Center map
-        mMap.setPadding(0,0,0, trackWindow.getHeight());
+        mMap.setPadding(0,0,0, trackWindow.getHeight() + startRecordingButton.getHeight());
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(track.getLatLngBounds(), 200));
 
         progressBar.setVisibility(View.GONE);
