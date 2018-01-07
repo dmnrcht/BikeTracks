@@ -57,4 +57,5 @@
     <string name="my_tracks">Show my tracks</string>
     <string name="preference_file_key" translatable="false">ch.mse.biketracks.PREFERENCES_FILE</string>
     <string name="show_my_tracks_preference" translatable="false">show_my_tracks</string>
+    <string name="follow_this_track">Follow this track</string>
 </resources>

@@ -55,4 +55,5 @@
     <string name="recording_track">Vous êtes entrain d\'enregistrer un parcours</string>
     <string name="enable_location_first">Erreur, activez d\'abord la position.</string>
     <string name="my_tracks">Afficher mes parcours</string>
+    <string name="follow_this_track">Suivre ce parcours</string>
 </resources>
