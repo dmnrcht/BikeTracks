@@ -3,7 +3,9 @@ package ch.mse.biketracks;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.SearchManager;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,6 +19,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -26,6 +29,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.SearchView;
@@ -829,30 +833,49 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         getActivity().startService(new Intent(getActivity(), TrackerService.class));
         startListeningTracking();
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 
-            NotificationManager mNotificationManager =
-                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
             // The id of the channel.
-            String id = "my_channel_01";
-            // The user-visible name of the channel.
-            CharSequence name = "fasfs";
-            // The user-visible description of the channel.
-            String description = "sdgsdgghhh";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            String CHANNEL_ID = "my_channel_01";
+            NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(mContext, CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_record_notification)
+                        .setContentTitle(getString(R.string.app_name))
+                        .setContentText(getString(R.string.recording_track));
+            // Creates an explicit intent for an Activity in your app
+            Intent resultIntent = new Intent(mContext, MainActivity.class);
 
-            mChannel = new NotificationChannel(id, name, importance);
-            // Configure the notification channel.
-            mChannel.setDescription(description);
-            mChannel.enableLights(true);
-            // Sets the notification light color for notifications posted to this
-            // channel, if the device supports this feature.
-            mChannel.setLightColor(Color.RED);
-            mChannel.enableVibration(true);
-            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-            mNotificationManager.createNotificationChannel(mChannel);
+            // The stack builder object will contain an artificial back stack for the
+            // started Activity.
+            // This ensures that navigating backward from the Activity leads out of
+            // your app to the Home screen.
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
+            // Adds the back stack for the Intent (but not the Intent itself)
+            stackBuilder.addParentStack(MainActivity.class);
+            // Adds the Intent that starts the Activity to the top of the stack
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+            mBuilder.setContentIntent(resultPendingIntent);
+            NotificationManager mNotificationManager =
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            // mNotificationId is a unique integer your app uses to identify the
+            // notification. For example, to cancel the notification, you can pass its ID
+            // number to NotificationManager.cancel().
+            mNotificationManager.notify(0, mBuilder.build());
+
+
+            Log.d(TAG, "Notification created");
+        } else{
+            Log.e(TAG, "Notifications not supported");
         }
+
     }
 
     /**
@@ -887,6 +910,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     isRecording = false;
                 })
                 .show();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            NotificationManager mNotificationManager =
+                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            // The id of the channel.
+            mNotificationManager.cancel(0);
+            ;Log.d(TAG, "Notification removed");
+        } else{
+            Log.e(TAG, "Notifications not supported");
+        }
     }
 
     /**
