@@ -1,11 +1,11 @@
 node {
   stage ('Checkout') {
     checkout scm
+    sh 'chmod a+x ./gradlew'
   }
 
   stage ('Build') {
-    sh 'chmod a+x ./gradlew'
-    sh './gradlew clean assembleRelease'
+    sh './gradlew clean assemble'
   }
 
   stage ('Unit tests') {
@@ -29,6 +29,10 @@ node {
       apksToSign: "**/*-unsigned.apk",
       archiveSignedApks: true
     )
-    androidApkUpload googleCredentialsId: 'BikeTracks', apkFilesPattern: '**/*.apk', trackName: 'alpha'
+    androidApkUpload (
+      googleCredentialsId: 'BikeTracks',
+      apkFilesPattern: 'app/build/outputs/apk/release/*-release.apk',
+      trackName: 'alpha'
+    )
   }
 }
