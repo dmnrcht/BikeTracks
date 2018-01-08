@@ -10,6 +10,7 @@ node {
 
   stage ('Unit tests') {
     sh './gradlew app:test --info'
+    publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'app/build/reports/tests/testReleaseUnitTest', reportFiles: 'index.html', reportName: 'Unit test report', reportTitles: ''])
   }
 
   stage ('Instrumental tests') {
