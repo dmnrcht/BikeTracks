@@ -35,6 +35,7 @@ public class Track implements Serializable {
     private LatLngBounds latLngBounds;
     private Polyline polyline;
     private byte[] image;
+    private boolean isLocal;
 
     public Track(Date date) {
         this.date = date;
@@ -175,5 +176,13 @@ public class Track implements Serializable {
 
     public void setImage(byte[] image) {
         this.image = image;
+    }
+
+    public boolean isLocal() {
+        return isLocal;
+    }
+
+    public void setLocal(boolean local) {
+        isLocal = local;
     }
 }

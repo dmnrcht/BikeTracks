@@ -21,16 +21,31 @@ public class MyTools {
 
     /**
      * Compute total hours and minutes for given parameter
-     * @param elapsedMillis the amount of time in milliseconds
+     * @param elapsedSeconds the amount of time in milliseconds
      * @return Formatted time "HHhmm" for example "26h17"
      */
-    public static String FormatTimeHHhmm(long elapsedMillis) {
+    public static String FormatTimeHHhmm(long elapsedSeconds) {
         long hourInMs = 1000 * 60 * 60;
         long minuteInMs = 1000 * 60;
-        long hours = elapsedMillis / hourInMs; // integer division
-        int minutes = Math.round((elapsedMillis - hours * hourInMs) / minuteInMs);
+        long hours = elapsedSeconds / hourInMs; // integer division
+        int minutes = Math.round((elapsedSeconds - hours * hourInMs) / minuteInMs);
 
         return String.format(Locale.ENGLISH,"%02dh%02d", hours, minutes);
+    }
+
+    /**
+     * Compute total hours minutes and seconds for given parameter
+     * @param elapsedSeconds the amount of time in milliseconds
+     * @return Formatted time "HH'hmm'mss's" for example "26h17"
+     */
+    public static String FormatTimeHHhmmss(long elapsedSeconds) {
+        long hourInS = 60 * 60;
+        long minuteInS = 60;
+        long hours = elapsedSeconds / hourInS; // integer division
+        long minutes = (elapsedSeconds - hours * hourInS) / minuteInS; // integer division
+        long seconds = (elapsedSeconds - hours * hourInS - minutes * minuteInS);
+
+        return String.format(Locale.ENGLISH,"%02dh%02dm%02d", hours, minutes, seconds);
     }
 
     /**
