@@ -1,0 +1,16 @@
+node {
+  stage ('Checkout') {
+    checkout scm
+    sh 'pwd'
+    sh 'chmod a+x ./biketracks/gradlew'
+  }
+
+  stage ('Build') {
+  }
+
+  stage ('Unit tests') {
+  }
+
+  stage ('Publish') {
+  }
+}
