@@ -34,8 +34,8 @@ public class Track implements Serializable {
     private float speed;
     private LatLngBounds latLngBounds;
     private Polyline polyline;
-    private boolean isLocal;
     private byte[] image;
+    private boolean isLocal;
 
     public Track(Date date) {
         this.date = date;

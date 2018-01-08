@@ -1055,7 +1055,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (startRecordingMarker != null)
             startRecordingMarker.remove();
 
-        if (selectedTrack.getPolyline() != null)
+        if (selectedTrack != null && selectedTrack.getPolyline() != null)
             selectedTrack.getPolyline().setClickable(true);
     }
 

@@ -72,6 +72,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // DATABASE OPERATIONS
     // **********************
 
+    public void clearDB() {
+        if (mInstance != null) {
+            SQLiteDatabase db = mInstance.getWritableDatabase();
+            db.execSQL("DELETE FROM " + DatabaseContract.PointEntry.TABLE_NAME);
+            db.execSQL("DELETE FROM " + DatabaseContract.ContactEntry.TABLE_NAME);
+            db.execSQL("DELETE FROM " + DatabaseContract.TrackEntry.TABLE_NAME);
+
+        }
+    }
+
     /* TRACK */
 
     /**

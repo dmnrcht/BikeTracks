@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity
 
         // Setup urgency button
         Button urgencyButton = (Button) findViewById(R.id.urgency);
+        // urgencyButton.setVisibility(View.INVISIBLE); // TODO comment/uncomment to pass/fail MainActivityInstrumentedTest
         urgencyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

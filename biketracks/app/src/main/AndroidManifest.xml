@@ -44,12 +44,11 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".TrackActivity"></activity>
+        <activity android:name=".TrackActivity" />
 
         <service
             android:name=".services.TrackerService"
             android:exported="false" />
-
     </application>
 
 </manifest>
