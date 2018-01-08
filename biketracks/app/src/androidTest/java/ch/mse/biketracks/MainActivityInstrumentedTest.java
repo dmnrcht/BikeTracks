@@ -40,7 +40,7 @@ public class MainActivityInstrumentedTest {
     private static void allowPermissionsIfNeeded() {
         if (Build.VERSION.SDK_INT >= 23) {
             UiDevice device = UiDevice.getInstance(getInstrumentation());
-            UiObject allowPermissions = device.findObject(new UiSelector().text("Allow"));
+            UiObject allowPermissions = device.findObject(new UiSelector().text("ALLOW"));
             if (allowPermissions.exists()) {
                 try {
                     allowPermissions.click();
@@ -58,10 +58,11 @@ public class MainActivityInstrumentedTest {
     public void init(){
         mActivityTestRule.getActivity()
                 .getSupportFragmentManager().beginTransaction();
+        allowPermissionsIfNeeded();
     }
 
     @Test
-    public void mainActivityTest2() {
+    public void emergencyButtonIsVisibleTest() {
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
         // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html

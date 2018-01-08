@@ -6,9 +6,11 @@ node {
   }
 
   stage ('Build') {
+    sh './gradlew clean assemble'
   }
 
   stage ('Unit tests') {
+    sh './gradlew app:test --info'
   }
 
   stage ('Publish') {
