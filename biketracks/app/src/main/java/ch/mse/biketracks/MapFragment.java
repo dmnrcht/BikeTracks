@@ -608,8 +608,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             if (mLastKnownLocation != null) {
                                 Log.d(TAG, "mLastKnownLocation : " + mLastKnownLocation.toString());
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                                        new LatLng(mLastKnownLocation.getLatitude(),
-                                                mLastKnownLocation.getLongitude()), zoom));
+                                    new LatLng(mLastKnownLocation.getLatitude(),
+                                            mLastKnownLocation.getLongitude()), zoom));
                             } else {
                                 checkLocation();
                             }
@@ -658,7 +658,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     for (Track track : tracks) {
                         if (isTrackSelected && selectedTrack.getId() == track.getId())
                             continue;
-
+                        
                         PolylineOptions polylineOptions = new PolylineOptions();
 
                         // Set a unique color for each track
@@ -956,11 +956,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             String CHANNEL_ID = "my_channel_01";
             NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(mContext, CHANNEL_ID)
-                            .setSmallIcon(R.drawable.ic_record_notification)
-                            .setContentTitle(getString(R.string.app_name))
-                            .setContentText(getString(R.string.recording_track))
-                            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);//to show content in lock screen
+                new NotificationCompat.Builder(mContext, CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_record_notification)
+                        .setContentTitle(getString(R.string.app_name))
+                        .setContentText(getString(R.string.recording_track))
+                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);//to show content in lock screen
             ;
             // Creates an explicit intent for an Activity in your app
             Intent resultIntent = new Intent(mContext, MainActivity.class);
@@ -975,13 +975,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             // Adds the Intent that starts the Activity to the top of the stack
             stackBuilder.addNextIntent(resultIntent);
             PendingIntent resultPendingIntent =
-                    stackBuilder.getPendingIntent(
-                            0,
-                            PendingIntent.FLAG_UPDATE_CURRENT
-                    );
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
             mBuilder.setContentIntent(resultPendingIntent);
             NotificationManager mNotificationManager =
-                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
             // mNotificationId is a unique integer your app uses to identify the
             // notification. For example, to cancel the notification, you can pass its ID

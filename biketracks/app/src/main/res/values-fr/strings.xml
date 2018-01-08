@@ -39,21 +39,18 @@
     <string name="ok">Ok</string>
     <string name="cancel">Annuler</string>
     <string name="error_fetching_position">Position indisponible, veuillez réessayer</string>
+    <string name="allow_access_to_location_for_activity">Autoriser l\'accès à la position pour démarrer une activité.</string>
+    <string name="no_registered_tracks">Aucun parcours enregistré pour le moment.</string>
+    <string name="enable_location_first">Erreur, activez d\'abord la position.</string>
+    <string name="my_tracks">Afficher mes parcours</string>
+    <string name="follow_this_track">Suivre ce parcours</string>
     <string name="position_permission_not_granted">La localisation n\'a pas été autorisée ou est désactivée</string>
     <string name="bike_accident_sms_1">(TEST) Je viens d\'avoir un accident de vélo.</string>
-    <string name="bike_accident_sms_2"> SVP, venez me chercher:</string>
+    <string name="bike_accident_sms_2">SVP, venez me chercher:</string>
     <string name="permission_denied">Des permissions sont refusées</string>
     <string name="allow_access_to_contacts">L\'accès demandé permet d\'ajouter vos contacts d'urgence</string>
     <string name="permission_denied_contacts">Autorisation des contacts refusée</string>
     <string name="save_recorded_track">Voulez-vous enregistrer votre activité ?</string>
-    <string name="name_your_track">Nommez votre activité</string>
-    <string name="allow_access_to_location_for_activity">Autoriser l\'accès à la position pour démarrer une activité.</string>
-    <string name="no_registered_tracks">Aucun parcours enregistré pour le moment.</string>
-    <string name="distance_format" translatable="false">xx.x km</string>
-    <string name="duration_format" translatable="false">00:00</string>
-    <string name="speed_format" translatable="false">xx.x km/h</string>
+    <string name="name_your_track">Donnez un nom à votre activité</string>
     <string name="recording_track">Vous êtes entrain d\'enregistrer un parcours</string>
-    <string name="enable_location_first">Erreur, activez d\'abord la position.</string>
-    <string name="my_tracks">Afficher mes parcours</string>
-    <string name="follow_this_track" translatable="false">Suivre ce parcours</string>
 </resources>
