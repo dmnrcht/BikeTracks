@@ -31,7 +31,7 @@ node {
       archiveSignedApks: true
     )
     androidApkUpload (
-      googleCredentialsId: 'BikeTracks',
+      googleCredentialsId: 'a4f0698c-9933-42be-b10e-40fba29161d7',
       apkFilesPattern: 'app/build/outputs/apk/release/*-release.apk',
       trackName: 'alpha'
     )
