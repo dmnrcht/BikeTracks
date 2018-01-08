@@ -32,9 +32,9 @@
     <string name="urgency">Urgency</string>
     <string name="track_name">Track Name</string>
     <string name="date_format">DD.MM.YY</string>
-    <string name="distance_format">xx.x km</string>
-    <string name="duration_format">00:00</string>
-    <string name="speed_format">xx.x km/h</string>
+    <string name="distance_format" translatable="false">xx.x km</string>
+    <string name="duration_format" translatable="false">00:00</string>
+    <string name="speed_format" translatable="false">xx.x km/h</string>
     <string name="confirm_urgency">Confirm urgency</string>
     <string name="confirm_urgency_description">Are you sure you want to send an alert to your urgrency contacts?</string>
     <string name="grant_access">You need to grant access to</string>
@@ -42,6 +42,13 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="error_fetching_position">Error fetching position, please try again</string>
+    <string name="allow_access_to_location_for_activity">Allow access to location to start an activity.</string>
+    <string name="no_registered_tracks">No registered tracks yet.</string>
+    <string name="enable_location_first">Error, enable location first.</string>
+    <string name="my_tracks">Show my tracks</string>
+    <string name="preference_file_key" translatable="false">ch.mse.biketracks.PREFERENCES_FILE</string>
+    <string name="show_my_tracks_preference" translatable="false">show_my_tracks</string>
+    <string name="follow_this_track">Follow this track</string>
     <string name="position_permission_not_granted">Position permission not granted or disabled</string>
     <string name="bike_accident_sms_1">(TEST) I have had a bike accident and you are my secure contact.</string>
     <string name="bike_accident_sms_2">Please come pick me up:</string>
@@ -51,11 +58,4 @@
     <string name="save_recorded_track">Would you like to save your track ?</string>
     <string name="name_your_track">Name your track</string>
     <string name="recording_track">You are currently recording a track</string>
-    <string name="allow_access_to_location_for_activity">Allow access to location to start an activity.</string>
-    <string name="no_registered_tracks">No registered tracks yet.</string>
-    <string name="enable_location_first">Error, enable location first.</string>
-    <string name="my_tracks">Show my tracks</string>
-    <string name="preference_file_key" translatable="false">ch.mse.biketracks.PREFERENCES_FILE</string>
-    <string name="show_my_tracks_preference" translatable="false">show_my_tracks</string>
-    <string name="follow_this_track">Follow this track</string>
 </resources>
