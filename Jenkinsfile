@@ -4,8 +4,8 @@ node {
   }
 
   stage ('Build') {
-    sh 'chmod a+x ./biketracks/gradlew'
-    sh './biketracks/gradlew clean assembleRelease'
+    sh 'chmod a+x ./gradlew'
+    sh './gradlew clean assembleRelease'
   }
 
   stage ('Unit tests') {
