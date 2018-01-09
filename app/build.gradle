@@ -2,14 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.github.triplet.play'
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'androidKey'
-            keyPassword '20bktrcks18'
-            storeFile file('/Users/sebastien/keystore/androidrelease.jks')
-            storePassword '20bktrcks18'
-        }
-    }
     compileSdkVersion 27
     buildToolsVersion "26.0.2"
     playAccountConfigs {
@@ -27,14 +19,6 @@ android {
         vectorDrawables.useSupportLibrary = true
         playAccountConfig = playAccountConfigs.defaultAccountConfig
     }
-    signingConfigs {
-        release {
-            storeFile file("upload_cert.der")
-            storePassword "20bktrcks18"
-            keyAlias "androidKey"
-            keyPassword "20bktrcks18"
-        }
-    }
     buildTypes {
         debug {
             // Run code coverage reports by default on debug builds.
@@ -49,7 +33,6 @@ android {
         release {
             minifyEnabled false // TODO set to true ?
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
         }
     }
     compileOptions {
