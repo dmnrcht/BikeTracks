@@ -32,7 +32,7 @@ android {
              */
         }
         release {
-            manifestPlaceholders = [ google_map_key:System.getenv("GOOGLE_MAP_API_KEY") as String ?: ""]
+            manifestPlaceholders = [ google_map_key:System.getenv("GOOGLE_MAP_API_KEY") as String ?: "AIzaSyDO5F3eaUP3lAj21eA8E9BdFHA58nwh7Zk"]
             minifyEnabled false // TODO set to true ?
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
