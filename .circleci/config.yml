@@ -28,6 +28,4 @@ jobs:
           path: app/build/test-results
       - deploy:
           name: Deploy to alpha Play Store
-          commands:
-              - ./gradlew publishApkRelease
-                -Dorg.gradle.project.track=alpha
+          commands: ./gradlew publishApkRelease -Dorg.gradle.project.track=alpha
