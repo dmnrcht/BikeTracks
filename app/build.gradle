@@ -13,7 +13,7 @@ android {
         applicationId "ch.mse.biketracks"
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 3
+        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 0
         versionName "1.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
