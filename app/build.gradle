@@ -21,6 +21,7 @@ android {
     }
     buildTypes {
         debug {
+            manifestPlaceholders = [ google_map_key:"AIzaSyDO5F3eaUP3lAj21eA8E9BdFHA58nwh7Zk"]
             // Run code coverage reports by default on debug builds.
             testCoverageEnabled = true
             // Uncomment this to run test against a minified version of the production APK
@@ -31,6 +32,7 @@ android {
              */
         }
         release {
+            manifestPlaceholders = [ google_map_key:System.getenv("GOOGLE_MAP_API_KEY") as String ?: ""]
             minifyEnabled false // TODO set to true ?
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
