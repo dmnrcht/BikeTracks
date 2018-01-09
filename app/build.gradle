@@ -1,8 +1,14 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.triplet.play'
 
 android {
     compileSdkVersion 27
     buildToolsVersion "26.0.2"
+    playAccountConfigs {
+        defaultAccountConfig {
+            jsonFile = file('keys.json')
+        }
+    }
     defaultConfig {
         applicationId "ch.mse.biketracks"
         minSdkVersion 15
@@ -11,6 +17,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        playAccountConfig = playAccountConfigs.defaultAccountConfig
     }
     buildTypes {
         debug {
@@ -44,6 +51,12 @@ android {
             }
         }
     }
+}
+
+play {
+    // ...
+    track = "${track}" // or 'rollout' or 'beta' or 'alpha'
+    userFraction = 0.2 // only necessary for 'rollout', in this case default is 0.1 (10% of the target)
 }
 
 dependencies {
