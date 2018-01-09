@@ -54,9 +54,7 @@ android {
 }
 
 play {
-    // ...
     track = "${track}" // or 'rollout' or 'beta' or 'alpha'
-    userFraction = 0.2 // only necessary for 'rollout', in this case default is 0.1 (10% of the target)
 }
 
 dependencies {

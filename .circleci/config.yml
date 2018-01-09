@@ -26,10 +26,8 @@ jobs:
           destination: reports
       - store_test_results:
           path: app/build/test-results
-
-    deployment:
-      alpha: # just a label; label names are completely up to you
-        branch: try-circleci
-        commands:
-          - ./gradlew publishApkRelease
-            -Dorg.gradle.project.track=alpha
+      - deploy:
+          name: Deploy to alpha Play Store
+          commands:
+              - ./gradlew publishApkRelease
+                -Dorg.gradle.project.track=alpha
