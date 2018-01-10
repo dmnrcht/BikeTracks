@@ -5,7 +5,7 @@
 BikeTracks is an android mobile app to explore mountain bike tracks on a map and offering the possibility to user to follow them.
 All user activities are stored in the app and can be consulted by user at any time. The app is completed with an emergency call.
 
-TODO screenshots
+![Screenshots](doc/img/screens.png?raw=true "Screenshots")
 
 ## Authors
 - Antoine Drabble <antoine.drabble@master.hes-so.ch>
