@@ -21,7 +21,7 @@ public class MyToolsTest {
 
     @Test
     public void formatTimeHHmmSS_01h59m59_plus_1_isCorrect() throws Exception {
-        String expected = "02h00m00";
+        String expected = "02h00m01";
         int elapsedSeconds = 59 + 59*60 + 3600 + 1;
         String result = MyTools.FormatTimeHHhmmss(elapsedSeconds);
         assertEquals(expected, result);
