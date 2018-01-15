@@ -34,11 +34,11 @@ node {
           apksToSign: "**/*-unsigned.apk",
           archiveSignedApks: true
         )
-        androidApkUpload (
-          googleCredentialsId: 'BikeTracks',
-          apkFilesPattern: 'app/build/outputs/apk/release/*-release.apk',
-          trackName: 'alpha'
-        )
+    //      androidApkUpload (
+    //        googleCredentialsId: 'BikeTracks',
+    //        apkFilesPattern: 'app/build/outputs/apk/release/*-release.apk',
+    //        trackName: 'alpha'
+    //     )
     }
 
   } catch (e) {
@@ -74,5 +74,5 @@ def notifyBuild(String buildStatus = 'STARTED') {
   }
 
   // Send notifications
-  slackSend (color: colorCode, message: summary)
+  //  slackSend (color: colorCode, message: summary)
 }
