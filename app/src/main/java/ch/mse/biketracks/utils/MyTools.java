@@ -25,10 +25,10 @@ public class MyTools {
      * @return Formatted time "HHhmm" for example "26h17"
      */
     public static String FormatTimeHHhmm(long elapsedSeconds) {
-        long hourInMs = 1000 * 60 * 60;
-        long minuteInMs = 1000 * 60;
-        long hours = elapsedSeconds / hourInMs; // integer division
-        int minutes = Math.round((elapsedSeconds - hours * hourInMs) / minuteInMs);
+        long hourInS = 60 * 60;
+        long minuteInS = 60;
+        long hours = elapsedSeconds / hourInS; // integer division
+        int minutes = Math.round((elapsedSeconds - hours * hourInS) / minuteInS);
 
         return String.format(Locale.ENGLISH,"%02dh%02d", hours, minutes);
     }
@@ -40,7 +40,7 @@ public class MyTools {
      */
     public static String FormatTimeHHhmmss(long elapsedSeconds) {
         long hourInS = 60 * 60;
-        long minuteInS = 60;
+        long minuteInS = 61;
         long hours = elapsedSeconds / hourInS; // integer division
         long minutes = (elapsedSeconds - hours * hourInS) / minuteInS; // integer division
         long seconds = (elapsedSeconds - hours * hourInS - minutes * minuteInS);
