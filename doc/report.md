@@ -9,51 +9,48 @@ Authors
 
 ## Introduction
 
-### Goal
-The goal of this project is to develop an Android mobile application. The project is developped in Java and is called "BikeTracks"
+The goal of this project is to develop an Android mobile application. The project is developed in Java and is called "BikeTracks".
 
 This application let users discover mountain bike tracks by exploring them on a map and gives the following details on each track : the track itself drawn on the map, the altimetry profile and distance.
 
-In addition, they would also be able to start their own mountain bike activity, tracked by the location of their smartphone letting them know if they are followoing or not the desired track. Typical data is also exposed like distance, time, current elevation, cumulate elevation and so on.
+In addition, they would also be able to start their own mountain bike activity, tracked by the location of their smartphone letting them know if they are following or not the desired track. Typical data is also exposed like distance, time, current elevation, cumulate elevation and so on.
 
 If the biker has any problem, an emergency call button will let him send his location to his predefined secure contacts.
 
 All tracks are locally registered in the smartphone and users are able to consult them any time. They also may be shared with users' contacts (by email or another messaging app).
 
-### Context
-
 This project was realised by Damien Rochat, Sébastien Richoz et Antoine Drabble as part of the "Mobile operating systems and applications" courses at the MSE, HES-SO. It is supervised by the professor Pascal Bruegger. It was realised between october 2017 and january 2018.
 
 ### Code management and conventions
 
-All of the code was developed and versionned using Github on the following repository: https://github.com/damienrochat/BikeTracks. 
+All of the code was developed and versioned using Github on the following repository: https://github.com/damienrochat/BikeTracks.
 We have followed the course recommendations on Android. We followed the coding style conventions of the Django Framework for the REST API https://docs.djangoproject.com/en/dev/internals/contributing/writing-code/coding-style/.
 
 ### Development phases
 
 The development of the application was split in 6 phases.
 
-1. Determination of the functionnalities
+1. Determination of the functionalities
 2. Creation of a mock-up of the application
 3. Set up of the application and its dependencies
-4. Creation of the activites layouts and creation of the backend in parallel
-5. Development of the functionnalities on the Android application
+4. Creation of the activities layouts and creation of the backend in parallel
+5. Development of the functionalities on the Android application
 6. Beta tests and bug fixes
 
 The documentation was written along all of these phases.
 
-## Functionalities
+### Functionalities
 
 Here is the list of functionnalities that have been realised in this project.
 
-- Show the bike tracks on a map in a radius R around a point P (the location is defined py the cyclist).
+- Show the bike tracks on a map in a radius R around a point P (the location is defined by the cyclist).
 - Creation of a REST API for the retrieval of tracks
-- Recording of an activity. The position of the cyclist if shown in real time on the map as well as the available tracks so that he can follow one. The cyclist can also save an activity where the is no track.
+- Recording of an activity. The position of the cyclist if shown in real time on the map as well as the available tracks so that he can follow one. The cyclist can also save an activity where there is no track.
 - Display of the historic of activities recorded by the cyclist.
 - Detail on an activity. Visualisation of the track on a map with statistics such as duration, distance, average speed, altimetric profile, ...
-- Sending of a manual SMS alert in case of an accident. The cyclist triggers the alert by clicking on a button and the alert is sent to the list of close people he has set along with his current position.
+- Sending of an SMS alert in case of an accident. The cyclist triggers the alert by clicking on a button and the alert is sent to the list of close people he has set along with his current position.
 
-## Similar applications
+### Similar applications
 
 There are many similar application available on Android:
 
@@ -67,17 +64,37 @@ There are many similar application available on Android:
 - Bike routes
 - Bikemap
 
-Some of these application support recording and visualising your own tracks. Some others let users research for tracks on a map. But few allow both functionnalities.
+Some of these application support recording and visualizing your own tracks. Some others let users research for tracks on a map. But few allow both functionalities.
 
 Some of these applications also require payment to gain access to all the functionalities and most of them lack many tracks in Switzerland.
 
-## Realisation
+## Conception
+
+A lot of time was spent for the conception phase to make the application work in the most efficient way possible. We were aware that a track may contain a lot of points which may result in a bad user experience as it could take a long time to display all the tracks on the map.
+
+We wanted also the user to understand the app easily by limiting the number of Android activities and the different screens and layout displayed to him.
+
+### Architecture
+
+The architecture of this application is simple. On the client side, the application needs a service to record an activity and a local database to store the recorded activity and the emergency contacts. On the server side, an optimized server is needed to retrieve the tracks from a given area in an efficient manner.
+
+![Architecture](img/architecture.png)
+
+As this is an Android lesson, we'll try to focus more on the client but to understand the whole structure, it is necessary to explain how the server was build.
+
+### Mock-ups
+The mock-ups shows the expected views for the mobile application. It helps us visualize it as a whole and organize ourselves.
+![Mock-ups](img/maquettes.jpg)
+
+To improve user experience we focused on recording an activity on the same view as the one displaying the tracks. These tracks must also be differentiable by high contrasting colors to distinguish superimposed tracks.
+
+## Development
+
+The development phase explains how the architecture was build, considering server (backend) and client side (frontend).
 
 ### Backend
 
-#### Goal
-
-The backend is a REST API which serves tracks over HTTP. It uses the Django REST Framework to process HTTP requests and a PostGIS database to store and query the tracks using spatial information.
+The backend is a REST API which serves tracks over HTTPS. It uses the Django REST Framework to process HTTP requests and a PostgreSQL database to store and query the tracks using spatial information. The extension postGIS is used to help operating geographical data like parsing .gpx files or computing the centroid of a track.
 
 #### Technologies
 
@@ -111,9 +128,17 @@ Here is the database UML (or not).
 
 #### API Endpoints
 
-The API contains a simple endpoint to retrieve the tracks in a given region defined by a circle:
-- Center [lat,long] : The GPS coordinates corresponding to the center of the currently seen map on the smartphone
-- Radius [m] : The biggest distance between the width and height of the currently seen map on the smartphone
+The API contains two endpoints to retrieve the tracks.
+1. **GET /tracks?lat=X&lng=Y&radius=Z** : Retrieve the tracks in a given region defined by a circle:
+    - Center [lat,lng] : The GPS coordinates corresponding to the center of the currently seen map on the smartphone.
+    - Radius [m] : The diagonal of the screen divided by two.
+
+    The following picture shows the area to look for the tracks. The red dot is the center of the map and the yellow line is the radius. The Google Map API helps us to retrieve easily these values.
+    ![API GET /tracks](img/api_tracks.png)
+
+    If any centroid is contained it this circle, the corresponding track will be retrieved to the user. The biggest the radius is, the less point will be retrieved for each track to avoid overloading the bandwidth and obviously get the tracks faster. It doesn't impact the quality of the drawn path on the map as the user zooms out because he won't be able to distinguish so many points. A track may contain from 3600 (a 1 hour activity) up to 18'000 points (5 hours) if there are measured every second.
+
+2. **GET /tracks/{id}** : Retrieve one track with all of its points. When a user focuses on a track, the whole details are needed.  
 
 More information about the API : https://github.com/damienrochat/BikeTracks-API
 
@@ -138,7 +163,7 @@ The tracks are sent to the API in their .gpx format. Here is an example.
 </gpx>
 ```
 
-Then the API transforms it and stores in a postGIS database.
+Then the API transforms it and stores in a postgreSQL database.
 
 The API will return the tracks in a JSON format.
 
@@ -146,15 +171,27 @@ TODO schema architecture
 
 #### Security
 
+HTTPS ?
+
 #### Tests
+
+on enleve ?
 
 ### Frontend
 
-#### Goal
-
 The frontend is the Android Application given to the clients. It handles all the requests of the users and communicates with the REST API to retrieve the tracks.
 
+We ended up with these views and we'll use this picture as the mainstream to explain our development.
+
+![Views](img/1b_views_detailed.png)
+
+The view **A** is in fact the view **B** with the menu opened. By clicking one of the three buttons contained in it, it displays its appropriate view **B**, **C** or **D**. The view **E** is displayed by clicking an element from **D** or after recording a track from **B**. The navigation is conserved : opening **E** from **D** then clicking back returns to **D** and opening from **B** returns to **B**.
+
 #### Technologies
+
+The Android application was development in Java. Some frameworks and tools took part of the app to simplify its development.
+
+![Technologies](img/4_technos_lib.png)
 
 ##### Java
 
@@ -172,13 +209,13 @@ Android is a mobile operating system developed by Google, based on the Linux ker
 
 Google Maps is a web mapping service developped by Google. It provides a very useful API for Android which can be used to display and customize maps, search for locations, display markers and lines, ...
 
-![Google Maps API](img/googlemaps.png)
+<!-- ![Google Maps API](img/googlemaps.png) -->
 
 ##### SQLite
 
 SQLite is an in-process library that implements a self-contained, serverless, zero-configuration, transactional SQL database engine. The code for SQLite is in the public domain and is thus free for use for any purpose, commercial or private.
 
-![SQLite](img/sqlite.png)
+<!-- ![SQLite](img/sqlite.png) -->
 
 ##### GraphView
 
@@ -186,11 +223,11 @@ GraphView is an open source graph plotting library for Android to programmatical
 
 ![GraphView](img/graphview.png)
 
-#### Design of the application
+##### Retrofit
 
-We have realised mock-ups of the application:
+Retrofit is an open source library making the HTTP requests very easy. It handles itself the execution of a background thread to operate asynchronous API calls and as a developer, we only have to implement one callback method for success and one for failure. Retrofit also parses automatically HTTP  responses in multiple formats. For this project, only JSON format was necessary.
 
-![Mock-ups](img/maquettes.jpg)
+<!-- ![Retrofit](img/retrofit.png) -->
 
 #### Structure of the code
 
@@ -218,7 +255,7 @@ The library GraphView that we used for the graphs doesn't support x and y axis l
 
 ## Possible improvements
 
-Here is a list of improvements we would have liked to add to the application:
+Here is a list of improvements for some future release of the application:
 
 - Show the forecast weather of the selected track as well as a heatmap and the precipitations.
 
