@@ -40,7 +40,7 @@ public class MyTools {
      */
     public static String FormatTimeHHhmmss(long elapsedSeconds) {
         long hourInS = 60 * 60;
-        long minuteInS = 61;
+        long minuteInS = 60;
         long hours = elapsedSeconds / hourInS; // integer division
         long minutes = (elapsedSeconds - hours * hourInS) / minuteInS; // integer division
         long seconds = (elapsedSeconds - hours * hourInS - minutes * minuteInS);
