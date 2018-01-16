@@ -28,7 +28,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
@@ -133,6 +132,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private TextView recordingDuration;
     private TextView recordingSpeed;
     private boolean isRecording = false;
+    private boolean isListening = false;
     private BroadcastReceiver trackingUpdatesReceiver;
     private Track recordedTrack;
 
@@ -152,8 +152,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        mContext = getActivity();
+
+        setHasOptionsMenu(true);
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        FragmentManager fm = getFragmentManager(); /// getChildFragmentManager();
+        supportMapFragment = SupportMapFragment.newInstance();
+        fm.beginTransaction().replace(R.id.map, supportMapFragment).commit();
+        supportMapFragment.getMapAsync(this);
+
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_map, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            isRecording = savedInstanceState.getBoolean("isRecording");
+        }
+
+
     }
 
     @Override
@@ -165,34 +186,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
 
         startRecordingButton = getView().findViewById(R.id.start_recording);
-        startRecordingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!isRecording) {
-                    if (MyTools.isLocationEnabled(mContext)) {
-                        isRecording = true;
-                        startRecordingButton.setVisibility(View.INVISIBLE);
-                        stopRecordingButton.setVisibility(View.VISIBLE);
-                        startRecordingWrapper();
-                    }
-                    else {
-                        Toast.makeText(mContext, R.string.enable_location_first,
-                                Toast.LENGTH_LONG).show();
-                    }
+        startRecordingButton.setOnClickListener(view -> {
+            if (!isRecording) {
+                if (MyTools.isLocationEnabled(mContext)) {
+                    isRecording = true;
+                    displayRecordingPanel();
+                    startRecordingWrapper();
+                }
+                else {
+                    Toast.makeText(mContext, R.string.enable_location_first,
+                            Toast.LENGTH_LONG).show();
                 }
             }
         });
 
         stopRecordingButton = getView().findViewById(R.id.stop_recording);
-        stopRecordingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isRecording) {
-                    isRecording = false;
-                    stopRecording();
-                    stopRecordingButton.setVisibility(View.INVISIBLE);
-                    startRecordingButton.setVisibility(View.VISIBLE);
-                }
+        stopRecordingButton.setOnClickListener(view -> {
+            if (isRecording) {
+                isRecording = false;
+                stopRecording();
+                hideRecordingPanel();
             }
         });
 
@@ -266,12 +279,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                /*
-                if (slideOffset >= 0.f)
-                    updateRecordingControl(stopRecordingButton, recordingWindowBehavior.getPeekHeight() + (int)(slideOffset * (bottomSheet.getHeight() - recordingWindowBehavior.getPeekHeight())));
-                else
-                    updateRecordingControl(stopRecordingButton, (int)( (1. + slideOffset) * recordingWindowBehavior.getPeekHeight()));
-                    */
             }
         });
 
@@ -302,29 +309,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 Log.d(TAG,"The checkbox has changed");
             }
         });
+
+        if (isRecording) {
+            displayRecordingPanel();
+            progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        mContext = getActivity();
+    public void onResume() {
+        super.onResume();
 
-        setHasOptionsMenu(true);
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        FragmentManager fm = getFragmentManager(); /// getChildFragmentManager();
-        supportMapFragment = SupportMapFragment.newInstance();
-        fm.beginTransaction().replace(R.id.map, supportMapFragment).commit();
-        supportMapFragment.getMapAsync(this);
-
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map, container, false);
+        if (isRecording && !isListening) {
+            startListeningTracking();
+        }
     }
 
     @Override
     public void onPause() {
-        super.onPause();
         stopListeningTracking();
+        super.onPause();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean("isRecording", isRecording);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -377,7 +387,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 isTrackSelected = false;
                 selectedTrack = null;
                 unselectTrack();
-                hideRecordingWindow();
+                hideRecordingPanel();
             }
             startRecordingButton.setText(R.string.button_start_recording);
         }
@@ -411,23 +421,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Load and replace previous tracks
         getTracks(center.latitude, center.longitude, radius);
-    }
-
-    /**
-     * Used to replace the start record button
-     * @param btn the button to update
-     * @param height the margin below the button
-     */
-    private void updateRecordingControl(Button btn, int height) {
-        CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
-                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
-                CoordinatorLayout.LayoutParams.WRAP_CONTENT
-        );
-        params.setMargins(0, 0, 0, height + 32);
-        params.gravity = Gravity.BOTTOM | Gravity.CENTER;
-        btn.setLayoutParams(params);
-        if (mMap != null)
-            mMap.setPadding(0, 0, 0, height + startRecordingButton.getHeight());
     }
 
     @Override
@@ -913,6 +906,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
+     * Used to replace the start record button
+     * @param btn the button to update
+     * @param height the margin below the button
+     */
+    private void updateRecordingControl(Button btn, int height) {
+        CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, 0, 0, height + 32);
+        params.gravity = Gravity.BOTTOM | Gravity.CENTER;
+        btn.setLayoutParams(params);
+        if (mMap != null)
+            mMap.setPadding(0, 0, 0, height + startRecordingButton.getHeight());
+    }
+
+    /**
      * Ask for permission
      */
     private void startRecordingWrapper() {
@@ -1026,7 +1036,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     recordedTrack.setName(name.getText().toString());
 
                     int trackId = saveRecordedTrack();
-                    hideRecordingWindow();
+                    hideRecordingPanel();
                     isRecording = false;
 
                     Intent intent = new Intent();
@@ -1035,7 +1045,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     startActivity(intent);
                 })
                 .setNegativeButton(R.string.no, (dialog, id) -> {
-                    hideRecordingWindow();
+                    hideRecordingPanel();
                     isRecording = false;
                 })
                 .show();
@@ -1063,28 +1073,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * Register tracking listeners
      */
     private void startListeningTracking() {
-        Log.d(TAG, "startListeningTracking");
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(trackingUpdatesReceiver,
-                new IntentFilter(TrackerService.ACTION_UPDATE));
-
-        displayRecordingWindow();
+        if (!isListening) {
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(trackingUpdatesReceiver,
+                    new IntentFilter(TrackerService.ACTION_UPDATE));
+            isListening = true;
+        }
     }
 
     /**
      * Unregister tracking listeners
      */
     private void stopListeningTracking() {
-        Log.d(TAG, "stopListeningTracking");
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(trackingUpdatesReceiver);
-
-        hideRecordingWindow();
+        if (isListening) {
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(trackingUpdatesReceiver);
+            isListening = false;
+        }
     }
 
     /**
      * Display the tracking window
      */
-    private void displayRecordingWindow() {
+    private void displayRecordingPanel() {
         cleanPolylines();
+
+        startRecordingButton.setVisibility(View.INVISIBLE);
+        stopRecordingButton.setVisibility(View.VISIBLE);
 
         trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         recordingWindowBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -1094,7 +1107,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     /**
      * Hide the tracking window
      */
-    private void hideRecordingWindow() {
+    private void hideRecordingPanel() {
+        stopRecordingButton.setVisibility(View.INVISIBLE);
+        startRecordingButton.setVisibility(View.VISIBLE);
+
         recordingWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         trackWindowBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         updateRecordingControl(startRecordingButton, 0);
