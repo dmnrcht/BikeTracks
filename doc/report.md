@@ -96,6 +96,8 @@ The development phase explains how the architecture was build, considering serve
 
 The backend is a REST API which serves tracks over HTTPS. It uses the Django REST Framework to process HTTP requests and a PostgreSQL database to store and query the tracks using spatial information. The extension postGIS is used to help operating geographical data like parsing .gpx files or computing the centroid of a track.
 
+Creating a specific backend was necessary as we couldn't find a suitless API doing the job for us. However, we found one named TrailForks which fitted the best our needs. The attempts to contact them remained unanswered, that's why we decided to create our own.
+
 #### Technologies
 
 ##### Python
@@ -144,7 +146,7 @@ More information about the API : https://github.com/damienrochat/BikeTracks-API
 
 #### Track file format
 
-The tracks are sent to the API in their .gpx format. Here is an example.
+The tracks are sent to the API in their .gpx format using a POST method. Here is an example of a .gpx file.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -163,9 +165,11 @@ The tracks are sent to the API in their .gpx format. Here is an example.
 </gpx>
 ```
 
-Then the API transforms it and stores in a postgreSQL database.
+The file is in XML with its own markup tags. To retrieve information on the track, we extract from tag `<trk>` the name, type and all the points defining the track. These points are included in tag `<trkseg>` which includes `<trkpt>` containing the needed data, that is the latitutde, longitude, elevation and time.
 
-The API will return the tracks in a JSON format.
+The backend extracts these informations and store them in a postgreSQL database using PostGIS extension to transform the XML syntax into some readable postgreSQL data. During this process, the centroid is computed and stored to avoid calculating it over and over every time a GET request is made.
+
+Then the API will return the tracks in a JSON format.
 
 TODO schema architecture
 
@@ -228,6 +232,33 @@ GraphView is an open source graph plotting library for Android to programmatical
 Retrofit is an open source library making the HTTP requests very easy. It handles itself the execution of a background thread to operate asynchronous API calls and as a developer, we only have to implement one callback method for success and one for failure. Retrofit also parses automatically HTTP  responses in multiple formats. For this project, only JSON format was necessary.
 
 <!-- ![Retrofit](img/retrofit.png) -->
+
+### Components
+
+The application uses two activities : one main activity as the entry point and an activity "Detail of my track" displayed to show details of user's track.
+
+The main activity loads three fragments depending the touched button in the menu : Map, My tracks or Settings.
+
+- "Map" Fragment displays the tracks and their detail from the API and let user record their own activity.
+- "My tracks" Fragment relates the history of tracks recorded by user.
+- "Settings" Fragment is where the user sets the secure contacts.
+
+The Fragment "Detail of my track" obviously displays the details of a track done by the user.
+
+![Components](img/2b_components_en.png)
+
+Let's focus on each component for a deeper analyze.
+
+#### A - Main Activity
+
+#### B - Fragment "Map"
+![Map](img/fragment_map_detailed.png)
+TODO explain different elements
+
+#### C - Fragment "Settings"
+#### D - Fragment "My tracks"
+#### E - Activity "Detail of my track"
+
 
 #### Structure of the code
 
