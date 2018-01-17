@@ -1,0 +1,36 @@
+@startuml
+
+!define Table(name) class name as "<b>name</b>"
+!define key(x) <u>x</u>
+
+hide circle
+hide methods
+left to right direction
+
+
+' entities
+
+Table(Track) {
+  key(id): INTEGER
+  name: VARCHAR[100]
+  type: VARCHAR[100]
+  centroid: POINT
+  distance: INTEGER
+  climb: INTEGER
+  descent: INTEGER
+}
+
+Table(TrackPoint) {
+  key(id): INTEGER
+  pid: INTEGER
+  lat: FLOAT
+  lon: FLOAT
+  elev: FLOAT
+}
+
+
+' relationships
+
+Track "1" -- "*" TrackPoint
+
+@enduml

@@ -1,3 +1,5 @@
+![Architecture](img/biketracks.png)
+
 # Android project : BikeTracks
 
 *October 2017 - January 2018*
@@ -94,7 +96,7 @@ The development phase explains how the architecture was build, considering serve
 
 ### Backend
 
-The backend is a REST API which serves tracks over HTTPS. It uses the Django REST Framework to process HTTP requests and a PostgreSQL database to store and query the tracks using spatial information. The extension postGIS is used to help operating geographical data like parsing .gpx files or computing the centroid of a track.
+The backend is a REST API which serves tracks over HTTPS. It uses the Django REST Framework to process HTTP requests and a PostgreSQL database to store and query the tracks using spatial information. The extension PostGIS is used to help operating geographical data like computing the centroid of a track.
 
 Creating a specific backend was necessary as we couldn't find a suitless API doing the job for us. However, we found one named TrailForks which fitted the best our needs. The attempts to contact them remained unanswered, that's why we decided to create our own.
 
@@ -114,19 +116,32 @@ Django is a big web Framework in Python.
 
 ##### Django REST Framework
 
-Django REST framework is a powerful and flexible toolkit for building Web APIs in Python.
+Django REST framework is a powerful and flexible toolkit for building Web APIs with Django.
 
 ![Django REST Framework](img/drf.png)
 
+##### PostgreSQL
+
+PostgreSQL is a crossplateform relational database management system.
+
+![PostgreSQL](img/postgres.png)
+
 ##### PostGIS
 
-PostGIS provides spatial objects for the PostgreSQL database, allowing storage and query of information about location and mapping.
+PostGIS provides geographic and geometric types and functions for the PostgreSQL database, allowing storage and query of information about location.
 
 ![PostGIS](img/postgis.png)
 
-#### Database structure organisation of the classes
+Django natively includes an Active Record ORM and an extension allowing to use it with geospacial databases. It's called GeoDjango.
 
-Here is the database UML (or not).
+#### Database design
+
+![Database design](img/uml/server_database_design.svg)
+
+In order to be served by the API, all points of the tracks are kept in the database. They're stored with latitude, longitude (WGS84 format) and elevation fields. It doesn't use any PostGIS type, cause this entity is not queried.
+
+The track entity contains precomputed distance, positive and negative elevation (climb and descent). This avoids recalculating for each request.
+The centroid field use the `Point` PostGIS type. It's contains the coordinates of the center of the track, used for queries. It's also possible to make radius lookup on the whole track by querying a `LineString ` (path define by the sequence of points). It's more precise but less efficient.
 
 #### API Endpoints
 
@@ -142,11 +157,18 @@ The API contains two endpoints to retrieve the tracks.
 
 2. **GET /tracks/{id}** : Retrieve one track with all of its points. When a user focuses on a track, the whole details are needed.  
 
-More information about the API : https://github.com/damienrochat/BikeTracks-API
+More information about the API : https://github.com/damienrochat/BikeTracks-API#api
+
+#### Radius Query
+
+The radius query use the PostGIS `ST_Distance(geography, geography)` function, enought in this case but limited to 2D points (elevation is not considered).
+
+It's also possible to compare `geometry`. It's more efficient cause no trigonometric operations, but limited to the coordinate projection format used (for example limited to Europe). It also allow to query 3D points.
+More information on the PostGIS documentation : https://postgis.net/docs/ST_Distance.html
 
 #### Track file format
 
-The tracks are sent to the API in their .gpx format using a POST method. Here is an example of a .gpx file.
+GPX track files could be used to fill the API. Here is an example of a .gpx file.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -167,19 +189,14 @@ The tracks are sent to the API in their .gpx format using a POST method. Here is
 
 The file is in XML with its own markup tags. To retrieve information on the track, we extract from tag `<trk>` the name, type and all the points defining the track. These points are included in tag `<trkseg>` which includes `<trkpt>` containing the needed data, that is the latitutde, longitude, elevation and time.
 
-The backend extracts these informations and store them in a postgreSQL database using PostGIS extension to transform the XML syntax into some readable postgreSQL data. During this process, the centroid is computed and stored to avoid calculating it over and over every time a GET request is made.
+The backend extracts these informations and store them in a PostgreSQL database, using a custom command. During this process, the centroid is computed and stored to avoid calculating it over and over every time a GET request is made.
+More information about the command : https://github.com/damienrochat/BikeTracks-API#import-gpx-files
 
 Then the API will return the tracks in a JSON format.
 
-TODO schema architecture
-
 #### Security
 
-HTTPS ?
-
-#### Tests
-
-on enleve ?
+All the HTTP requests are forced to use SSL.
 
 ### Frontend
 
