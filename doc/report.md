@@ -307,9 +307,27 @@ Resources and classes
 
 #### Models and database
 
+### Testing
+
+We experiments Unit and Instrumented (interface) testing by implementing some tests.
+
+Unit tests were executer with JUnit, which was pretty simple.
+Instrumented tests were done with Espresso. They require more time for their implementation and they are slower to run because they are launched inside an Android phone emulator.
+
 #### Deployment on the Play Store
 
-#### Beta tests
+We had the opportunities to try to deploy the application on the Google Play Store.
+This has shown us that this requires some preparation.
+For example, before uploading the APK, we had to fill the store application page (titles, description, screenshots, icons, etc.).
+It also requires to fill forms about the content of the app, his price and his Privacy Policy.
+
+Finally, the APK had to be signed.
+
+The Google Play Store allow to publish the application but leaving it private.
+There are two tracks : Alpha and Beta.
+The Alpha versions are available on the store for the only defined persons.
+The Beta versions are available to users who want to test beta apps.
+During this project, we simply publish alpha versions for us.
 
 ## Difficulties encountered
 
