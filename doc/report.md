@@ -268,13 +268,35 @@ Let's focus on each component for a deeper analyze.
 
 #### A - Main Activity
 
+The main activity loads one of the three fragments depending the button clicked in the menu, handles also the click event on the emergency button and contains the menu bar.
+
+![Map](img/activity_main_detailed.png)
+
 #### B - Fragment "Map"
+TODO layout ?
 ![Map](img/fragment_map_detailed.png)
 TODO explain different elements
 
+#### On track selection
+![Map](img/fragment_map_detailed_2.png)
+
+TODO explain what a bottom sheet is. it has 3 states : hidden (not visible), collapse (partially visible) or expand (completely visible)
+
+If the user clicks on the map and outside any track, the selected track loses focus and the bottom sheet is hidden.
+
+#### On recording
+![Map](img/fragment_map_detailed_3.png)
+TODO explain that there is a new bottom sheet, different from the previous one so another layout was necessary.
+
+
 #### C - Fragment "Settings"
+![Map](img/fragment_settings_2.png)
+
 #### D - Fragment "My tracks"
+![Map](img/fragment_mytracks_2.png)
+
 #### E - Activity "Detail of my track"
+
 
 
 #### Structure of the code
