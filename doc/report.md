@@ -316,7 +316,8 @@ While recording, users could switch of application or likely lock their screen. 
 #### C - Fragment "Settings"
 ![Map](img/fragment_settings_2.png)
 
-TODO - Adapter ?
+This fragment allows the user to manage his emergency contacts. The "plus" red button is used to add new contacts from the phone's contact list. It requires the READ_CONTACTS permission. The bin button next to each contact can be used to delete a contact from the emergency list. An alert SMS is sent to all of the contacts in this list when the user clicks on the emergency button.
+We have used a custom RecyclerViewAdapter to show the list of emergency contacts and handle the click on the delete button.
 
 #### D - Fragment "My tracks"
 
