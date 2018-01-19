@@ -327,7 +327,7 @@ TODO - Adapter ?
 
 #### E - Activity "Detail of my track"
 
-TODO - Heum ? Pas d'image hahah
+This activity use the same components like the Map fragment (**B**). The selected track is displayed on the map and a full detailled BottomSheet is opened by default.
 
 #### Permissions
 
@@ -414,11 +414,19 @@ Here is a list of improvements for some future release of the application:
 
 ## Conclusion
 
-This project was very interesting, manipulating the Google Maps API to display our own tracks was motivating. 
+This project was very interesting, manipulating the Google Maps API to display our own tracks was motivating. This application now contains a lot of features and is usable. Nevertheless, if it has to be available on the Play Store, other more original features should be added to stand out from other existing applications.
+
+At the beginning of the project, we agreed about the fonctionnalities and did the mockups all together. Then, we decided which features we were most interested in implementing. During the first half of the allowed time, we workeds on the following parts of the application :
+
+Antoine : UI, SMS, History
+Damien : Server, Tracking Service
+Sébastien : Exploration, Track details
+
+Large parts have been implemented quickly and we decided to create a Github Projet with many issues describing bugs, new functionalities and enhancements. Since then, we took the issues one after the other and had the opportunity to work on all parts of the application.
 
 ## Annexes
 
-### BikeTracks API
+### Server documentation
 
 #### Before starting
 
