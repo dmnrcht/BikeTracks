@@ -323,7 +323,7 @@ We have used a custom RecyclerViewAdapter to show the list of emergency contacts
 
 ![Map](img/fragment_mytracks_2.png)
 
-TODO - Adapter ?
+The fragment "My tracks" display all of the tracks that the user recorded, ordered by date (newest first). The tracks recorded by the user are stored in the SQLite database. The fragment uses a `RecyclerViewAdapter` to display the list. The adapter uses a custom listener class named `RecyclerItemClickListener` which is set by calling the method `addOnItemTouchListener` on the adapter. A click on an element of the list opens the "Detail of my track" activity.
 
 #### E - Activity "Detail of my track"
 
@@ -346,10 +346,6 @@ We have set up a notification to notify the user when an activity is being recor
 The user can set up emergency contacts in the settings fragment. Once it's done, he can send an alert SMS in case of an accident (during the recording of an activity for example). To send the SMS alert, he must click on the Urgency button in the drawer. A confirmation will be requested to avoid unvolentary clicks. A future improvement would be to allow detection of accidents using a smartwatch and machine learning for example. The process is shown in the image below, he sends the alert, his emergency contacts receive a SMS containing the message and the location of the accident. The user can then open the link in Google Maps to show the itinary to the location.
 
 ![SMS Alert](img/sms_alert.png)
-
-#### Structure of the code
-
-TODO est-ce qu'on parle un peut du code, des layouts qu'on a utilisé, des adapters ou de la base de données?
 
 #### Models and database
 
