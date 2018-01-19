@@ -87,10 +87,10 @@ The architecture of this application is simple. On the client side, the applicat
 
 ![Architecture](img/architecture.png)
 
-As this is an Android lesson, we'll try to focus more on the client but to understand the whole structure, it is necessary to explain how the server was build.
+As this is an Android lesson, we'll try to focus more on the client but to understand the whole structure, it is necessary to explain how the server was built.
 
 ### Mock-ups
-The mock-ups shows the expected views for the mobile application. It helps us visualize it as a whole and organize ourselves.
+The mock-ups show the expected views for the mobile application. It helps us visualize it as a whole and organize ourselves.
 ![Mock-ups](img/maquettes.jpg)
 
 To improve user experience we focused on recording an activity on the same view as the one displaying the tracks. These tracks must also be differentiable by high contrasting colors to distinguish superimposed tracks.
@@ -215,7 +215,7 @@ The view **A** is in fact the view **B** with the menu opened. By clicking one o
 
 #### Technologies
 
-The Android application was development in Java. Some frameworks and tools took part of the app to simplify its development.
+The Android application was developed in Java. Some frameworks and tools took part of the app to simplify its development.
 
 ![Technologies](img/4_technos_lib.png)
 
@@ -348,6 +348,8 @@ The user can set up emergency contacts in the settings fragment. Once it's done,
 ![SMS Alert](img/sms_alert.png)
 
 #### Models and database
+
+In the image below we can see the UML of the SQLite database. It is similar to the server's database but the tracks contain a few other properties which are only used for personal tracks. There is also the contact class which is used to store the emergency contacts.
 
 ![SQLite UML](img/sqlite_uml.png)
 
