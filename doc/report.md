@@ -386,6 +386,8 @@ The library GraphView that we used for the graphs doesn't support x and y axis l
 
 ## Remaining bugs
 
+No remaining bug has been found in the application.
+
 ## Possible improvements
 
 Here is a list of improvements for some future release of the application:
@@ -394,31 +396,37 @@ Here is a list of improvements for some future release of the application:
 
 - Let the user choose between different layers of map with a better altitude representation for example. We have used the Google Maps API but we would also like to try using OpenStreetMap which allows different configurations of the maps.
 
-- Let the user download the GPX files so that he can use them in other applications.
+- Let the user download the GPX files so that he can use them in other applications or import GPX files so he can visualize and follow them.
 
-- Make a Smartwatch version
+- Make a Smartwatch version.
 
-- Add a pause command when recording a track
+- Add a pause command when recording a track.
 
-- Add buttons to control the recording in the notification
+- Add buttons to control the recording in the "currently recording" notification.
 
 - Let the user send tracks to the API so that we could maybe add them to the lists of public tracks.
 
 - Let the user store his tracks in an online database so that he can load them on another device.
 
-- Lower the quantity of points on some of the tracks to limit the network charge for the user and diminish the response times.
+- Add more tracks.
+
+- Add more translations than just English and French.
+
+- Make an IOS version.
+
+- Support offline mode to record tracks without internet access.
 
 ## Conclusion
 
-This project was very interesting, manipulating the Google Maps API to display our own tracks was motivating. This application now contains a lot of features and is usable. Nevertheless, if it has to be available on the Play Store, other more original features should be added to stand out from other existing applications.
+This project was very interesting, manipulating the Google Maps API to display our own tracks was motivating. This application now contains a lot of features and is usable. Nevertheless, if it has to be available on the Play Store, other more original features should be added to stand out from other existing applications. Another significant improvement would be to add many more tracks from all around the world.
 
-At the beginning of the project, we agreed about the fonctionnalities and did the mockups all together. Then, we decided which features we were most interested in implementing. During the first half of the allowed time, we workeds on the following parts of the application :
+At the beginning of the project, we agreed about the fonctionnalities and did the mockups together. Then, we decided which features we were most interested in implementing. During the first half of the allowed time, we worked on the following parts of the application :
 
-Antoine : UI, SMS, History
+Antoine : UI, SMS, History, Google Maps API search/locate and polylines
 Damien : Server, Tracking Service
 Sébastien : Exploration, Track details
 
-Large parts have been implemented quickly and we decided to create a Github Projet with many issues describing bugs, new functionalities and enhancements. Since then, we took the issues one after the other and had the opportunity to work on all parts of the application.
+Large parts have been implemented quickly and we decided to create a Github Project with many issues describing bugs, new functionalities and enhancements. Since then, we took the issues one after the other and had the opportunity to work on all parts of the application.
 
 ## Annexes
 
