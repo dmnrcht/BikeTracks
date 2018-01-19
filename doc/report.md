@@ -442,6 +442,10 @@ Large parts have been implemented quickly and we decided to create a Github Proj
 
 <div style="page-break-after: always;"></div>
 
+## Acknowledgements
+
+Thanks to the professor Pascal Bruegger which provided a few GPX files that he recorded himself.
+
 ## Annexes
 
 ### Server documentation
