@@ -1,4 +1,4 @@
-![Architecture](img/biketracks.png)
+<img src="img/biketracks.png" width="100">
 
 # Android project : BikeTracks
 
@@ -27,6 +27,8 @@ If the biker has any problem, an emergency call button will let him send his loc
 All tracks are locally registered in the smartphone and users are able to consult them any time. They also may be shared with users' contacts (by email or another messaging app).
 
 This project was realised by Damien Rochat, Sébastien Richoz et Antoine Drabble as part of the "Mobile operating systems and applications" courses at the MSE, HES-SO. It is supervised by the professor Pascal Bruegger. It was realised between october 2017 and january 2018.
+
+<div style="page-break-after: always;"></div>
 
 ### Code management and conventions
 
@@ -85,13 +87,16 @@ We wanted also the user to understand the app easily by limiting the number of A
 
 The architecture of this application is simple. On the client side, the application needs a service to record an activity and a local database to store the recorded activity and the emergency contacts. On the server side, an optimized server is needed to retrieve the tracks from a given area in an efficient manner.
 
-![Architecture](img/architecture.png)
+<img src="img/architecture.png" width="400">
 
 As this is an Android lesson, we'll try to focus more on the client but to understand the whole structure, it is necessary to explain how the server was built.
 
+<div style="page-break-after: always;"></div>
+
 ### Mock-ups
 The mock-ups show the expected views for the mobile application. It helps us visualize it as a whole and organize ourselves.
-![Mock-ups](img/maquettes.jpg)
+
+<img src="img/maquettes.jpg" width="700">
 
 To improve user experience we focused on recording an activity on the same view as the one displaying the tracks. These tracks must also be differentiable by high contrasting colors to distinguish superimposed tracks.
 
@@ -111,31 +116,21 @@ Creating a specific backend was necessary as we couldn't find a suitless API doi
 
 Python is a popular interpreted programming language.
 
-![Python](img/python.png)
-
 ##### Django
 
 Django is a big web Framework in Python.
-
-![Django](img/django.png)
 
 ##### Django REST Framework
 
 Django REST framework is a powerful and flexible toolkit for building Web APIs with Django.
 
-![Django REST Framework](img/drf.png)
-
 ##### PostgreSQL
 
 PostgreSQL is a crossplateform relational database management system.
 
-![PostgreSQL](img/postgres.png)
-
 ##### PostGIS
 
 PostGIS provides geographic and geometric types and functions for the PostgreSQL database, allowing storage and query of information about location.
-
-![PostGIS](img/postgis.png)
 
 Django natively includes an Active Record ORM and an extension allowing to use it with geospacial databases. It's called GeoDjango.
 
@@ -156,7 +151,8 @@ The API contains two endpoints to retrieve the tracks.
     - Radius [m] : The diagonal of the screen divided by two.
 
     The following picture shows the area to look for the tracks. The red dot is the center of the map and the yellow line is the radius. The Google Map API helps us to retrieve easily these values.
-    ![API GET /tracks](img/api_tracks.png)
+
+    <img src="img/api_tracks.png" width="300">
 
     If any centroid is contained it this circle, the corresponding track will be retrieved to the user. The biggest the radius is, the less point will be retrieved for each track to avoid overloading the bandwidth and obviously get the tracks faster. It doesn't impact the quality of the drawn path on the map as the user zooms out because he won't be able to distinguish so many points. A track may contain from 3600 (a 1 hour activity) up to 18'000 points (5 hours) if there are measured every second.
 
@@ -213,6 +209,8 @@ We ended up with these views and we'll use this picture as the mainstream to exp
 
 The view **A** is in fact the view **B** with the menu opened. By clicking one of the three buttons contained in it, it displays its appropriate view **B**, **C** or **D**. The view **E** is displayed by clicking an element from **D** or after recording a track from **B**. The navigation is conserved : opening **E** from **D** then clicking back returns to **D** and opening from **B** returns to **B**.
 
+<div style="page-break-after: always;"></div>
+
 #### Technologies
 
 The Android application was developed in Java. Some frameworks and tools took part of the app to simplify its development.
@@ -223,43 +221,37 @@ The Android application was developed in Java. Some frameworks and tools took pa
 
 Java is a general-purpose computer programming language that is concurrent, class-based, object-oriented, and specifically designed to have as few implementation dependencies as possible. It is intended to let application developers "write once, run anywhere" (WORA), meaning that compiled Java code can run on all platforms without the need of recompilation.
 
-![Java](img/java.png)
-
 ##### Android
 
 Android is a mobile operating system developed by Google, based on the Linux kernel and designed primarily for touchscreen mobile devices such as smartphones and tablets. In addition, Google has further developed Android TV for televisions, Android Auto for cars, and Android Wear for wrist watches, each with a specialized user interface. Variants of Android are also used on game consoles, digital cameras, PCs and other electronics.
-
-![Android](img/android.png)
 
 ##### Google Maps API
 
 Google Maps is a web mapping service developped by Google. It provides a very useful API for Android which can be used to display and customize maps, search for locations, display markers and lines, ...
 
-<!-- ![Google Maps API](img/googlemaps.png) -->
-
 ##### SQLite
 
 SQLite is an in-process library that implements a self-contained, serverless, zero-configuration, transactional SQL database engine. The code for SQLite is in the public domain and is thus free for use for any purpose, commercial or private.
 
-<!-- ![SQLite](img/sqlite.png) -->
+<div style="page-break-after: always;"></div>
 
 ##### GraphView
 
 GraphView is an open source graph plotting library for Android to programmatically create diagrams. It can be used to create Line Graphs, Bar Graphs, Point Graphs, ...
 
-![GraphView](img/graphview.png)
+<img src="img/graphview.png" width="300">
 
 ##### Retrofit
 
 Retrofit is an open source library making the HTTP requests very easy. It handles itself the execution of a background thread to operate asynchronous API calls and as a developer, we only have to implement one callback method for success and one for failure. Retrofit also parses automatically HTTP  responses in multiple formats. For this project, only JSON format was necessary.
-
-<!-- ![Retrofit](img/retrofit.png) -->
 
 ### Languages
 
 The application is fully translated in english and in french.
 
 ### Components
+
+![Components](img/2b_components_en.png)
 
 The application uses two activities : one main activity as the entry point and an activity "Detail of my track" displayed to show details of user's track.
 
@@ -271,18 +263,18 @@ The main activity loads three fragments depending the touched button in the menu
 
 The Fragment "Detail of my track" obviously displays the details of a track done by the user.
 
-![Components](img/2b_components_en.png)
-
 Let's focus on each component for a deeper analyze.
 
 #### A - Main Activity
 
+<img src="img/activity_main_detailed.png" width="300">
+
 The main activity loads one of the three fragments depending the button clicked in the menu, handles also the click event on the emergency button and contains the menu bar.
 
-![Map](img/activity_main_detailed.png)
-
 #### B - Fragment "Map"
-![Map](img/fragment_map_detailed.png)
+
+<img src="img/fragment_map_detailed.png" width="400">
+
 This is the main view of the application. Users can look for a specific places and discover amazing tracks. Tracks are displayed in different colors to improve visibility.
 
 By default, only tracks received from the server are displayed. But users can choose to display they own recorded tracks, by enabling the "Display my tracks" checkbox.
@@ -290,7 +282,8 @@ By default, only tracks received from the server are displayed. But users can ch
 This fragment also contains a location search field, to move map to a specific place. This functionnality use the Geocoder provided by Android location librairy.
 
 #### On track selection
-![Map](img/fragment_map_detailed_2.png)
+
+<img src="img/fragment_map_detailed_2.png" width="400">
 
 The details of the tracks are displayed inside a "Bottom Sheet", a Material Design component. In Android, this is a classic layout implementing a special behavior, the [BottomSheetBehavior](https://developer.android.com/reference/android/support/design/widget/BottomSheetBehavior.html). It must be a child of a CoordinatorLayout.
 
@@ -300,8 +293,11 @@ On the map, the selected track is focused and if the user clicks on the map and 
 
 On this fragment, if the user clicks the "Follow" button, the selected track will remain displayed on the map during the tracking, allowing the user to follow it.
 
+<div style="page-break-after: always;"></div>
+
 #### On recording
-![Map](img/fragment_map_detailed_3.png)
+
+<img src="img/fragment_map_detailed_3.png" width="400">
 
 While recording, the BottomSheet is different. In fact, this is another BottomSheet, cause different contents and different behavior (no collapsed state).
 
@@ -313,15 +309,18 @@ The tracking stopped as soon as the service is terminated (by the fragment itsel
 
 While recording, users could switch of application or likely lock their screen. When the fragment is paused by the OS, the state is saved inside the bundle and the service listener is unregistered. This allows, when the fragment comes back to foreground, to automatically register the service listener and to restart displaying of the current track.
 
+<div style="page-break-after: always;"></div>
+
 #### C - Fragment "Settings"
-![Map](img/fragment_settings_2.png)
+
+<img src="img/fragment_settings_2.png" width="400">
 
 This fragment allows the user to manage his emergency contacts. The "plus" red button is used to add new contacts from the phone's contact list. It requires the READ_CONTACTS permission. The bin button next to each contact can be used to delete a contact from the emergency list. An alert SMS is sent to all of the contacts in this list when the user clicks on the emergency button.
 We have used a custom RecyclerViewAdapter to show the list of emergency contacts and handle the click on the delete button.
 
 #### D - Fragment "My tracks"
 
-![Map](img/fragment_mytracks_2.png)
+<img src="img/fragment_mytracks_2.png" width="300">
 
 The fragment "My tracks" display all of the tracks that the user recorded, ordered by date (newest first). The tracks recorded by the user are stored in the SQLite database. The fragment uses a `RecyclerViewAdapter` to display the list. The adapter uses a custom listener class named `RecyclerItemClickListener` which is set by calling the method `addOnItemTouchListener` on the adapter. A click on an element of the list opens the "Detail of my track" activity.
 
@@ -335,23 +334,27 @@ The applications requires 4 permissions on the phone which are all checked at ru
 
 ![Permissions](img/permissions.png)
 
+<div style="page-break-after: always;"></div>
+
 #### Notifications
 
 We have set up a notification to notify the user when an activity is being recorded. The notification is also shown in the lock screen as we can see in the image below. We would like to add controls in the near future to allow the user to manage his activity (pause, stop...) without having to unlock his phone.
 
-![Notifications](img/notifications.png)
+<img src="img/notifications.png" width="300">
 
 #### SMS Alert
 
 The user can set up emergency contacts in the settings fragment. Once it's done, he can send an alert SMS in case of an accident (during the recording of an activity for example). To send the SMS alert, he must click on the Urgency button in the drawer. A confirmation will be requested to avoid unvolentary clicks. A future improvement would be to allow detection of accidents using a smartwatch and machine learning for example. The process is shown in the image below, he sends the alert, his emergency contacts receive a SMS containing the message and the location of the accident. The user can then open the link in Google Maps to show the itinary to the location.
 
-![SMS Alert](img/sms_alert.png)
+<img src="img/sms_alert.png" width="800">
+
+<div style="page-break-after: always;"></div>
 
 #### Models and database
 
 In the image below we can see the UML of the SQLite database. It is similar to the server's database but the tracks contain a few other properties which are only used for personal tracks. There is also the contact class which is used to store the emergency contacts.
 
-![SQLite UML](img/sqlite_uml.png)
+<img src="img/sqlite_uml.png" width="500">
 
 
 ### Testing
@@ -375,6 +378,8 @@ There are two tracks : Alpha and Beta.
 The Alpha versions are available on the store for the only defined persons.
 The Beta versions are available to users who want to test beta apps.
 During this project, we simply publish alpha versions for us.
+
+<div style="page-break-after: always;"></div>
 
 ## Difficulties encountered
 
@@ -407,28 +412,19 @@ No remaining bug has been found in the application.
 Here is a list of improvements for some future release of the application:
 
 - Show the forecast weather of the selected track as well as a heatmap and the precipitations.
-
 - Let the user choose between different layers of map with a better altitude representation for example. We have used the Google Maps API but we would also like to try using OpenStreetMap which allows different configurations of the maps.
-
 - Let the user download the GPX files so that he can use them in other applications or import GPX files so he can visualize and follow them.
-
 - Make a Smartwatch version.
-
 - Add a pause command when recording a track.
-
 - Add buttons to control the recording in the "currently recording" notification.
-
 - Let the user send tracks to the API so that we could maybe add them to the lists of public tracks.
-
 - Let the user store his tracks in an online database so that he can load them on another device.
-
 - Add more tracks.
-
 - Add more translations than just English and French.
-
 - Make an IOS version.
-
 - Support offline mode to record tracks without internet access.
+
+<div style="page-break-after: always;"></div>
 
 ## Conclusion
 
@@ -443,6 +439,8 @@ Damien : Server, Tracking Service
 Sébastien : Exploration, Track details
 
 Large parts have been implemented quickly and we decided to create a Github Project with many issues describing bugs, new functionalities and enhancements. Since then, we took the issues one after the other and had the opportunity to work on all parts of the application.
+
+<div style="page-break-after: always;"></div>
 
 ## Annexes
 
@@ -475,9 +473,11 @@ In order to minimize it, use the optional parameter to reduce the number of poin
 $ python manage.py importgpx /path/to/gpx/*.gpx --interval=60
 ```
 
-#### API
+<div style="page-break-after: always;"></div>
 
-##### Tracks around coordinates
+### API documentation
+
+#### Tracks around coordinates
 
 ###### Arguments
 
@@ -522,7 +522,9 @@ Content-Type: application/json
 ]
 ```
 
-##### Track details
+<div style="page-break-after: always;"></div>
+
+#### Track details
 
 ###### Example
 
