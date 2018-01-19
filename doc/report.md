@@ -440,11 +440,11 @@ Sébastien : Exploration, Track details
 
 Large parts have been implemented quickly and we decided to create a Github Project with many issues describing bugs, new functionalities and enhancements. Since then, we took the issues one after the other and had the opportunity to work on all parts of the application.
 
-<div style="page-break-after: always;"></div>
-
 ## Acknowledgements
 
 Thanks to the professor Pascal Bruegger which provided a few GPX files that he recorded himself.
+
+<div style="page-break-after: always;"></div>
 
 ## Annexes
 
