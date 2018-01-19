@@ -277,30 +277,51 @@ The main activity loads one of the three fragments depending the button clicked 
 ![Map](img/activity_main_detailed.png)
 
 #### B - Fragment "Map"
-TODO layout ?
 ![Map](img/fragment_map_detailed.png)
-TODO explain different elements
+This is the main view of the application. Users can look for a specific places and discover amazing tracks. Tracks are displayed in different colors to improve visibility.
+
+By default, only tracks received from the server are displayed. But users can choose to display they own recorded tracks, by enabling the "Display my tracks" checkbox.
+
+This fragment also contains a location search field, to move map to a specific place. This functionnality use the Geocoder provided by Android location librairy.
 
 #### On track selection
 ![Map](img/fragment_map_detailed_2.png)
 
-TODO explain what a bottom sheet is. it has 3 states : hidden (not visible), collapse (partially visible) or expand (completely visible)
+The details of the tracks are displayed inside a "Bottom Sheet", a Material Design component. In Android, this is a classic layout implementing a special behavior, the [BottomSheetBehavior](https://developer.android.com/reference/android/support/design/widget/BottomSheetBehavior.html). It must be a child of a CoordinatorLayout.
 
-If the user clicks on the map and outside any track, the selected track loses focus and the bottom sheet is hidden.
+Il fact, this behavior allow to display the content in three states : hidden (not visible), collapse (partially visible) or expand (completely visible). So, the user can hide track details or reduce them.
+
+On the map, the selected track is focused and if the user clicks on the map and outside any track, the selected track loses focus and the bottom sheet is hidden.
+
+On this fragment, if the user clicks the "Follow" button, the selected track will remain displayed on the map during the tracking, allowing the user to follow it.
 
 #### On recording
 ![Map](img/fragment_map_detailed_3.png)
-TODO explain that there is a new bottom sheet, different from the previous one so another layout was necessary.
 
-TODO Explain how the service works and which service we are using. Explain how the map fragment must check the service on load to show the red button.
+While recording, the BottomSheet is different. In fact, this is another BottomSheet, cause different contents and different behavior (no collapsed state).
+
+Here, in background, a tracking service is recording user location changes. This is a class extending Service class. This service firstly initialize a new Track and then, each 3 seconds or 5 meters, add a new point to the track. It also compute in real time the total distance, speed average and elevation (positive and negative).
+Each updates, the service locally broadcast the track, so the fragment is able to subscribe and refresh BottomSheet live information.
+
+The service is not executed in a dedicated thread, because the only blocking operation is listening for new locations and this is already managed by the Android librairy.
+The tracking stopped as soon as the service is terminated (by the fragment itself or when the application quit). Now, only one activity is listening for the track, but with the broacast, it will be possible to listen from the notification, for example, or from another activity.
+
+While recording, users could switch of application or likely lock their screen. When the fragment is paused by the OS, the state is saved inside the bundle and the service listener is unregistered. This allows, when the fragment comes back to foreground, to automatically register the service listener and to restart displaying of the current track.
 
 #### C - Fragment "Settings"
 ![Map](img/fragment_settings_2.png)
 
+TODO - Adapter ?
+
 #### D - Fragment "My tracks"
+
 ![Map](img/fragment_mytracks_2.png)
 
+TODO - Adapter ?
+
 #### E - Activity "Detail of my track"
+
+TODO - Heum ? Pas d'image hahah
 
 #### Permissions
 
