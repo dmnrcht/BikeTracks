@@ -384,6 +384,18 @@ We have used a Drawer to access to the different fragments. It is not possible n
 
 The library GraphView that we used for the graphs doesn't support x and y axis labels so we had to make it ourself with a custom layout. The y axis label must be vertical and Android doesn't support that by default so we had to find a custom vertical TextView named VerticalTextView to display the label correctly.
 
+### Trailforks API
+
+We had first planned to use an already existant database of tracks named Trailforks. We quickly realised that the API required access rights so we contacted the developers but they never answered. So we created our own API and tracks database.
+
+### Altitude on mobile
+
+The altitude sensor on mobiles is not very precise. When a point is recorded every second, the altitude may vary a lot and calculating the total climb/descent only by summing the diffrences gives bad result. To solve this we only calculate the altitude difference each x seconds instead of on each point on the server.
+
+### Translations editor
+
+The translations editor in Android Studio has a few issues which may come from the use of a Github. We have had issues while building the application for production so we edited the files manually instead.
+
 ## Remaining bugs
 
 No remaining bug has been found in the application.
@@ -423,7 +435,9 @@ This project was very interesting, manipulating the Google Maps API to display o
 At the beginning of the project, we agreed about the fonctionnalities and did the mockups together. Then, we decided which features we were most interested in implementing. During the first half of the allowed time, we worked on the following parts of the application :
 
 Antoine : UI, SMS, History, Google Maps API search/locate and polylines
+
 Damien : Server, Tracking Service
+
 Sébastien : Exploration, Track details
 
 Large parts have been implemented quickly and we decided to create a Github Project with many issues describing bugs, new functionalities and enhancements. Since then, we took the issues one after the other and had the opportunity to work on all parts of the application.
