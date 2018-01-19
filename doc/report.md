@@ -250,6 +250,10 @@ Retrofit is an open source library making the HTTP requests very easy. It handle
 
 <!-- ![Retrofit](img/retrofit.png) -->
 
+### Languages
+
+The application is fully translated in english and in french.
+
 ### Components
 
 The application uses two activities : one main activity as the entry point and an activity "Detail of my track" displayed to show details of user's track.
@@ -288,6 +292,7 @@ If the user clicks on the map and outside any track, the selected track loses fo
 ![Map](img/fragment_map_detailed_3.png)
 TODO explain that there is a new bottom sheet, different from the previous one so another layout was necessary.
 
+TODO Explain how the service works and which service we are using. Explain how the map fragment must check the service on load to show the red button.
 
 #### C - Fragment "Settings"
 ![Map](img/fragment_settings_2.png)
@@ -297,15 +302,32 @@ TODO explain that there is a new bottom sheet, different from the previous one s
 
 #### E - Activity "Detail of my track"
 
+#### Permissions
 
+The applications requires 4 permissions on the phone which are all checked at runtime. The drawer in the main activity must be able to send alert SMS, it requires the SEND_SMS permission. In the map fragment we use the INTERNET and ACCESS_FINE_LOCATION to access the REST API and locate the user. Finally the settings fragment needs access to the contacts on the user's phone thus it requires the READ_CONTACTS permission. In the image below we can see a summary of the different activities and the permissions they use.
+
+![Permissions](img/permissions.png)
+
+#### Notifications
+
+We have set up a notification to notify the user when an activity is being recorded. The notification is also shown in the lock screen as we can see in the image below. We would like to add controls in the near future to allow the user to manage his activity (pause, stop...) without having to unlock his phone.
+
+![Notifications](img/notifications.png)
+
+#### SMS Alert
+
+The user can set up emergency contacts in the settings fragment. Once it's done, he can send an alert SMS in case of an accident (during the recording of an activity for example). To send the SMS alert, he must click on the Urgency button in the drawer. A confirmation will be requested to avoid unvolentary clicks. A future improvement would be to allow detection of accidents using a smartwatch and machine learning for example. The process is shown in the image below, he sends the alert, his emergency contacts receive a SMS containing the message and the location of the accident. The user can then open the link in Google Maps to show the itinary to the location.
+
+![SMS Alert](img/sms_alert.png)
 
 #### Structure of the code
 
-Resources and classes
-
-#### Navigation
+TODO est-ce qu'on parle un peut du code, des layouts qu'on a utilisé, des adapters ou de la base de données?
 
 #### Models and database
+
+![SQLite UML](img/sqlite_uml.png)
+
 
 ### Testing
 

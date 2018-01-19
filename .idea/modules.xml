@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BikeTracks.iml" filepath="$PROJECT_DIR$/BikeTracks.iml" />
+      <module fileurl="file://C:\Users\antoi\Documents\BikeTracks\BikeTracks.iml" filepath="C:\Users\antoi\Documents\BikeTracks\BikeTracks.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\antoi\Documents\BikeTracks\app\app.iml" filepath="C:\Users\antoi\Documents\BikeTracks\app\app.iml" />
     </modules>
   </component>
 </project>
